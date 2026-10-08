@@ -121,19 +121,21 @@ _NEXT_HEADING = re.compile(r"^##[ \t]+\S", re.M)
 
 
 def finalize_readme(existing: str, narrative: Narrative, critic: CriticReport,
-                    commentary: str = "") -> str:
+                    commentary: str = "", measured: dict[str, str] | None = None) -> str:
     """The final README: the author's prose kept, the critic's commentary current.
 
     With no README, one is compiled. With one, every section it already has is
     left exactly as written, headings the standard requires and it lacks are
     added from the tree, and CLAIMS VS REALITY is replaced with the critic's
-    commentary (or appended if absent). Running it twice changes nothing.
+    commentary (or appended if absent). `measured` replaces the default text of
+    sections it adds, so they can quote what Elegant measured. Running it twice
+    changes nothing.
     """
     if not existing.strip():
         return compile_readme(narrative, critic, extra_sections={
-            "CLAIMS VS REALITY": _claims_versus_reality(critic) + _tail(commentary)})
+            **(measured or {}), "CLAIMS VS REALITY": _claims_versus_reality(critic) + _tail(commentary)})
     text = existing.rstrip("\n") + "\n"
-    defaults = _default_sections(narrative, critic)
+    defaults = {**_default_sections(narrative, critic), **(measured or {})}
     for heading in REQUIRED_HEADINGS:
         if heading != "CLAIMS VS REALITY" and not re.search(
                 rf"^##[ \t]+{re.escape(heading)}[ \t]*$", text, re.I | re.M):

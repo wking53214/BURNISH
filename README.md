@@ -195,7 +195,7 @@ CI runs the Python tests on 3.11 and 3.12, runs Streamline on itself, builds the
 Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
 warnings as errors.
 
-91 tests exist in this tree. They are Python `test_*` functions; the
+92 tests exist in this tree. They are Python `test_*` functions; the
 Rust and C++ exemplars have their own checks under `ctest` and `cargo test`.
 
 ## Claims versus reality

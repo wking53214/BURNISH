@@ -87,3 +87,11 @@ def test_a_suite_that_the_finishing_change_would_break_is_put_back(tmp_path: Pat
     result = TagTeam(proposer=Idle(), finisher=Streamline()).run(
         tmp_path, findings=[], authorization=_auth(tmp_path))
     assert result.decision == "ACCEPT"
+
+
+def test_added_sections_quote_the_measured_suite(tmp_path: Path):
+    _tree(tmp_path)
+    proposal = Streamline().finish(tmp_path, "base", FACTS)
+    readme = next(e for e in proposal.edits if e.path == "README.md").new
+    works = readme.split("## WHAT WORKS", 1)[1].split("##", 1)[0]
+    assert "2 passed" in works and "UNKNOWN" not in works

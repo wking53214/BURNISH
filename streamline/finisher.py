@@ -66,7 +66,7 @@ class Streamline:
         commentary = _commentary(report, ReadmeCritic().critique(target))
         path = target / "README.md"
         old = path.read_text(encoding="utf-8") if path.is_file() else ""
-        new = finalize_readme(old, narrative, report, commentary)
+        new = finalize_readme(old, narrative, report, commentary, _measured(facts))
         if new == old:
             return None
         return FileEdit(path="README.md", kind="write", new=new, old=old)
@@ -79,3 +79,12 @@ def _commentary(report: CriticReport, readme: ReadmeReport) -> str:
     lines += ["" if lines else "", "README critic, on the README as it stood going into the finish:", ""]
     lines += [f"- {gap.render()}" for gap in (*readme.failures, *readme.gaps)] or ["- no failures or gaps"]
     return "\n".join(lines)
+
+
+def _measured(facts: Facts) -> dict[str, str]:
+    """Section text that quotes the suite result Elegant measured, when it ran and was green."""
+    suite = facts.suite
+    if suite is None or not suite.green:
+        return {}
+    line = f"- Elegant ran the target's suite at the end of the loop: {suite.describe()}."
+    return {"WHAT WORKS": line, "WHAT IS PROVEN": line}
