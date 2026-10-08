@@ -4,7 +4,7 @@ The README is a compilation of this narrative. Inventing a polished story
 from the outside is a defect. This module only reports what the files
 declare: module docstrings, pyproject scripts, CNS mentions and what a README
 claims. It counts no tests: counting is Ghost Tools' job and running them
-is Elegant's, and the Finisher is handed both results.
+is Warden's, and the Finisher is handed both results.
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # Research log
 
-What was read to write Streamline's guides, when, and what was not read. A
+What was read to write Burnish's guides, when, and what was not read. A
 guide is only as good as its reading, so the gaps are listed with the sources.
 
 All reading was done on 2026-10-08 with WebFetch and WebSearch.

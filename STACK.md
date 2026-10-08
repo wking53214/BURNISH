@@ -1,4 +1,4 @@
-# Stack role: Streamline
+# Stack role: Burnish
 
 **ASSURANCE (not the live decision path).**
 
@@ -7,14 +7,14 @@ them. Reads trees; proposes; never writes and never certifies itself.
 
 | Related | Role |
 |---------|------|
-| [Elegant](https://github.com/wking53214/Elegant) | The governor of change. Streamline plugs into it as a craft. Streamline imports Elegant; Elegant never imports Streamline. |
-| [ghost_tools](https://github.com/wking53214/ghost_tools) | Forensic observation: long functions, dead code, duplicates. Streamline does not duplicate it. |
-| [SWIZZLE](https://github.com/wking53214/SWIZZLE) | Adversarial challenge. Its proofs must hold before Elegant accepts a change. |
-| [TOUCHSTONE](https://github.com/wking53214/TOUCHSTONE) | Specimen answer key. |
+| [Warden](https://github.com/wking53214/Warden) | The governor of change. Burnish plugs into it as a craft. Burnish imports Warden; Warden never imports Burnish. |
+| [ghost_tools](https://github.com/wking53214/ghost_tools) | Forensic observation: long functions, dead code, duplicates. Burnish does not duplicate it. |
+| [SWIZZLE](https://github.com/wking53214/SWIZZLE) | Adversarial challenge. Its proofs must hold before Warden accepts a change. |
+| [ASSAY](https://github.com/wking53214/ASSAY) | Specimen answer key. |
 
 ```text
 Live path: Admission → OBSERVE/Keys → Locks → PERCEIVE → Decision → Conservation → Execution → Custody
-Assurance: ghost_tools · Streamline · Elegant · SWIZZLE · TOUCHSTONE
+Assurance: ghost_tools · Burnish · Warden · SWIZZLE · ASSAY
 ```
 
 ```text
@@ -24,10 +24,10 @@ CODEBASE
 GHOST TOOLS   observe / find
    │
    ▼
-STREAMLINE    review / propose   (what better means)
+BURNISH    review / propose   (what better means)
    │
    ▼
-ELEGANT       authorize / gate on the suite / transform
+WARDEN       authorize / gate on the suite / transform
    │
    ▼
 GHOST TOOLS   re-inspect

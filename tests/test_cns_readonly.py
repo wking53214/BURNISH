@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from streamline.cns_boundary import CnsRecommendation, analyse
+from burnish.cns_boundary import CnsRecommendation, analyse
 
 
 def test_unrelated_repo_is_no_action(tmp_path: Path):

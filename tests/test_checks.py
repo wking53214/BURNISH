@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from streamline.checks import check_source, check_tree
+from burnish.checks import check_source, check_tree
 
 
 def _ids(source: str, *, is_test: bool = False) -> set[str]:

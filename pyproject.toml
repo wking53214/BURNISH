@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "streamline"
+name = "burnish"
 version = "0.2.0"
 description = "What makes code beautiful, written down, checked, and applied to itself"
 readme = "README.md"
@@ -22,19 +22,19 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Documentation",
 ]
-dependencies = ["elegant @ git+https://github.com/wking53214/Elegant.git@main"]
+dependencies = ["warden @ git+https://github.com/wking53214/Warden.git@main"]
 
 [project.urls]
-Homepage = "https://github.com/wking53214/Streamline"
+Homepage = "https://github.com/wking53214/Burnish"
 
 [project.scripts]
-streamline = "streamline.cli:main"
+burnish = "burnish.cli:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 
 [tool.setuptools]
-packages = ["streamline"]
+packages = ["burnish"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "exemplars/python"]

@@ -3,12 +3,12 @@
 import re
 from pathlib import Path
 
-from elegant.epistemic import EpistemicState
+from warden.epistemic import EpistemicState
 
-from streamline.checks import CHECK_IDS, check_tree
-from streamline.criteria import CRITERIA, Level, by_id, for_scope
-from streamline.languages import LANGUAGES
-from streamline.readme_critic import RULES
+from burnish.checks import CHECK_IDS, check_tree
+from burnish.criteria import CRITERIA, Level, by_id, for_scope
+from burnish.languages import LANGUAGES
+from burnish.readme_critic import RULES
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
@@ -53,7 +53,7 @@ def test_a_python_criterion_marked_implemented_has_a_check():
     assert implemented and all(c.check in CHECK_IDS for c in implemented)
 
 
-def test_nothing_is_marked_implemented_for_a_language_streamline_does_not_check():
+def test_nothing_is_marked_implemented_for_a_language_burnish_does_not_check():
     for language in ("rust", "cpp23"):
         assert not [c for c in CRITERIA if c.scope == language and c.state is EpistemicState.IMPLEMENTED]
 

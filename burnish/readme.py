@@ -5,9 +5,9 @@ the code already contains, plus the critic's negative findings. It must
 never claim more than the source and executed evidence establish.
 
 This module only builds text. Writing it into a repository is a
-Transformation, and a Transformation needs a human grant (see Elegant).
+Transformation, and a Transformation needs a human grant (see Warden).
 It counts no tests and invents no passing ones: test results arrive from
-Elegant as `Facts`, and where nothing is known the section says UNKNOWN.
+Warden as `Facts`, and where nothing is known the section says UNKNOWN.
 """
 
 from __future__ import annotations
@@ -74,14 +74,14 @@ def _default_sections(narrative: Narrative, critic: CriticReport) -> dict[str, s
         "WHAT IT DOES NOT OWN": "- Whatever this README does not have evidence for. Absence of a denial is not a grant.",
         "ARCHITECTURAL STORY": f"{_module_list(narrative)}\n\nConsole scripts: {_scripts(narrative)}",
         "KEY INTERNAL CONCEPTS": "- See class names in the modules above.",
-        "IMPORTANT BOUNDARIES": "- Streamline does not infer a runtime path from a directory name.",
+        "IMPORTANT BOUNDARIES": "- Burnish does not infer a runtime path from a directory name.",
         "LIFECYCLE / EXECUTION MODEL": "- UNKNOWN unless a module docstring states it.",
         "WHAT WORKS": "- UNKNOWN until a test is executed and cited.",
         "WHAT IS BEAUTIFUL": _bullets(critic.what_is_beautiful, _NOTHING_RECORDED),
         "WHAT IS IMPLEMENTED": f"- Python modules in this tree: {len(narrative.modules)}",
         "WHAT IS PROVEN": "- Only what an executed test shows. See CLAIMS VS REALITY for what was measured.",
         "WHAT IS NOT PROVEN": ("- Anything no executed test covers.\n"
-                               "- Streamline does not claim this README is complete.\n"
+                               "- Burnish does not claim this README is complete.\n"
                                f"- Critic verdict: {critic.verdict}"),
         "WHAT DOES NOT WORK": "- UNKNOWN. Failures not executed here are not listed as passing.",
         "WHAT IS STILL UGLY": ugly,
@@ -128,7 +128,7 @@ def finalize_readme(existing: str, narrative: Narrative, critic: CriticReport,
     left exactly as written, headings the standard requires and it lacks are
     added from the tree, and CLAIMS VS REALITY is replaced with the critic's
     commentary (or appended if absent). `measured` replaces the default text of
-    sections it adds, so they can quote what Elegant measured. Running it twice
+    sections it adds, so they can quote what Warden measured. Running it twice
     changes nothing.
     """
     if not existing.strip():

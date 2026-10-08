@@ -1,8 +1,8 @@
 # README standard
 
 What a README must do, what makes it strong, and what makes it over the top.
-`streamline readme-critic` applies every rule below and is blunt about the
-result. The rules are code (`streamline/readme_critic.py`); a test fails if
+`burnish readme-critic` applies every rule below and is blunt about the
+result. The rules are code (`burnish/readme_critic.py`); a test fails if
 this page and that table disagree.
 
 ## Where the rules come from
@@ -56,7 +56,7 @@ what it will not do.
 | `OT-DEMO` | A demo with its output | It never shows the result. | awesome-readme examples; Make a README |
 | `OT-BADGES` | Badges that carry information | No badge tells the reader anything. | Make a README; Art of README |
 | `OT-ARCH` | Architecture with invariants | A contributor cannot see how it fits together. | awesome-readme examples |
-| `OT-EVIDENCE` | Claims come with their evidence | It asks to be believed. | Streamline synthesis of awesome-readme examples |
+| `OT-EVIDENCE` | Claims come with their evidence | It asks to be believed. | Burnish synthesis of awesome-readme examples |
 | `OT-FAQ` | A FAQ | The obvious questions go unanswered. | awesome-readme examples |
 | `OT-ALTERNATIVES` | Compared with the alternatives | It does not say why this and not something else. | Make a README; Art of README |
 | `OT-ROADMAP` | A roadmap | It does not say where it is going. | Make a README |
@@ -79,7 +79,7 @@ what it will not do.
 
 The minimum and strong tiers are drawn from the sources above. The
 over-the-top tier is a **synthesis**: awesome-readme shows what excellent
-READMEs share, but no source states it as a standard. Treat it as Streamline's
+READMEs share, but no source states it as a standard. Treat it as Burnish's
 own bar, set high on purpose.
 
 ## What the critic cannot judge
@@ -99,5 +99,5 @@ because a number would hide which rule failed.
 | Strong met, over-the-top gaps remain | "Solid." with the count |
 | Every rule holds | "Over the top." |
 
-`streamline readme-critic PATH --tier minimum|strong|over-the-top` exits 1 when
+`burnish readme-critic PATH --tier minimum|strong|over-the-top` exits 1 when
 the README is below the tier asked for.
