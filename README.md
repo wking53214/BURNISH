@@ -1,5 +1,7 @@
 # Burnish
 
+*Formerly Streamline. Renamed in October 2026; the role is unchanged.*
+
 What makes code beautiful, written down, checked, and applied to itself.
 
 [![CI](https://github.com/wking53214/Burnish/actions/workflows/ci.yml/badge.svg)](https://github.com/wking53214/Burnish/actions/workflows/ci.yml)
