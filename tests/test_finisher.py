@@ -89,9 +89,49 @@ def test_a_suite_that_the_finishing_change_would_break_is_put_back(tmp_path: Pat
     assert result.decision == "ACCEPT"
 
 
-def test_added_sections_quote_the_measured_suite(tmp_path: Path):
+def _final(tmp_path: Path, intro: str = "# demo\n\nMy hand-written intro.\n") -> str:
     _tree(tmp_path)
+    (tmp_path / "README.md").write_text(intro, encoding="utf-8")
     proposal = Burnish().finish(tmp_path, "base", FACTS)
-    readme = next(e for e in proposal.edits if e.path == "README.md").new
-    works = readme.split("## WHAT WORKS", 1)[1].split("##", 1)[0]
-    assert "2 passed" in works and "UNKNOWN" not in works
+    return next(e for e in proposal.edits if e.path == "README.md").new
+
+
+def test_an_existing_readme_is_kept_whole_and_only_one_section_is_added(tmp_path: Path):
+    intro = "# demo\n\n## Usage\n\nRun it.\n\n## License\n\nApache-2.0.\n"
+    final = _final(tmp_path, intro)
+    assert final.startswith(intro)
+    headings = [line for line in final.splitlines() if line.startswith("## ")]
+    assert headings == ["## Usage", "## License", "## CLAIMS VS REALITY"]
+
+
+def test_no_template_filler_is_written_into_an_existing_readme(tmp_path: Path):
+    final = _final(tmp_path)
+    for filler in ("WHAT THIS IS", "WHAT IT OWNS", "See the module docstrings",
+                   "Here is what the artifact says it is", "UNKNOWN until a test is executed"):
+        assert filler not in final
+
+
+def test_the_review_section_quotes_the_measured_suite(tmp_path: Path):
+    final = _final(tmp_path)
+    review = final.split("## CLAIMS VS REALITY", 1)[1]
+    assert "2 passed" in review
+
+
+def test_generated_text_has_no_em_or_en_dash_and_the_authors_text_is_left_alone(tmp_path: Path):
+    final = _final(tmp_path, "# demo\n\nThe author \u2014 not Burnish \u2014 wrote this.\n")
+    head, review = final.split("## CLAIMS VS REALITY", 1)
+    assert "\u2014" in head
+    assert "\u2014" not in review and "\u2013" not in review
+
+
+def test_ghost_findings_are_summarised_not_listed(tmp_path: Path):
+    from warden.models import Defect, DefectSeverity
+    _tree(tmp_path)
+    many = tuple(Defect(ghost_id=f"ghost-{n}", summary=f"repeat number {n}", severity=DefectSeverity.LOW,
+                        detector="intra_function_duplicate_block")
+                 for n in range(9))
+    facts = Facts(suite=FACTS.suite, remaining=many, cycles=1)
+    proposal = Burnish().finish(tmp_path, "base", facts)
+    final = next(e for e in proposal.edits if e.path == "README.md").new
+    assert "still reports 9 finding(s) (intra_function_duplicate_block 9)" in final
+    assert "repeat number 3" not in final

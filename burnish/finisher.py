@@ -5,9 +5,9 @@ Warden has measured the suite. Burnish takes the result and does two
 things, as one proposal:
 
   1. tidies the code (see `burnish.beautify`), behavior-preserving, and
-  2. writes the final README: the author's prose kept, the missing required
-     sections added from the tree, and CLAIMS VS REALITY replaced with the
-     critic's commentary on the measured facts.
+  2. writes the final README: the author's prose kept exactly as written, and
+     one CLAIMS VS REALITY section holding the critic's commentary on the
+     measured facts. A repository with no README gets one compiled from its tree.
 
 Burnish writes nothing. It returns a proposal; Warden applies it under the
 same gate as every other change and puts it back if the suite breaks or Ghost
@@ -63,7 +63,7 @@ class Burnish:
     def _readme_edit(self, target: Path, facts: Facts) -> Optional[FileEdit]:
         narrative = inspect_tree(target)
         report = PoetryCritic().critique(target, narrative, facts)
-        commentary = _commentary(report, ReadmeCritic().critique(target))
+        commentary = _commentary(report, ReadmeCritic().critique(target), facts)
         path = target / "README.md"
         old = path.read_text(encoding="utf-8") if path.is_file() else ""
         new = finalize_readme(old, narrative, report, commentary, _measured(facts))
@@ -72,13 +72,27 @@ class Burnish:
         return FileEdit(path="README.md", kind="write", new=new, old=old)
 
 
-def _commentary(report: CriticReport, readme: ReadmeReport) -> str:
-    """The critic's words for the README: what is unsupported or unknown, then the README critic's gaps."""
-    lines = [f"- Unsupported: {item}" for item in report.unsupported]
+def _commentary(report: CriticReport, readme: ReadmeReport, facts: Facts) -> str:
+    """The critic's words for the README: Ghost's open findings in brief, what is unsupported or unknown, then the README critic's gaps."""
+    lines = _ghost_summary(facts)
+    lines += [f"- Unsupported: {item}" for item in report.unsupported]
     lines += [f"- Unknown: {item}" for item in report.unknown]
     lines += ["" if lines else "", "README critic, on the README as it stood going into the finish:", ""]
     lines += [f"- {gap.render()}" for gap in (*readme.failures, *readme.gaps)] or ["- no failures or gaps"]
     return "\n".join(lines)
+
+
+def _ghost_summary(facts: Facts) -> list[str]:
+    """One line for what Ghost still reports, by kind. The findings themselves stay in Ghost's report."""
+    kinds: dict[str, int] = {}
+    for defect in facts.remaining:
+        kinds[defect.detector or "unclassified"] = kinds.get(defect.detector or "unclassified", 0) + 1
+    if not kinds:
+        return []
+    ordered = sorted(kinds.items(), key=lambda item: (-item[1], item[0]))
+    by_kind = ", ".join(f"{name} {count}" for name, count in ordered)
+    return [f"- Ghost Tools still reports {len(facts.remaining)} finding(s) ({by_kind}). "
+            "Converged means no fixes were left to propose, not that Ghost is silent."]
 
 
 def _measured(facts: Facts) -> dict[str, str]:
