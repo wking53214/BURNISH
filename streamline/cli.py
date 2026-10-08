@@ -1,8 +1,8 @@
 """streamline: read a tree, say what is wrong with it, plainly.
 
 Every command here only reads. Changing a repository is Elegant's job and
-needs a human grant; `elegant tagteam --craft streamline.craft:Streamline` is
-how Streamline's proposals reach a file.
+needs a human grant; `elegant tagteam --finisher streamline.finisher:Streamline`
+is how Streamline's one-time finishing proposal reaches a file.
 
 EXIT CODES
   0  nothing to report at the level asked for
@@ -22,8 +22,11 @@ from . import __version__
 from .checks import check_tree, summarize
 from .cns_boundary import analyse as cns_analyse
 from .cns_boundary import to_dict as cns_to_dict
+from elegant.roles import Facts
+
 from .criteria import CRITERIA
 from .critic import PoetryCritic
+from .finisher import Streamline
 from .languages import describe
 from .narrative import inspect_tree
 from .readme import compile_readme
@@ -38,7 +41,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
     handlers = {
         "check": _check, "critic": _critic, "readme-critic": _readme_critic, "inspect": _inspect,
-        "readme": _readme, "cns": _cns, "criteria": _criteria, "languages": _languages,
+        "readme": _readme, "finish": _finish, "cns": _cns, "criteria": _criteria, "languages": _languages,
     }
     return handlers[args.command](args)
 
@@ -52,6 +55,7 @@ def _parser() -> argparse.ArgumentParser:
         ("critic", "claims in the README and PROVENANCE against what the tree contains"),
         ("inspect", "what the tree declares about itself, as JSON"),
         ("readme", "print a README draft compiled from the tree (never writes)"),
+        ("finish", "preview which files the finishing proposal would change (never writes)"),
         ("cns", "CNS seam recommendation (never modifies CNS)"),
     ):
         sub.add_parser(name, help=help_text).add_argument("path", type=Path, nargs="?", default=Path("."))
@@ -96,7 +100,6 @@ def _inspect(args: argparse.Namespace) -> int:
     narrative = inspect_tree(args.path)
     print(json.dumps({
         "name": narrative.name, "version": narrative.version,
-        "test_functions": narrative.test_functions, "test_files": list(narrative.test_files),
         "cns_mentioned": narrative.cns_mentioned, "readme_exists": narrative.readme_exists,
         "modules": [{"path": m.path, "purpose": m.purpose, "classes": list(m.classes)} for m in narrative.modules],
     }, indent=2))
@@ -106,6 +109,15 @@ def _inspect(args: argparse.Namespace) -> int:
 def _readme(args: argparse.Namespace) -> int:
     narrative = inspect_tree(args.path)
     print(compile_readme(narrative, PoetryCritic().critique(args.path, narrative)))
+    return 0
+
+
+def _finish(args: argparse.Namespace) -> int:
+    """List the files the finisher would change, using no measurements (a preview, not the real hand-off)."""
+    proposal = Streamline().finish(args.path, "preview", Facts(suite=None, remaining=(), cycles=0))
+    for edit in () if proposal is None else proposal.edits:
+        print(edit.path)
+    print(f"streamline finish: {0 if proposal is None else len(proposal.edits)} file(s) would change", file=sys.stderr)
     return 0
 
 

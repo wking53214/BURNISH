@@ -4,10 +4,10 @@ Its job is not to praise the code. It is allowed — required — to say:
 
     This isn't good enough yet.
 
-It does not produce a beauty score. It compares claims in the README and
-module prose against what the tree actually contains, and against what
-has actually been counted in this process (test function names, files,
-declared scripts).
+It does not produce a beauty score. It reads the README and module prose
+against what the tree declares, and it speaks about what was measured by
+others: the suite result Elegant ran and the findings Ghost Tools still
+reports, both handed to it as `Facts`. It counts and detects nothing itself.
 
 A README is allowed to contain negative findings. That is a feature.
 """
@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from elegant.epistemic import EpistemicState
+from elegant.roles import Facts
 from .narrative import Narrative, inspect_tree
 
 
@@ -89,12 +90,13 @@ class _Notes:
 class PoetryCritic:
     """Brutally honest. No scores."""
 
-    def critique(self, root: Path, narrative: Narrative | None = None) -> CriticReport:
-        """Compare what the tree's documents claim with what the tree contains."""
+    def critique(self, root: Path, narrative: Narrative | None = None,
+                 facts: Facts | None = None) -> CriticReport:
+        """Read the tree's documents against what the tree declares and what was measured."""
         nar = narrative or inspect_tree(Path(root))
         notes = _Notes()
         _read_readme(nar, notes)
-        _check_test_counts(nar, notes)
+        _speak_about_measurements(facts, notes)
         _check_historical_as_current(nar, notes)
         _check_ownership(nar, notes)
         _check_cns(nar, notes)
@@ -136,22 +138,25 @@ def _read_readme(nar: Narrative, notes: _Notes) -> None:
         notes.unsupported.append("polished README without a claims-vs-reality section")
 
 
-def _check_test_counts(nar: Narrative, notes: _Notes) -> None:
-    """Every test count a document states must equal the number of test functions the tree has."""
-    for phrase, claimed in nar.test_count_claims():
-        supported = claimed == nar.test_functions
-        note = f"tree currently contains {nar.test_functions} test_* functions"
-        notes.claims.append(Claim(
-            text=phrase,
-            location="README/PROVENANCE",
-            epistemic=EpistemicState.VERIFIED if supported else EpistemicState.IMPLEMENTED,
-            supported=supported,
-            note=note if supported else f"UNSUPPORTED: {note}",
-        ))
-        if not supported:
-            notes.ugly.append(
-                f"A document claims {claimed} tests; this inspection counted {nar.test_functions} test_* functions.")
-            notes.unsupported.append(phrase)
+def _speak_about_measurements(facts: Facts | None, notes: _Notes) -> None:
+    """Quote the suite result and Ghost's remaining findings; say plainly when none were given."""
+    if facts is None:
+        notes.unknown.append("No measurements were handed to the critic: the suite result and "
+                             "Ghost's findings are UNKNOWN here.")
+        return
+    suite = facts.suite
+    if suite is None or not suite.ran:
+        notes.unfinished.append("The target's suite was not run by Elegant, so nothing here is "
+                                "backed by an executed test.")
+    elif suite.green:
+        notes.beautiful.append(f"Elegant ran the target's suite at the end of the loop: {suite.describe()}.")
+    else:
+        notes.ugly.append(f"The target's suite is not green: {suite.describe()}.")
+        notes.unsupported.append("a suite that is not green")
+    for defect in facts.remaining:
+        notes.ugly.append(f"Ghost still reports {defect.identity}: {defect.summary}")
+    notes.unknown.append(f"The loop ran {facts.cycles} change cycle(s); "
+                         "finished means no proposals were left, not that Ghost is silent.")
 
 
 def _check_historical_as_current(nar: Narrative, notes: _Notes) -> None:

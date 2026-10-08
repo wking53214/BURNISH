@@ -8,7 +8,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.1.0, alpha, maintained by one person. The Python checker and the README critic work. The rewriting proposers for names, comments and guards are designed and **not built**; see [What it does not do](#what-it-does-not-do).
+**Status:** version 0.2.0, alpha, maintained by one person. The Python checker, the README critic and the finisher work. The finisher tidies whitespace and writes the final README; the rewrites for names, comments and guards are designed and **not built**; see [What it does not do](#what-it-does-not-do).
 
 ## What this is
 
@@ -18,9 +18,7 @@ rules, best practices for Python, Rust and C++23, and the standard for a README
 that is over the top. It also holds the tools that measure a tree against those
 criteria and say, bluntly, where it falls short.
 
-It reads. It never writes. Changing a repository is the job of
-[Elegant](https://github.com/wking53214/Elegant), which needs a named human and a
-green test suite first.
+It is the finisher: it runs once, after the loop of Ghost Tools, Proposer, Elegant and SWIZZLE has converged. It tidies the code and writes the final README, including the critic's commentary. It still never writes a file itself. It returns a proposal, and [Elegant](https://github.com/wking53214/Elegant) applies it, which needs a named human and a green test suite first, and puts it back if the suite breaks or Ghost finds anything new.
 
 ## Why it exists
 
@@ -92,18 +90,19 @@ The other commands:
 
 | Command | What it does |
 |---------|--------------|
-| `streamline critic PATH` | Compares claims in the README and PROVENANCE with what the tree contains. Exit 1 on "This isn't good enough yet." |
+| `streamline critic PATH` | Reads the README and modules against what the tree declares. Exit 1 on "This isn't good enough yet." |
 | `streamline inspect PATH` | What the tree declares about itself, as JSON |
 | `streamline readme PATH` | Prints a README draft compiled from the tree. Never writes |
+| `streamline finish PATH` | Lists the files the finishing proposal would change. Never writes |
 | `streamline cns PATH` | A recommendation about a repository's CNS seam. Never modifies CNS |
 | `streamline criteria` | Every criterion, its level, and how implemented it is |
 | `streamline languages` | What is written down and what is enforced, per language |
 
-To let Streamline propose a change to a repository, hand it to Elegant. Nothing
+To finish a repository, hand Streamline to Elegant as the finisher. Nothing
 is written without `--authorize`:
 
 ```bash
-elegant tagteam path/to/repo --craft streamline.craft:Streamline --ghost-root ../ghost_tools --swizzle-root ../SWIZZLE
+elegant tagteam path/to/repo --proposer proposer.seat:Proposer --finisher streamline.finisher:Streamline --ghost-root ../ghost_tools --swizzle-root ../SWIZZLE
 ```
 
 ## Architecture
@@ -113,19 +112,18 @@ criteria.py          the rules, as data
    │
    ├── checks.py          Python rules a program can judge
    ├── readme_critic.py   README rules, in three tiers
-   └── critic.py          claims in documents against the tree
+   └── critic.py          the critic's commentary on measured facts
                               │
 narrative.py  reads the tree  │
-oracle.py     freezes, then re-measures (does not import critic)
-proposers.py  proposes one change
-readme.py     compiles a README draft
-craft.py      the four answers Elegant asks for
+beautify.py   tidies Python source, behavior-preserving
+readme.py     compiles and finalizes the README
+finisher.py   the one proposal Elegant asks for, once, after the loop
 ```
 
 Invariants, each enforced by a test:
 
 - No Streamline module writes or deletes a file.
-- The critic and the oracle never import each other, so a flattering review cannot launder a bad change.
+- No Streamline module counts tests or imports another role (Proposer, Ghost Tools, SWIZZLE, TOUCHSTONE). What it says about the suite or about defects, it quotes from the facts Elegant hands it.
 - Nothing is called `IMPLEMENTED` unless Streamline enforces it, and nothing is called enforced for Rust or C++23.
 - Streamline passes its own Python checks and its own README critic at the over-the-top tier.
 - The criteria table and the documents cannot disagree.
@@ -160,8 +158,7 @@ a synthesis, and the standard says so. This README is held to it.
 **Does it give a beauty score?** No. A number hides which rule failed. Every
 report is a list of named rules.
 
-**Can it fix my code?** Not by itself. It proposes; Elegant, with a human grant
-and a green suite, decides. Today the only proposer rewrites a false test count.
+**Can it fix my code?** Not by itself. Fixing is the Proposer's job, inside the loop. Streamline runs once, after the loop, and proposes a tidy and the final README. Elegant, with a human grant and a green suite, decides. Today the tidy removes trailing whitespace and nothing else.
 
 **Why does it check Python but not Rust or C++?** Because only Python has a
 checker. Rust and C++23 have written criteria and a working exemplar, and the
@@ -176,8 +173,9 @@ WHAT IT DOES NOT OWN:
 
 - Writing to a repository. That is Elegant's, behind a human grant.
 - The test gate, the SWIZZLE proof gate and the audit file. Also Elegant's.
-- Forensic detection of long functions, dead code and duplicates. That is ghost_tools.
-- Renaming, narrative comments, inline architectural comments, guards and function splits. They are designed (`PA`, `PB`, `PC`, `R1` to `R4`) and have no proposer.
+- Forensic detection of long functions, dead code and duplicates, and counting tests. That is ghost_tools.
+- Proposing fixes inside the loop. That is Proposer.
+- Renaming, narrative comments, inline architectural comments, guards and function splits. They are designed (`PA`, `PB`, `PC`, `R1` to `R4`) and have no rewriter.
 - Checking Rust or C++23 code.
 - Judging whether prose is clear or an image is good, fetching URLs, or telling a dead external link.
 - Scoring anything.
@@ -197,7 +195,7 @@ CI runs the Python tests on 3.11 and 3.12, runs Streamline on itself, builds the
 Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
 warnings as errors.
 
-56 tests exist in this tree. They are Python `test_*` functions; the
+92 tests exist in this tree. They are Python `test_*` functions; the
 Rust and C++ exemplars have their own checks under `ctest` and `cargo test`.
 
 ## Claims versus reality
@@ -221,10 +219,10 @@ only GCC was verified. The research behind the guides has gaps, listed in
 
 Outstanding, in the order a person would likely want them:
 
-1. A first proposer for names or comments, behind Elegant's gate.
+1. A first rewrite for names or comments in the finisher, behind Elegant's gate.
 2. Read the parts of the C++ Core Guidelines the first pass missed, and add their criteria.
 3. A Rust checker, if Clippy's lints are not enough.
-4. Run Elegant's tag team with Streamline as the craft on a real repository and record it in Elegant's registry.
+4. Run Elegant's loop with Proposer and Streamline in their seats on a real repository and record it in Elegant's registry.
 
 ## Support
 
