@@ -1,0 +1,42 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+      # Streamline is held to what it holds others to.
+      - run: streamline check .
+      - run: streamline critic .
+      - run: streamline readme-critic . --tier over-the-top
+
+  rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: exemplars/rust
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+
+  cpp23:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y g++-13 cmake
+      - run: cmake -S exemplars/cpp23 -B build -DCMAKE_CXX_COMPILER=g++-13
+      - run: cmake --build build
+      - run: ctest --test-dir build --output-on-failure

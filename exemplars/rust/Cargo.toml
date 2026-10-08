@@ -1,0 +1,19 @@
+[package]
+name = "defect_ids"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+description = "Durable defect IDs (Elegant.md Rule 9): a Rust exemplar that follows the Rust API Guidelines"
+license = "Apache-2.0"
+authors = ["William N. King"]
+publish = false
+
+[dependencies]
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
