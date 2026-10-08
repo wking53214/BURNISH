@@ -1,0 +1,38 @@
+# Shared test vectors for the three defect-ID exemplars (Python, Rust, C++23).
+# Every exemplar reads this file, so they cannot quietly disagree.
+#
+# parse <input> ok <canonical form>
+# parse <input> err <kind>            kinds: empty, bad_priority, bad_number, leading_zero
+# alloc <existing,comma,list|-> <priority> ok <id>
+# alloc <existing,comma,list|-> <priority> err <kind>
+# seq   <existing|-> <priorities,comma> ok <ids,comma>
+# The token <empty> stands for the empty string.
+
+parse C1 ok C1
+parse H12 ok H12
+parse M7 ok M7
+parse L100 ok L100
+parse <empty> err empty
+parse c1 err bad_priority
+parse X3 err bad_priority
+parse 12 err bad_priority
+parse H err bad_number
+parse H0 err bad_number
+parse H-1 err bad_number
+parse H1x err bad_number
+parse H01 err leading_zero
+parse C99999999999999999999 err bad_number
+
+alloc - C ok C1
+alloc - L ok L1
+alloc C1,H2,H7 H ok H8
+alloc C1,H2,H7 C ok C2
+alloc C1,H2,H7 M ok M1
+alloc H3 H ok H4
+alloc H1,H9 H ok H10
+alloc H1,bogus H err bad_priority
+alloc H1,H0 C err bad_number
+
+seq - C,C,H ok C1,C2,H1
+seq H2 H,H,C ok H3,H4,C1
+seq C5,C2 C,C ok C6,C7
