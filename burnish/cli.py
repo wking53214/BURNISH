@@ -1,8 +1,8 @@
-"""streamline: read a tree, say what is wrong with it, plainly.
+"""burnish: read a tree, say what is wrong with it, plainly.
 
-Every command here only reads. Changing a repository is Elegant's job and
-needs a human grant; `elegant tagteam --finisher streamline.finisher:Streamline`
-is how Streamline's one-time finishing proposal reaches a file.
+Every command here only reads. Changing a repository is Warden's job and
+needs a human grant; `warden tagteam --finisher burnish.finisher:Burnish`
+is how Burnish's one-time finishing proposal reaches a file.
 
 EXIT CODES
   0  nothing to report at the level asked for
@@ -22,11 +22,11 @@ from . import __version__
 from .checks import check_tree, summarize
 from .cns_boundary import analyse as cns_analyse
 from .cns_boundary import to_dict as cns_to_dict
-from elegant.roles import Facts
+from warden.roles import Facts
 
 from .criteria import CRITERIA
 from .critic import PoetryCritic
-from .finisher import Streamline
+from .finisher import Burnish
 from .languages import describe
 from .narrative import inspect_tree
 from .readme import compile_readme
@@ -47,8 +47,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="streamline", description=__doc__.splitlines()[0])
-    parser.add_argument("--version", action="version", version=f"streamline {__version__}")
+    parser = argparse.ArgumentParser(prog="burnish", description=__doc__.splitlines()[0])
+    parser.add_argument("--version", action="version", version=f"burnish {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
     for name, help_text in (
         ("check", "Python criteria a program can judge (PEP 8 items); exit 1 on any finding"),
@@ -73,7 +73,7 @@ def _check(args: argparse.Namespace) -> int:
     for finding in findings:
         print(finding.render())
     counts = ", ".join(f"{k} {v}" for k, v in sorted(summarize(findings).items())) or "none"
-    print(f"streamline check: {len(findings)} finding(s) ({counts})", file=sys.stderr)
+    print(f"burnish check: {len(findings)} finding(s) ({counts})", file=sys.stderr)
     return 1 if findings else 0
 
 
@@ -114,10 +114,10 @@ def _readme(args: argparse.Namespace) -> int:
 
 def _finish(args: argparse.Namespace) -> int:
     """List the files the finisher would change, using no measurements (a preview, not the real hand-off)."""
-    proposal = Streamline().finish(args.path, "preview", Facts(suite=None, remaining=(), cycles=0))
+    proposal = Burnish().finish(args.path, "preview", Facts(suite=None, remaining=(), cycles=0))
     for edit in () if proposal is None else proposal.edits:
         print(edit.path)
-    print(f"streamline finish: {0 if proposal is None else len(proposal.edits)} file(s) would change", file=sys.stderr)
+    print(f"burnish finish: {0 if proposal is None else len(proposal.edits)} file(s) would change", file=sys.stderr)
     return 0
 
 

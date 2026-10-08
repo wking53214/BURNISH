@@ -2,7 +2,7 @@
 
 Today this does one thing: it removes trailing whitespace and makes sure a
 file ends in exactly one newline. That is the only beautification built so far;
-`streamline languages` says what else is written down and not yet built.
+`burnish languages` says what else is written down and not yet built.
 
 THE GUARD
 
@@ -11,7 +11,7 @@ trailing spaces there are part of the string. As a second, independent guard,
 every tidied file is parsed before and after; if the two syntax trees differ at
 all, the file is left alone. Nothing is ever guessed to be safe.
 
-This module returns text. Writing it is Elegant's job, behind a grant, a green
+This module returns text. Writing it is Warden's job, behind a grant, a green
 suite before and after, and a re-inspection by Ghost Tools.
 """
 
@@ -23,7 +23,7 @@ import tokenize
 from pathlib import Path
 from typing import Iterator, Optional
 
-from elegant.models import FileEdit
+from warden.models import FileEdit
 
 _SKIPPED_DIRS = {".git", "__pycache__", ".venv", "venv", "build", "dist", ".pytest_cache",
                  "target", "node_modules", ".ruff_cache", ".mypy_cache", "site-packages"}

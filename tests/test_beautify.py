@@ -1,6 +1,6 @@
 """Tidying changes whitespace and nothing else, and says nothing when unsure."""
 
-from streamline.beautify import tidy_edits, tidy_source
+from burnish.beautify import tidy_edits, tidy_source
 
 
 def test_trailing_whitespace_and_extra_final_newlines_go():

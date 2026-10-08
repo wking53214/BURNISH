@@ -13,9 +13,9 @@ LEVELS (who can judge a criterion)
 
 HOW IMPLEMENTED IT IS
 
-  `state` uses the epistemic vocabulary shared with Elegant. IMPLEMENTED means
-  Streamline's own checker enforces it today. DESIGNED means it is written
-  down and an exemplar follows it, but nothing in Streamline checks it yet.
+  `state` uses the epistemic vocabulary shared with Warden. IMPLEMENTED means
+  Burnish's own checker enforces it today. DESIGNED means it is written
+  down and an exemplar follows it, but nothing in Burnish checks it yet.
   NOT_IMPLEMENTED is said out loud rather than left out.
 """
 
@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-from elegant.epistemic import EpistemicState
+from warden.epistemic import EpistemicState
 
 from .readme_critic import RULES as README_RULES
 
@@ -51,11 +51,11 @@ class Criterion:
     state: EpistemicState
     source: str
     scope: str = "any"  # "any" | "python" | "rust" | "cpp23" | "readme"
-    owner: str = "Streamline"  # "Elegant" for the rules that govern change itself
+    owner: str = "Burnish"  # "Warden" for the rules that govern change itself
     check: Optional[str] = None  # the checks.py check ID that enforces it, if any
 
 
-_ELEGANT_MD = "Elegant.md (Reporting repository)"
+_WARDEN_MD = "Elegant.md (Reporting repository)"
 _PEP8 = "PEP 8, https://peps.python.org/pep-0008/"
 _RUST = "Rust API Guidelines, https://rust-lang.github.io/api-guidelines/checklist.html"
 _CORE = "C++ Core Guidelines, https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines"
@@ -67,43 +67,43 @@ _M, _P, _H = Level.MECHANICAL, Level.PROPOSED, Level.HUMAN
 
 CRITERIA: tuple[Criterion, ...] = (
     # -- Principles (Elegant.md section I) --------------------------------------------------
-    Criterion("PA", "Naming as truth", "A name must match the contract it represents.", _P, _D, _ELEGANT_MD),
+    Criterion("PA", "Naming as truth", "A name must match the contract it represents.", _P, _D, _WARDEN_MD),
     Criterion("PB", "Narrative documentation",
               "Code tells what it does, why it exists, and what it cannot do, before the code itself.",
-              _P, _D, _ELEGANT_MD),
+              _P, _D, _WARDEN_MD),
     Criterion("PC", "Architectural properties as comments",
               "Every non-obvious property (atomicity, fallback, lifecycle, threading) is written inline.",
-              _H, _D, _ELEGANT_MD),
+              _H, _D, _WARDEN_MD),
     # -- Rewriting rules (Elegant.md section II) --------------------------------------------
     Criterion("R1", "Rename without changing behavior",
               "Change the name to match the implementation; fix a wrong implementation in a separate pass.",
-              _P, _D, _ELEGANT_MD),
+              _P, _D, _WARDEN_MD),
     Criterion("R2", "Preserve existing call sites",
               "Callers keep working unmodified. If they cannot, it is a redesign, not a beautification.",
-              _H, _D, _ELEGANT_MD),
+              _H, _D, _WARDEN_MD),
     Criterion("R3", "Add guards without changing logic",
-              "A guard wraps existing logic; it never replaces it.", _P, _D, _ELEGANT_MD),
+              "A guard wraps existing logic; it never replaces it.", _P, _D, _WARDEN_MD),
     Criterion("R4", "Fix naming references systematically",
-              "Rename in one pass: files, includes, namespaces, then verify by building.", _P, _D, _ELEGANT_MD),
+              "Rename in one pass: files, includes, namespaces, then verify by building.", _P, _D, _WARDEN_MD),
     Criterion("R5", "Document defects before fixing them",
               "On the first pass, write defects down and make them falsifiable; do not fix yet.",
-              _H, _I, _ELEGANT_MD, owner="Elegant"),
+              _H, _I, _WARDEN_MD, owner="Warden"),
     Criterion("R6", "Validate architectural boundaries",
-              "Each layer's contract is enforced by a test, not by a comment.", _H, _D, _ELEGANT_MD),
+              "Each layer's contract is enforced by a test, not by a comment.", _H, _D, _WARDEN_MD),
     Criterion("R7", "Behavior-preservation gate",
-              "No change merges without a green suite before and after.", _M, _I, _ELEGANT_MD, owner="Elegant"),
+              "No change merges without a green suite before and after.", _M, _I, _WARDEN_MD, owner="Warden"),
     Criterion("R8", "Scope control",
               "Default scope is the critical path; widen only after a durable audit exists for it.",
-              _H, _D, _ELEGANT_MD),
+              _H, _D, _WARDEN_MD),
     Criterion("R9", "Durable defect IDs",
               "Every defect has a stable ID in one audit file; IDs never change meaning.",
-              _M, _I, _ELEGANT_MD, owner="Elegant"),
+              _M, _I, _WARDEN_MD, owner="Warden"),
     Criterion("R10", "Re-anchor mutation sites, never weaken them",
               "When code moves, move its mutation sites with it; never delete a mutant to let a move pass.",
-              _H, _D, _ELEGANT_MD),
+              _H, _D, _WARDEN_MD),
     Criterion("R11", "Documentation moves with behavior",
               "A commit that changes behavior changes the README in the same pull request.",
-              _M, _D, _ELEGANT_MD),
+              _M, _D, _WARDEN_MD),
     # -- Python (PEP 8) ---------------------------------------------------------------------
     Criterion("PY-EXC", "No bare except", "Name the exceptions you handle; a bare except hides bugs.",
               _M, _I, _PEP8, "python", check="PY-EXC"),
@@ -157,7 +157,7 @@ CRITERIA: tuple[Criterion, ...] = (
               "Use std::expected for failures a caller should handle; reserve exceptions for the rest.",
               _P, _D, _CPPREF, "cpp23"),
     Criterion("CX-NODISCARD", "Results that must be used",
-              "Mark a result that a caller must not ignore [[nodiscard]].", _M, _D, _ELEGANT_MD, "cpp23"),
+              "Mark a result that a caller must not ignore [[nodiscard]].", _M, _D, _WARDEN_MD, "cpp23"),
     Criterion("CX-SUPPORT", "Know the compiler",
               "std::print, import std and std::mdspan are version-sensitive; the target compiler decides.",
               _H, _D, _CPPREF, "cpp23"),

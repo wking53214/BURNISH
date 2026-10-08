@@ -1,11 +1,11 @@
 # Python
 
 Authority: [PEP 8, Style Guide for Python Code](https://peps.python.org/pep-0008/).
-Read in full on 2026-10-08. Streamline checks eight of these items itself
-(`streamline check`). Everything else PEP 8 asks for is left to a formatter,
+Read in full on 2026-10-08. Burnish checks eight of these items itself
+(`burnish check`). Everything else PEP 8 asks for is left to a formatter,
 and this page says which.
 
-## What Streamline checks
+## What Burnish checks
 
 | ID | Rule | Why it matters |
 |----|------|----------------|
@@ -22,9 +22,9 @@ Test files are held to the checks about behavior (`PY-EXC`, `PY-SWALLOW`,
 `PY-STAR`, `PY-CMP`, `PY-RET`) and not asked for docstrings or annotations.
 A file that does not parse is reported as `PY-PARSE`, never skipped.
 
-## What PEP 8 asks for that Streamline does not check
+## What PEP 8 asks for that Burnish does not check
 
-These are mechanical, and a formatter does them better than Streamline would.
+These are mechanical, and a formatter does them better than Burnish would.
 Use one (ruff or black) and let it fail the build.
 
 - Four-space indentation, spaces not tabs, line length 79 (72 in docstrings and comments).
@@ -35,7 +35,7 @@ Use one (ruff or black) and let it fail the build.
 ## The exemplar
 
 [`exemplars/python/defect_ids.py`](../../exemplars/python/defect_ids.py) is a
-small program written to these rules. `streamline check exemplars` passes on it,
+small program written to these rules. `burnish check exemplars` passes on it,
 and its tests read the same vectors as the Rust and C++ versions.
 
 ## Limits

@@ -12,7 +12,7 @@ opinion; the practices are not new.
 
 **Who can judge.** Only one of these is partly mechanical. Most need a person
 who knows the intent. That is why the criteria table marks them `human` or
-`proposed`, and why Streamline does not pretend to enforce them.
+`proposed`, and why Burnish does not pretend to enforce them.
 
 ## Top tier: changes how the code reads
 
@@ -38,12 +38,12 @@ who knows the intent. That is why the criteria table marks them `human` or
 | `CR8` | One level of abstraction per function | A function reads like an outline; details are pushed down a level. |
 | `CR9` | Consistent shape | The same problem is solved the same way everywhere, so a reader predicts the next line. |
 | `CR10` | Delete code | Dead code, stale flags and unused options are noise. The most beautiful change is often a removal. |
-| `CR11` | Decision notes beside the code | A short "why we chose this" file next to what it explains. [DESIGN.md](DESIGN.md) is Streamline's. |
+| `CR11` | Decision notes beside the code | A short "why we chose this" file next to what it explains. [DESIGN.md](DESIGN.md) is Burnish's. |
 
 ## The risk
 
 Beauty can destroy working behavior. The usual failure is a cleanup that
-quietly changes what the code does. That is why Streamline proposes and Elegant
+quietly changes what the code does. That is why Burnish proposes and Warden
 decides: a person grants the change, and the target's own test suite must be
 green before it and still green after it (rule `R7`).
 

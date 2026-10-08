@@ -19,8 +19,8 @@
  *   It does not use <print> or `import std`: those arrived later and are the
  *   most version-sensitive C++23 features.
  */
-#ifndef STREAMLINE_DEFECT_IDS_HPP
-#define STREAMLINE_DEFECT_IDS_HPP
+#ifndef BURNISH_DEFECT_IDS_HPP
+#define BURNISH_DEFECT_IDS_HPP
 
 #include <algorithm>
 #include <array>
@@ -161,4 +161,4 @@ private:
 
 }  // namespace defect_ids
 
-#endif  // STREAMLINE_DEFECT_IDS_HPP
+#endif  // BURNISH_DEFECT_IDS_HPP

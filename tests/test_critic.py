@@ -2,11 +2,11 @@
 
 from pathlib import Path
 
-from elegant.models import defects_from_ghost
-from elegant.roles import Facts
-from elegant.suite import SuiteRun
+from warden.models import defects_from_ghost
+from warden.roles import Facts
+from warden.suite import SuiteRun
 
-from streamline.critic import PoetryCritic
+from burnish.critic import PoetryCritic
 
 
 def _pkg(root: Path, readme: str) -> None:

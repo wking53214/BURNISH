@@ -4,11 +4,11 @@ The rules for making code beautiful without changing what it does. This is the
 full text that `Elegant.md` v1.0 carried for the principles and rules 1 to 6. The
 v1.1 edit cut them to one-line headings; they are restored here. Rules 7 to 11
 are as they stand in Elegant.md v1.2.
-`streamline/criteria.py` holds the same rules as data, and a test fails if the
+`burnish/criteria.py` holds the same rules as data, and a test fails if the
 two disagree.
 
 Rules 5, 7 and 9 describe the discipline of change itself. They are enforced by
-[Elegant](https://github.com/wking53214/Elegant), not by Streamline.
+[Warden](https://github.com/wking53214/Warden), not by Burnish.
 
 **How to read the IDs.** `PA` to `PC` are principles, `R1` to `R11` are rules.
 Python, Rust and C++23 items are in [docs/languages/](languages/), the craft
@@ -335,11 +335,11 @@ Default beautification scope is the **critical path**, not the entire repository
 
 1. Identify the invariant-bearing spine (e.g. authority → proposal → apply → detection).
 2. Beautify and audit that spine first.
-3. Expand outward only after a durable `ELEGANT_AUDIT.md` exists for the spine.
+3. Expand outward only after a durable `WARDEN_AUDIT.md` exists for the spine.
 
 ### R9. Durable Defect IDs
 
-Every defect gets a stable ID in a single source of truth (e.g. `ELEGANT_AUDIT.md`):
+Every defect gets a stable ID in a single source of truth (e.g. `WARDEN_AUDIT.md`):
 
 - Format: `C1`, `H1`, `M1`, `L1` (Critical / High / Medium / Low).
 - IDs **never reuse** meanings once published.
@@ -359,7 +359,7 @@ When a split or rename moves code that a mutation suite targets by exact text:
 
 A commit that changes what a repository does changes what its README says, **in the same pull request**.
 
-1. Before merge, run the repository's own self-check on itself (`elegant critic .`, `ghost-buster .`, `verify_manifest.py`) and record the result.
+1. Before merge, run the repository's own self-check on itself (`warden critic .`, `ghost-buster .`, `verify_manifest.py`) and record the result.
 2. State counts in a form the self-check verifies ("24 tests exist"), not in prose it cannot read ("15 passed").
 3. A live run that proves something gets a row in the repository's registry or audit file; the README points to it rather than asserting it.
 
@@ -379,7 +379,7 @@ A commit that changes what a repository does changes what its README says, **in 
 ```text
 Fix <ID>: <one-line summary>
 
-ELEGANT:
+WARDEN:
   Defect: <ID> (<priority>)
   Layer/spine: <component>
   Red team: <attack> -> <result>

@@ -1,22 +1,22 @@
 # Design
 
-Why Streamline is shaped the way it is. This is the decision record that the
+Why Burnish is shaped the way it is. This is the decision record that the
 README links to (README rule `OT-DECISIONS`, craft practice `CR11`).
 
 ## The analogy
 
-Streamline is a **style editor beside a safety inspector**.
+Burnish is a **style editor beside a safety inspector**.
 
 A style editor knows what good writing looks like, and marks it up. An
 inspector decides whether the building may be changed at all, and checks it
 afterwards. The editor never signs off on a structural change; the inspector
-never has opinions about prose. Streamline is the editor. Elegant is the
+never has opinions about prose. Burnish is the editor. Warden is the
 inspector.
 
 | Vibecode | Plain language | In operational terms |
 |----------|----------------|----------------------|
-| `Streamline.finish` | Here is the finished work | One Transformation, proposed once after the loop, that Elegant applies or puts back |
-| `critic` | Is it good enough, and what is still wrong? | Commentary on the facts Elegant and Ghost measured, written into the README |
+| `Burnish.finish` | Here is the finished work | One Transformation, proposed once after the loop, that Warden applies or puts back |
+| `critic` | Is it good enough, and what is still wrong? | Commentary on the facts Warden and Ghost measured, written into the README |
 | `readme-critic` | A blunt second reader | Rules from the README sources, sorted by tier, no score |
 
 ## Layer map
@@ -31,27 +31,27 @@ criteria.py          the rules, as data
 narrative.py  reads the tree  │
 beautify.py   tidies Python source, behavior-preserving
 readme.py     compiles and finalizes the README
-finisher.py   the one proposal Elegant asks for, once, after the loop
+finisher.py   the one proposal Warden asks for, once, after the loop
 cli.py        read-only commands
 ```
 
 ## Decisions
 
-**D1. Streamline never writes.** Writing a repository is Elegant's job, behind
-a human grant and a green suite. A test fails if any Streamline module calls a
+**D1. Burnish never writes.** Writing a repository is Warden's job, behind
+a human grant and a green suite. A test fails if any Burnish module calls a
 write or delete. Rejected alternative: letting `readme` write the file. It
 would have been convenient and would have put a second, ungated writer in the
 corpus.
 
-**D2. Streamline counts and detects nothing.** Ghost Tools reports, Elegant runs the suite, and both results reach Streamline as facts. The documentation-honesty oracle and the test-count check were removed because they counted what Ghost counts. Tested.
+**D2. Burnish counts and detects nothing.** Ghost Tools reports, Warden runs the suite, and both results reach Burnish as facts. The documentation-honesty oracle and the test-count check were removed because they counted what Ghost counts. Tested.
 
 **D3. No score.** A number hides which rule failed. Every report is a list of
 named rules. Rejected alternative: a 0 to 100 "beauty score". It would be
 quoted instead of read.
 
-**D4. Say what is checked.** A criterion is `IMPLEMENTED` only if Streamline
+**D4. Say what is checked.** A criterion is `IMPLEMENTED` only if Burnish
 enforces it, and `DESIGNED` if it is written down. Rust and C++23 are written
-down and exemplified, not checked. `streamline languages` prints the truth.
+down and exemplified, not checked. `burnish languages` prints the truth.
 Rejected alternative: a table that marked every language "supported".
 
 **D5. One shared set of test vectors for the three exemplars.** Three
@@ -63,8 +63,8 @@ disagreeing.
 good READMEs share; none states a standard. See
 [README_STANDARD.md](README_STANDARD.md).
 
-**D7. Streamline imports Elegant; Elegant never imports Streamline.** Elegant
-can govern a finisher it did not write. Tested in Elegant.
+**D7. Burnish imports Warden; Warden never imports Burnish.** Warden
+can govern a finisher it did not write. Tested in Warden.
 
 **D8. The beautification criteria were restored, not reinvented.** The text of
 the principles and rules 1 to 6 had been cut to headings in Elegant.md v1.1. The

@@ -16,10 +16,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
       - run: pytest -q
-      # Streamline is held to what it holds others to.
-      - run: streamline check .
-      - run: streamline critic .
-      - run: streamline readme-critic . --tier over-the-top
+      # Burnish is held to what it holds others to.
+      - run: burnish check .
+      - run: burnish critic .
+      - run: burnish readme-critic . --tier over-the-top
 
   rust:
     runs-on: ubuntu-latest

@@ -6,7 +6,7 @@ Its job is not to praise the code. It is allowed — required — to say:
 
 It does not produce a beauty score. It reads the README and module prose
 against what the tree declares, and it speaks about what was measured by
-others: the suite result Elegant ran and the findings Ghost Tools still
+others: the suite result Warden ran and the findings Ghost Tools still
 reports, both handed to it as `Facts`. It counts and detects nothing itself.
 
 A README is allowed to contain negative findings. That is a feature.
@@ -18,8 +18,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from elegant.epistemic import EpistemicState
-from elegant.roles import Facts
+from warden.epistemic import EpistemicState
+from warden.roles import Facts
 from .narrative import Narrative, inspect_tree
 
 
@@ -146,10 +146,10 @@ def _speak_about_measurements(facts: Facts | None, notes: _Notes) -> None:
         return
     suite = facts.suite
     if suite is None or not suite.ran:
-        notes.unfinished.append("The target's suite was not run by Elegant, so nothing here is "
+        notes.unfinished.append("The target's suite was not run by Warden, so nothing here is "
                                 "backed by an executed test.")
     elif suite.green:
-        notes.beautiful.append(f"Elegant ran the target's suite at the end of the loop: {suite.describe()}.")
+        notes.beautiful.append(f"Warden ran the target's suite at the end of the loop: {suite.describe()}.")
     else:
         notes.ugly.append(f"The target's suite is not green: {suite.describe()}.")
         notes.unsupported.append("a suite that is not green")

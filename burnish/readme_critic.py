@@ -9,7 +9,7 @@ Three tiers, from the research in `docs/README_STANDARD.md`:
   OVER THE TOP  what the best READMEs add: a picture of the thing, a way in
               within one screen, evidence the claims are true, and an
               honest account of what it will not do. This tier is a synthesis
-              of what the awesome-readme examples share; it is a standard Streamline
+              of what the awesome-readme examples share; it is a standard Burnish
               sets for itself, not a rule any source states.
 
 The critic reads one README file and the files it links to. It does not run
@@ -171,7 +171,7 @@ _GITHUB = "GitHub, About READMEs"
 _ART = "Art of README"
 _MAKE = "Make a README"
 _AWESOME = "awesome-readme examples"
-_SYNTHESIS = "Streamline synthesis of " + _AWESOME
+_SYNTHESIS = "Burnish synthesis of " + _AWESOME
 
 
 def _title(r: Readme) -> Optional[str]:

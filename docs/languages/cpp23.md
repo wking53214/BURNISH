@@ -8,7 +8,7 @@ rule text was not in what was read.** Those rules are not summarised here.
 
 ## Status, said plainly
 
-Streamline **does not check C++ trees**. The criteria are written down and the
+Burnish **does not check C++ trees**. The criteria are written down and the
 exemplar follows them. CI builds the exemplar with `g++ -std=c++23 -Wall
 -Wextra -Wpedantic -Wconversion -Wshadow -Werror` and runs it under `ctest`.
 

@@ -5,7 +5,7 @@ Read on 2026-10-08 as a summary of the checklist, not item by item.
 
 ## Status, said plainly
 
-Streamline **does not check Rust trees**. These criteria are written down and
+Burnish **does not check Rust trees**. These criteria are written down and
 the exemplar follows them. CI enforces the exemplar with Rust's own tools:
 `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` with the
 pedantic group on, and `cargo test` (which runs the doc examples).

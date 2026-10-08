@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from streamline.cli import main
-from streamline.readme_critic import RULES, ReadmeCritic, Tier
+from burnish.cli import main
+from burnish.readme_critic import RULES, ReadmeCritic, Tier
 
 OVER_THE_TOP = '''# demo
 

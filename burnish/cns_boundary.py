@@ -79,7 +79,7 @@ def analyse(root: Path, narrative: Narrative | None = None) -> CnsAnalysis:
         return CnsAnalysis(
             repository=name,
             recommendation=CnsRecommendation.NO_ACTION,
-            reason="CNS is the contract. Elegant does not modify it. CNS CHANGE REQUIRED = DEFER / NO ACTION.",
+            reason="CNS is the contract. Warden does not modify it. CNS CHANGE REQUIRED = DEFER / NO ACTION.",
             native_representation="cns (private contract)",
             cns_representation="self",
             meaning_preserved="n/a",

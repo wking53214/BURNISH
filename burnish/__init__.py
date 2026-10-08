@@ -1,4 +1,4 @@
-"""Streamline: what makes code beautiful, written down, checked, and applied to itself.
+"""Burnish: what makes code beautiful, written down, checked, and applied to itself.
 
 WHAT THIS IS
     The home of the beautification criteria: naming as truth, narrative
@@ -14,12 +14,12 @@ WHAT IT OWNS
 
 WHAT IT DOES NOT OWN
     The discipline of change: the human grant, the test gate, the SWIZZLE proof
-    gate and the audit file are Elegant's. Forensic detection is Ghost Tools'.
-    Streamline imports Elegant; Elegant never imports Streamline.
+    gate and the audit file are Warden's. Forensic detection is Ghost Tools'.
+    Burnish imports Warden; Warden never imports Burnish.
 
 WHAT IT MUST NEVER DO
-    Write to a repository without going through Elegant.
-    Count tests or detect defects (Ghost Tools does; Elegant hands over the results).
+    Write to a repository without going through Warden.
+    Count tests or detect defects (Ghost Tools does; Warden hands over the results).
     Run before the loop has converged.
     Score beauty with a number.
     Report a language as checked when it is only written down.

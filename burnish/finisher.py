@@ -1,18 +1,18 @@
-"""Streamline as Elegant's Finisher: called once, after the loop has converged.
+"""Burnish as Warden's Finisher: called once, after the loop has converged.
 
-By now Ghost Tools has reported, the Proposer has fixed what it could, and
-Elegant has measured the suite. Streamline takes the result and does two
+By now Ghost Tools has reported, the Drafter has fixed what it could, and
+Warden has measured the suite. Burnish takes the result and does two
 things, as one proposal:
 
-  1. tidies the code (see `streamline.beautify`), behavior-preserving, and
+  1. tidies the code (see `burnish.beautify`), behavior-preserving, and
   2. writes the final README: the author's prose kept, the missing required
      sections added from the tree, and CLAIMS VS REALITY replaced with the
      critic's commentary on the measured facts.
 
-Streamline writes nothing. It returns a proposal; Elegant applies it under the
+Burnish writes nothing. It returns a proposal; Warden applies it under the
 same gate as every other change and puts it back if the suite breaks or Ghost
-finds anything new. Streamline counts no tests and detects no defects: what it
-says about either, it quotes from the `Facts` Elegant hands it.
+finds anything new. Burnish counts no tests and detects no defects: what it
+says about either, it quotes from the `Facts` Warden hands it.
 """
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from elegant.models import FileEdit, Transformation, TransformationStatus
-from elegant.roles import Facts
+from warden.models import FileEdit, Transformation, TransformationStatus
+from warden.roles import Facts
 
 from .beautify import tidy_edits
 from .critic import CriticReport, PoetryCritic
@@ -29,11 +29,11 @@ from .narrative import inspect_tree
 from .readme import finalize_readme
 from .readme_critic import ReadmeCritic, ReadmeReport
 
-__all__ = ["Streamline"]
+__all__ = ["Burnish"]
 
 
-class Streamline:
-    """The Finisher: `elegant tagteam --finisher streamline.finisher:Streamline`."""
+class Burnish:
+    """The Finisher: `warden tagteam --finisher burnish.finisher:Burnish`."""
 
     def finish(self, target: Path, baseline: str, facts: Facts) -> Optional[Transformation]:
         """One proposal: tidied code and the final README, or None if neither would change."""
@@ -47,7 +47,7 @@ class Streamline:
         return Transformation(
             target=str(target),
             intent="finish: tidy the code and write the final README with the critic's commentary",
-            architectural_reason="The loop has converged; this is the single hand-off to Streamline.",
+            architectural_reason="The loop has converged; this is the single hand-off to Burnish.",
             affected_files=tuple(e.path for e in edits),
             expected_behavior="Python behavior unchanged (every tidied file parses to the same syntax tree)",
             preservation_requirements=("the target's suite result is unchanged",
@@ -82,9 +82,9 @@ def _commentary(report: CriticReport, readme: ReadmeReport) -> str:
 
 
 def _measured(facts: Facts) -> dict[str, str]:
-    """Section text that quotes the suite result Elegant measured, when it ran and was green."""
+    """Section text that quotes the suite result Warden measured, when it ran and was green."""
     suite = facts.suite
     if suite is None or not suite.green:
         return {}
-    line = f"- Elegant ran the target's suite at the end of the loop: {suite.describe()}."
+    line = f"- Warden ran the target's suite at the end of the loop: {suite.describe()}."
     return {"WHAT WORKS": line, "WHAT IS PROVEN": line}
