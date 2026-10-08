@@ -1,4 +1,4 @@
-"""The reviewer and the oracle never import each other; Streamline writes nothing by itself."""
+"""Streamline imports Elegant's shapes and no other role; it writes and counts nothing."""
 
 import ast
 from pathlib import Path
@@ -6,6 +6,7 @@ from pathlib import Path
 import streamline
 
 ROOT = Path(streamline.__file__).parent
+_OTHER_ROLES = {"proposer", "ghost_buster", "swizzle", "touchstone"}
 
 
 def _imports(module: str) -> set[str]:
@@ -19,17 +20,15 @@ def _imports(module: str) -> set[str]:
     return names
 
 
-def test_the_oracle_does_not_import_the_critic():
-    assert ".critic" not in _imports("oracle")
-
-
-def test_the_critic_does_not_import_the_oracle():
-    assert ".oracle" not in _imports("critic")
-
-
 def test_the_readme_critic_stands_alone():
     internal = {name for name in _imports("readme_critic") if name.startswith(".")}
     assert internal == set()
+
+
+def test_no_module_imports_another_role():
+    offenders = {p.name: sorted(n for n in _imports(p.stem) if n.split(".")[0] in _OTHER_ROLES)
+                 for p in ROOT.glob("*.py")}
+    assert {k: v for k, v in offenders.items() if v} == {}
 
 
 def test_no_streamline_module_opens_a_file_for_writing():
@@ -40,3 +39,13 @@ def test_no_streamline_module_opens_a_file_for_writing():
             if isinstance(node, ast.Attribute) and node.attr in {"write_text", "write_bytes", "unlink", "rmtree"}:
                 offenders.append(f"{path.name}:{node.lineno}")
     assert offenders == []
+
+
+def test_the_duplicated_roles_are_gone():
+    """Proposing moved to Proposer; the documentation-honesty oracle counted what Ghost counts."""
+    assert {"proposers.py", "oracle.py", "craft.py"}.isdisjoint({p.name for p in ROOT.glob("*.py")})
+
+
+def test_no_streamline_module_counts_tests():
+    source = "\n".join(p.read_text(encoding="utf-8") for p in ROOT.glob("*.py"))
+    assert "test_functions" not in source and "test_count_claims" not in source

@@ -2,9 +2,9 @@
 
 The README is a compilation of this narrative. Inventing a polished story
 from the outside is a defect. This module only reports what the files
-declare: module docstrings, pyproject scripts, test function counts,
-CNS mentions, and whether a README already claims more than the tree
-can support.
+declare: module docstrings, pyproject scripts, CNS mentions and what a README
+claims. It counts no tests: counting is Ghost Tools' job and running them
+is Elegant's, and the Finisher is handed both results.
 """
 
 from __future__ import annotations
@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Optional
 
 
-_TEST_FN = re.compile(r"^test_", re.M)
 _CNS = re.compile(r"\b(?:from cns|import cns|cns\.gate|cns\.graph)\b")
 
 
@@ -41,8 +40,6 @@ class Narrative:
     description: Optional[str]
     scripts: tuple[tuple[str, str], ...]
     modules: tuple[ModuleStory, ...]
-    test_functions: int
-    test_files: tuple[str, ...]
     readme_exists: bool
     readme_text: str
     cns_mentioned: bool
@@ -50,20 +47,6 @@ class Narrative:
     does_not_own: tuple[str, ...]
     unknowns: tuple[str, ...]
     claims_in_readme: tuple[str, ...]
-
-    def test_count_claims(self) -> tuple[tuple[str, int], ...]:
-        """Integers that a README/PROVENANCE presents as a test count."""
-        text = self.readme_text
-        found = []
-        for m in re.finditer(
-            r"(\d+)\s+tests?\s+(?:passed|pass|exist|in the|in this)",
-            text,
-            re.I,
-        ):
-            found.append((m.group(0), int(m.group(1))))
-        for m in re.finditer(r"claims?\s+(\d+)\s+test", text, re.I):
-            found.append((m.group(0), int(m.group(1))))
-        return tuple(found)
 
 
 def inspect_tree(root: Path) -> Narrative:
@@ -80,8 +63,6 @@ def inspect_tree(root: Path) -> Narrative:
         description=description,
         scripts=scripts,
         modules=tuple(scan.modules),
-        test_functions=scan.test_functions,
-        test_files=tuple(scan.test_files),
         readme_exists=bool(readme),
         readme_text=readme_text,
         cns_mentioned=scan.cns_mentioned or bool(_CNS.search(readme_text)),
@@ -113,8 +94,6 @@ class _PythonScan:
     """What reading every Python file in a tree turned up."""
 
     modules: list[ModuleStory] = field(default_factory=list)
-    test_functions: int = 0
-    test_files: list[str] = field(default_factory=list)
     cns_mentioned: bool = False
     owns: list[str] = field(default_factory=list)
     does_not_own: list[str] = field(default_factory=list)
@@ -137,15 +116,10 @@ def _scan_python(root: Path) -> _PythonScan:
 
 
 def _record_module(scan: _PythonScan, path: Path, rel: str, src: str) -> None:
-    """Add one module's story, test count and ownership statements to the scan."""
+    """Add one module's story and ownership statements to the scan."""
     mentions_cns = bool(_CNS.search(src))
     scan.cns_mentioned = scan.cns_mentioned or mentions_cns
     classes, functions = _names(src)
-    if _is_test_path(path, rel):
-        count = _count_test_functions(src)
-        if count:
-            scan.test_functions += count
-            scan.test_files.append(rel)
     scan.modules.append(ModuleStory(path=rel, purpose=_module_purpose(src), classes=classes,
                                     functions=functions, cns_import=mentions_cns))
     for line in src.splitlines()[:80]:
@@ -154,10 +128,6 @@ def _record_module(scan: _PythonScan, path: Path, rel: str, src: str) -> None:
             scan.owns.append(rel)
         if "DOES NOT OWN" in upper:
             scan.does_not_own.append(rel)
-
-
-def _is_test_path(path: Path, rel: str) -> bool:
-    return "test" in path.name.lower() or "/tests/" in f"/{rel.lower()}/"
 
 
 def _readme_claims(readme_text: str, limit: int = 40) -> tuple[str, ...]:
@@ -196,15 +166,3 @@ def _names(src: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
         n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
     )
     return classes, functions
-
-
-def _count_test_functions(src: str) -> int:
-    try:
-        tree = ast.parse(src)
-    except SyntaxError:
-        return len(_TEST_FN.findall(src))
-    n = 0
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):
-            n += 1
-    return n

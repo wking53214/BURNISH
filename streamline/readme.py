@@ -6,16 +6,18 @@ never claim more than the source and executed evidence establish.
 
 This module only builds text. Writing it into a repository is a
 Transformation, and a Transformation needs a human grant (see Elegant).
-It does not invent passing tests: where nothing is known, the section says
-UNKNOWN.
+It counts no tests and invents no passing ones: test results arrive from
+Elegant as `Facts`, and where nothing is known the section says UNKNOWN.
 """
 
 from __future__ import annotations
 
+import re
+
 from .critic import CriticReport
 from .narrative import Narrative
 
-__all__ = ["REQUIRED_HEADINGS", "compile_readme"]
+__all__ = ["REQUIRED_HEADINGS", "compile_readme", "finalize_readme"]
 
 REQUIRED_HEADINGS = (
     "WHAT THIS IS",
@@ -76,11 +78,9 @@ def _default_sections(narrative: Narrative, critic: CriticReport) -> dict[str, s
         "LIFECYCLE / EXECUTION MODEL": "- UNKNOWN unless a module docstring states it.",
         "WHAT WORKS": "- UNKNOWN until a test is executed and cited.",
         "WHAT IS BEAUTIFUL": _bullets(critic.what_is_beautiful, _NOTHING_RECORDED),
-        "WHAT IS IMPLEMENTED": (f"- Python modules in this tree: {len(narrative.modules)}\n"
-                                f"- `test_*` functions counted: {narrative.test_functions}"),
-        "WHAT IS PROVEN": (f"- This inspection counted **{narrative.test_functions}** `test_*` functions "
-                           f"in {len(narrative.test_files)} file(s). Counting is not execution."),
-        "WHAT IS NOT PROVEN": ("- A green count of test *names* is not a passing suite.\n"
+        "WHAT IS IMPLEMENTED": f"- Python modules in this tree: {len(narrative.modules)}",
+        "WHAT IS PROVEN": "- Only what an executed test shows. See CLAIMS VS REALITY for what was measured.",
+        "WHAT IS NOT PROVEN": ("- Anything no executed test covers.\n"
                                "- Streamline does not claim this README is complete.\n"
                                f"- Critic verdict: {critic.verdict}"),
         "WHAT DOES NOT WORK": "- UNKNOWN. Failures not executed here are not listed as passing.",
@@ -114,3 +114,38 @@ def _claims_versus_reality(critic: CriticReport) -> str:
             "Here is where those two disagree.\n\n"
             f"{claims or '- No numeric claims were extracted.'}\n\n"
             f"Critic: **{critic.verdict}**")
+
+
+_CLAIMS_HEADING = re.compile(r"^##[ \t]+claims[ \t]+vs\.?[ \t]+reality[ \t]*$", re.I | re.M)
+_NEXT_HEADING = re.compile(r"^##[ \t]+\S", re.M)
+
+
+def finalize_readme(existing: str, narrative: Narrative, critic: CriticReport,
+                    commentary: str = "") -> str:
+    """The final README: the author's prose kept, the critic's commentary current.
+
+    With no README, one is compiled. With one, every section it already has is
+    left exactly as written, headings the standard requires and it lacks are
+    added from the tree, and CLAIMS VS REALITY is replaced with the critic's
+    commentary (or appended if absent). Running it twice changes nothing.
+    """
+    if not existing.strip():
+        return compile_readme(narrative, critic, extra_sections={
+            "CLAIMS VS REALITY": _claims_versus_reality(critic) + _tail(commentary)})
+    text = existing.rstrip("\n") + "\n"
+    defaults = _default_sections(narrative, critic)
+    for heading in REQUIRED_HEADINGS:
+        if heading != "CLAIMS VS REALITY" and not re.search(
+                rf"^##[ \t]+{re.escape(heading)}[ \t]*$", text, re.I | re.M):
+            text += f"\n## {heading}\n\n{defaults[heading]}\n"
+    section = f"## CLAIMS VS REALITY\n\n{_claims_versus_reality(critic)}{_tail(commentary)}\n"
+    start = _CLAIMS_HEADING.search(text)
+    if start is None:
+        return text + "\n" + section
+    following = _NEXT_HEADING.search(text, start.end())
+    end = following.start() if following else len(text)
+    return text[:start.start()] + section + ("\n" + text[end:] if following else "")
+
+
+def _tail(commentary: str) -> str:
+    return f"\n\n{commentary.strip()}" if commentary.strip() else ""

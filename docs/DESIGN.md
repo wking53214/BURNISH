@@ -15,9 +15,8 @@ inspector.
 
 | Vibecode | Plain language | In operational terms |
 |----------|----------------|----------------------|
-| `Streamline.review` | Is this good enough yet? | The critic compares claims in documents with the tree |
-| `Streamline.propose` | Here is the one change I would make | A proposer returns a Transformation that has not been applied |
-| `Streamline.attack` | Did the fix hold up? | An oracle that never imports the critic re-measures the tree |
+| `Streamline.finish` | Here is the finished work | One Transformation, proposed once after the loop, that Elegant applies or puts back |
+| `critic` | Is it good enough, and what is still wrong? | Commentary on the facts Elegant and Ghost measured, written into the README |
 | `readme-critic` | A blunt second reader | Rules from the README sources, sorted by tier, no score |
 
 ## Layer map
@@ -27,13 +26,12 @@ criteria.py          the rules, as data
    │
    ├── checks.py          Python rules a program can judge
    ├── readme_critic.py   README rules, in three tiers
-   └── critic.py          claims in documents against the tree
+   └── critic.py          the critic's commentary on measured facts
                               │
 narrative.py  reads the tree  │
-oracle.py     freezes, then re-measures (does not import critic)
-proposers.py  proposes one change
-readme.py     compiles a README draft
-craft.py      the four answers Elegant asks for
+beautify.py   tidies Python source, behavior-preserving
+readme.py     compiles and finalizes the README
+finisher.py   the one proposal Elegant asks for, once, after the loop
 cli.py        read-only commands
 ```
 
@@ -45,9 +43,7 @@ write or delete. Rejected alternative: letting `readme` write the file. It
 would have been convenient and would have put a second, ungated writer in the
 corpus.
 
-**D2. The reviewer and the oracle never import each other.** A flattering
-review must not launder a bad change, and a harsh one must not hide a good one.
-Tested.
+**D2. Streamline counts and detects nothing.** Ghost Tools reports, Elegant runs the suite, and both results reach Streamline as facts. The documentation-honesty oracle and the test-count check were removed because they counted what Ghost counts. Tested.
 
 **D3. No score.** A number hides which rule failed. Every report is a list of
 named rules. Rejected alternative: a 0 to 100 "beauty score". It would be
@@ -68,7 +64,7 @@ good READMEs share; none states a standard. See
 [README_STANDARD.md](README_STANDARD.md).
 
 **D7. Streamline imports Elegant; Elegant never imports Streamline.** Elegant
-can govern a craft it did not write. Tested in Elegant.
+can govern a finisher it did not write. Tested in Elegant.
 
 **D8. The beautification criteria were restored, not reinvented.** The text of
 the principles and rules 1 to 6 had been cut to headings in Elegant.md v1.1. The
@@ -78,6 +74,6 @@ full text came back from v1.0 in git history, unchanged except for IDs.
 
 Renames, narrative comments, inline architectural comments, guards, and
 function splits are designed (`PA`, `PB`, `PC`, `R1` to `R4`) and have no
-proposer. They need a judgement about intent that the tree does not contain.
+rewriter. They need a judgement about intent that the tree does not contain.
 The first of them to be built should be the one a person can approve at a
 glance.

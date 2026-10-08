@@ -9,7 +9,7 @@ WHAT THIS IS
 
 WHAT IT OWNS
     The criteria, the Python checker, the critic of claims against the tree,
-    the README critic, README compilation, the proposers, and the reference
+    the README critic, README compilation, the tidy, the finisher, and the reference
     exemplars in three languages.
 
 WHAT IT DOES NOT OWN
@@ -19,8 +19,10 @@ WHAT IT DOES NOT OWN
 
 WHAT IT MUST NEVER DO
     Write to a repository without going through Elegant.
+    Count tests or detect defects (Ghost Tools does; Elegant hands over the results).
+    Run before the loop has converged.
     Score beauty with a number.
     Report a language as checked when it is only written down.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
