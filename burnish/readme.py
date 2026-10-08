@@ -97,7 +97,7 @@ def _bullets(items: tuple[str, ...], when_empty: str) -> str:
 
 
 def _module_list(narrative: Narrative) -> str:
-    lines = (f"- `{m.path}` — {m.purpose or '(no module docstring)'}"
+    lines = (f"- `{m.path}`: {_plain(m.purpose) or '(no module docstring)'}"
              for m in narrative.modules
              if not m.path.startswith("tests/") and "Tests/" not in m.path)
     return "\n".join(lines) or "- (no Python modules)"
@@ -108,12 +108,14 @@ def _scripts(narrative: Narrative) -> str:
 
 
 def _claims_versus_reality(critic: CriticReport) -> str:
-    claims = "\n".join(f"- `{c.text}` — {c.note} [{c.epistemic.value}]" for c in critic.claims)
-    return ("Here is what the artifact says it is.\n\n"
-            "Here is what we can actually establish that it is.\n\n"
-            "Here is where those two disagree.\n\n"
-            f"{claims or '- No numeric claims were extracted.'}\n\n"
-            f"Critic: **{critic.verdict}**")
+    claims = "\n".join(f"- `{c.text}`: {_plain(c.note)} [{c.epistemic.value}]" for c in critic.claims)
+    return (f"{claims or '- No numeric claims were extracted.'}\n\n"
+            f"Critic: **{_plain(critic.verdict)}**")
+
+
+def _plain(text: str) -> str:
+    """Generated text never carries an em or en dash; the author's own prose is never passed through here."""
+    return text.replace(" \u2014 ", ": ").replace("\u2014", "-").replace("\u2013", "-")
 
 
 _CLAIMS_HEADING = re.compile(r"^##[ \t]+claims[ \t]+vs\.?[ \t]+reality[ \t]*$", re.I | re.M)
@@ -122,25 +124,23 @@ _NEXT_HEADING = re.compile(r"^##[ \t]+\S", re.M)
 
 def finalize_readme(existing: str, narrative: Narrative, critic: CriticReport,
                     commentary: str = "", measured: dict[str, str] | None = None) -> str:
-    """The final README: the author's prose kept, the critic's commentary current.
+    """The final README: the author's prose kept as written, the critic's commentary current.
 
-    With no README, one is compiled. With one, every section it already has is
-    left exactly as written, headings the standard requires and it lacks are
-    added from the tree, and CLAIMS VS REALITY is replaced with the critic's
-    commentary (or appended if absent). `measured` replaces the default text of
-    sections it adds, so they can quote what Warden measured. Running it twice
-    changes nothing.
+    With no README, one is compiled from the tree. With one, nothing the author
+    wrote is touched or duplicated: the only change is a single CLAIMS VS REALITY
+    section (replaced if present, appended if not) holding what was measured, the
+    critic's verdict and the critic's commentary. No heading is added just
+    because the standard lists it; a section with nothing real to say is not
+    written. `measured` supplies the suite line when Warden ran a green suite.
+    Running it twice changes nothing.
     """
     if not existing.strip():
         return compile_readme(narrative, critic, extra_sections={
             **(measured or {}), "CLAIMS VS REALITY": _claims_versus_reality(critic) + _tail(commentary)})
     text = existing.rstrip("\n") + "\n"
-    defaults = {**_default_sections(narrative, critic), **(measured or {})}
-    for heading in REQUIRED_HEADINGS:
-        if heading != "CLAIMS VS REALITY" and not re.search(
-                rf"^##[ \t]+{re.escape(heading)}[ \t]*$", text, re.I | re.M):
-            text += f"\n## {heading}\n\n{defaults[heading]}\n"
-    section = f"## CLAIMS VS REALITY\n\n{_claims_versus_reality(critic)}{_tail(commentary)}\n"
+    suite_line = (measured or {}).get("WHAT WORKS", "")
+    body = "\n\n".join(part for part in (suite_line, _claims_versus_reality(critic)) if part)
+    section = f"## CLAIMS VS REALITY\n\n{body}{_tail(commentary)}\n"
     start = _CLAIMS_HEADING.search(text)
     if start is None:
         return text + "\n" + section
@@ -150,4 +150,4 @@ def finalize_readme(existing: str, narrative: Narrative, critic: CriticReport,
 
 
 def _tail(commentary: str) -> str:
-    return f"\n\n{commentary.strip()}" if commentary.strip() else ""
+    return f"\n\n{_plain(commentary.strip())}" if commentary.strip() else ""
