@@ -74,12 +74,25 @@ class Burnish:
 
 def _commentary(report: CriticReport, readme: ReadmeReport, facts: Facts) -> str:
     """The critic's words for the README: Ghost's open findings in brief, what is unsupported or unknown, then the README critic's gaps."""
-    lines = _ghost_summary(facts)
+    lines = _not_measured(facts) + _ghost_summary(facts)
     lines += [f"- Unsupported: {item}" for item in report.unsupported]
     lines += [f"- Unknown: {item}" for item in report.unknown]
     lines += ["" if lines else "", "README critic, on the README as it stood going into the finish:", ""]
     lines += [f"- {gap.render()}" for gap in (*readme.failures, *readme.gaps)] or ["- no failures or gaps"]
     return "\n".join(lines)
+
+
+_CHECKS = {"ghost": "Ghost Tools was not run", "swizzle": "SWIZZLE's proofs were not run",
+           "suite": "the target's own suite was not run"}
+
+
+def _not_measured(facts: Facts) -> list[str]:
+    """Say so when a check never ran, so an empty list is not read as a clean one."""
+    missing = [_CHECKS.get(name, f"{name} was not run") for name in getattr(facts, "unmeasured", ())]
+    if not missing:
+        return []
+    return [f"- Not measured: {'; '.join(missing)}. Nothing in this section says those checks "
+            "would have passed."]
 
 
 def _ghost_summary(facts: Facts) -> list[str]:

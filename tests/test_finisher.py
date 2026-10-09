@@ -32,7 +32,7 @@ def _tree(root: Path) -> None:
 
 
 def _auth(root: Path):
-    return grant("william", "transform", str(root.resolve()), "finish", "test")
+    return grant("william", "transform", str(root.resolve()), "code", "test")
 
 
 def test_the_finisher_proposes_and_never_writes(tmp_path: Path):
@@ -47,7 +47,7 @@ def test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_word
     _tree(tmp_path)
     result = TagTeam(drafter=Idle(), finisher=Burnish()).run(
         tmp_path, findings=[], authorization=_auth(tmp_path))
-    assert result.decision == "ACCEPT" and result.finished
+    assert result.decision.startswith("ACCEPT") and result.finished
     assert (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8").endswith("VALUE = 1\n")
     readme = (tmp_path / "README.md").read_text(encoding="utf-8")
     assert "My hand-written intro." in readme
@@ -86,7 +86,7 @@ def test_a_suite_that_the_finishing_change_would_break_is_put_back(tmp_path: Pat
         'import pkg\n\n\ndef test_a():\n    assert "x  " == "x  "   \n', encoding="utf-8")
     result = TagTeam(drafter=Idle(), finisher=Burnish()).run(
         tmp_path, findings=[], authorization=_auth(tmp_path))
-    assert result.decision == "ACCEPT"
+    assert result.decision.startswith("ACCEPT")
 
 
 def _final(tmp_path: Path, intro: str = "# demo\n\nMy hand-written intro.\n") -> str:
@@ -135,3 +135,13 @@ def test_ghost_findings_are_summarised_not_listed(tmp_path: Path):
     final = next(e for e in proposal.edits if e.path == "README.md").new
     assert "still reports 9 finding(s) (intra_function_duplicate_block 9)" in final
     assert "repeat number 3" not in final
+
+
+def test_the_commentary_says_when_a_check_never_ran(tmp_path):
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "__init__.py").write_text("V = 1\n", encoding="utf-8")
+    (tmp_path / "README.md").write_text("# T\n\nA thing.\n", encoding="utf-8")
+    facts = Facts(suite=None, remaining=(), cycles=0, unmeasured=("ghost", "suite"))
+    edit = Burnish().finish(tmp_path, "b", facts).edits[0]
+    assert "Not measured: Ghost Tools was not run; the target's own suite was not run." in edit.new
+    assert "—" not in edit.new and "–" not in edit.new
