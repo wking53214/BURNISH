@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.2.0, alpha, maintained by one person. The Python checker, the README critic and the finisher work. The finisher tidies whitespace and writes the final README; the rewrites for names, comments and guards are designed and **not built**; see [What it does not do](#what-it-does-not-do).
+**Status:** version 0.2.0, alpha, maintained by one person. The Python checker, the README critic and the finisher work. The finisher tidies whitespace and keeps one generated, clearly marked facts section in the README; the rewrites for names, comments and guards are designed and **not built**; see [What it does not do](#what-it-does-not-do).
 
 ## What this is
 
@@ -20,7 +20,7 @@ rules, best practices for Python, Rust and C++23, and the standard for a README
 that is over the top. It also holds the tools that measure a tree against those
 criteria and say, bluntly, where it falls short.
 
-It is the finisher: it runs once, after the loop of Ghost Tools, Drafter, Warden and SWIZZLE has converged. It tidies the code and writes the final README, including the critic's commentary. It still never writes a file itself. It returns a proposal, and [Warden](https://github.com/wking53214/Warden) applies it, which needs a named human and a green test suite first, and puts it back if the suite breaks or Ghost finds anything new.
+It is the finisher: it runs once, after the loop of Ghost Tools, Drafter, Warden and SWIZZLE has converged. It tidies the code and keeps one generated section in the README, with the critic's commentary. It still never writes a file itself. It returns a proposal, and [Warden](https://github.com/wking53214/Warden) applies it, which needs a named human and a green test suite first, and puts it back if the suite breaks or Ghost finds anything new.
 
 ## Why it exists
 
@@ -107,6 +107,26 @@ is written without `--authorize`:
 warden tagteam path/to/repo --drafter drafter.seat:Drafter --finisher burnish.finisher:Burnish --ghost-root ../ghost_tools --swizzle-root ../SWIZZLE
 ```
 
+### What the finisher does to a README
+
+It writes only between two comment lines of its own, which Markdown does not
+show. Everything else in the README is yours and is never touched, even a
+section you headed "Claims vs reality".
+
+```text
+<!-- burnish:begin claims-vs-reality -->
+## Measured facts (generated)
+...
+<!-- burnish:end -->
+```
+
+Inside that section it says what Warden measured, what was not measured, and
+where a number you wrote does not match (for example "The README says 999
+tests; the measured suite has 5 passing"). It reports; it never rewrites your
+sentences. Run it again on its own result and it proposes nothing. A
+reStructuredText or plain-text README is not changed at all; Burnish only says
+so in its notes. If a repository has no README, it writes a README.md once.
+
 ## Architecture
 
 ```text
@@ -117,7 +137,12 @@ criteria.py          the rules, as data
    └── critic.py          the critic's commentary on measured facts
                               │
 narrative.py  reads the tree  │
-beautify.py   tidies Python source, behavior-preserving
+files.py      which files are the target's own; finds the README
+beautify.py   tidies Python source, behavior-preserving, keeps line endings
+marked.py     the markers around the only README text Burnish may write
+claims.py     the README's own test counts, checked against the measured suite
+measured.py   reads Warden's facts; a suite that did not run is not a measurement
+textsafe.py   makes text from other tools safe to print into a README
 readme.py     compiles and finalizes the README
 finisher.py   the one proposal Warden asks for, once, after the loop
 ```
@@ -197,7 +222,7 @@ CI runs the Python tests on 3.11 and 3.12, runs Burnish on itself, builds the
 Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
 warnings as errors.
 
-92 tests exist in this tree. They are Python `test_*` functions; the
+148 tests exist in this tree. They are Python `test_*` functions; the
 Rust and C++ exemplars have their own checks under `ctest` and `cargo test`.
 
 ## Claims versus reality
@@ -216,6 +241,25 @@ whole table, the share marked `IMPLEMENTED` is small, and `burnish criteria`
 prints exactly which. Clang 18 with libstdc++ 13 cannot build the C++ exemplar;
 only GCC was verified. The research behind the guides has gaps, listed in
 [docs/RESEARCH.md](docs/RESEARCH.md).
+
+What works, measured by the tests in this tree: running the finisher on its
+own output proposes nothing (checked five times over, from a README that was
+missing, old-format and hand-written); a hand-written section is never touched;
+a test run that failed to start is reported as not measured; README numbers that
+disagree with the measured suite are named; text that Ghost Tools supplies
+cannot forge a heading or close the generated section; CRLF files, byte order
+marks and files that are not UTF-8 are handled without a crash and without
+changing line endings; environments, vendored code and generated files are not
+tidied.
+
+Known defects. The test-count check looks for fixed phrasings such as "999
+tests pass" or "5/5 passed" and misses other wording, for example "ninety
+tests". Python files that start with a byte order mark are skipped rather than
+tidied, because Warden's own syntax check cannot read them. A README that ends
+inside an unclosed code block is left alone. A README with no file extension, or
+a `.rst` or `.txt` one, gets no generated section. The tidy still reaches test
+files, with whitespace-only changes that Warden allows because the syntax tree
+is identical.
 
 ## Roadmap
 

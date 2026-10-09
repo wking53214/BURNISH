@@ -15,7 +15,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from .files import find_readme, python_files
+from .marked import without_block
 
+
+_UNPARSEABLE = (SyntaxError, ValueError, RecursionError, MemoryError)
 _CNS = re.compile(r"\b(?:from cns|import cns|cns\.gate|cns\.graph)\b")
 
 
@@ -54,8 +58,8 @@ def inspect_tree(root: Path) -> Narrative:
     root = Path(root).resolve()
     name, version, description, scripts = _project_metadata(root)
     scan = _scan_python(root)
-    readme = _first_readme(root)
-    readme_text = readme.read_text(encoding="utf-8", errors="replace") if readme else ""
+    readme = find_readme(root)
+    readme_text = analysis_text(readme.read_text(encoding="utf-8", errors="replace")) if readme else ""
     return Narrative(
         root=str(root),
         name=name,
@@ -71,6 +75,12 @@ def inspect_tree(root: Path) -> Narrative:
         unknowns=tuple(scan.unknowns),
         claims_in_readme=_readme_claims(readme_text),
     )
+
+
+def analysis_text(text: str) -> str:
+    """A README as the critic should read it: LF line ends, no BOM, Burnish's own generated block removed, one final newline."""
+    text = without_block(text.lstrip("\ufeff").replace("\r\n", "\n").replace("\r", "\n"))
+    return text.rstrip() + "\n" if text.strip() else ""
 
 
 def _project_metadata(root: Path) -> tuple[str, Optional[str], Optional[str], tuple[tuple[str, str], ...]]:
@@ -103,12 +113,11 @@ class _PythonScan:
 def _scan_python(root: Path) -> _PythonScan:
     """Read each Python file once; a file that cannot be read is listed as unknown, not skipped."""
     scan = _PythonScan()
-    files = [p for p in root.rglob("*.py") if ".git" not in p.parts and "site-packages" not in p.parts]
-    for path in sorted(files):
+    for path in python_files(root):
         rel = path.relative_to(root).as_posix()
         try:
             src = path.read_text(encoding="utf-8", errors="replace")
-        except OSError:
+        except (OSError, ValueError):
             scan.unknowns.append(rel)
             continue
         _record_module(scan, path, rel, src)
@@ -136,18 +145,10 @@ def _readme_claims(readme_text: str, limit: int = 40) -> tuple[str, ...]:
     return tuple(line for line in lines if line.startswith(("- ", "* ", "## ")))[:limit]
 
 
-def _first_readme(root: Path) -> Optional[Path]:
-    for name in ("README.md", "Readme.md", "readme.md"):
-        p = root / name
-        if p.is_file():
-            return p
-    return None
-
-
 def _module_purpose(src: str) -> str:
     try:
         tree = ast.parse(src)
-    except SyntaxError:
+    except _UNPARSEABLE:
         return "(unparseable)"
     doc = ast.get_docstring(tree) or ""
     first = doc.strip().split("\n\n", 1)[0].strip().replace("\n", " ")
@@ -157,7 +158,7 @@ def _module_purpose(src: str) -> str:
 def _names(src: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
     try:
         tree = ast.parse(src)
-    except SyntaxError:
+    except _UNPARSEABLE:
         return (), ()
     classes = tuple(
         n.name for n in tree.body if isinstance(n, ast.ClassDef)

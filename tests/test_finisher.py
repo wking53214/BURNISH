@@ -51,7 +51,7 @@ def test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_word
     assert (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8").endswith("VALUE = 1\n")
     readme = (tmp_path / "README.md").read_text(encoding="utf-8")
     assert "My hand-written intro." in readme
-    assert "## CLAIMS VS REALITY" in readme and "1 passed" in readme
+    assert "## Measured facts (generated)" in readme and "1 passed" in readme
 
 
 def test_nothing_to_finish_means_no_proposal(tmp_path: Path):
@@ -101,7 +101,7 @@ def test_an_existing_readme_is_kept_whole_and_only_one_section_is_added(tmp_path
     final = _final(tmp_path, intro)
     assert final.startswith(intro)
     headings = [line for line in final.splitlines() if line.startswith("## ")]
-    assert headings == ["## Usage", "## License", "## CLAIMS VS REALITY"]
+    assert headings == ["## Usage", "## License", "## Measured facts (generated)"]
 
 
 def test_no_template_filler_is_written_into_an_existing_readme(tmp_path: Path):
@@ -113,13 +113,13 @@ def test_no_template_filler_is_written_into_an_existing_readme(tmp_path: Path):
 
 def test_the_review_section_quotes_the_measured_suite(tmp_path: Path):
     final = _final(tmp_path)
-    review = final.split("## CLAIMS VS REALITY", 1)[1]
+    review = final.split("## Measured facts (generated)", 1)[1]
     assert "2 passed" in review
 
 
 def test_generated_text_has_no_em_or_en_dash_and_the_authors_text_is_left_alone(tmp_path: Path):
     final = _final(tmp_path, "# demo\n\nThe author \u2014 not Burnish \u2014 wrote this.\n")
-    head, review = final.split("## CLAIMS VS REALITY", 1)
+    head, review = final.split("## Measured facts (generated)", 1)
     assert "\u2014" in head
     assert "\u2014" not in review and "\u2013" not in review
 

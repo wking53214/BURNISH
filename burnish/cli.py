@@ -114,9 +114,12 @@ def _readme(args: argparse.Namespace) -> int:
 
 def _finish(args: argparse.Namespace) -> int:
     """List the files the finisher would change, using no measurements (a preview, not the real hand-off)."""
-    proposal = Burnish().finish(args.path, "preview", Facts(suite=None, remaining=(), cycles=0))
+    seat = Burnish()
+    proposal = seat.finish(args.path, "preview", Facts(suite=None, remaining=(), cycles=0))
     for edit in () if proposal is None else proposal.edits:
         print(edit.path)
+    for note in seat.notes:
+        print(f"burnish finish: note: {note}", file=sys.stderr)
     print(f"burnish finish: {0 if proposal is None else len(proposal.edits)} file(s) would change", file=sys.stderr)
     return 0
 

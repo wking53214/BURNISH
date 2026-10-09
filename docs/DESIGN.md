@@ -31,6 +31,11 @@ criteria.py          the rules, as data
 narrative.py  reads the tree  │
 beautify.py   tidies Python source, behavior-preserving
 readme.py     compiles and finalizes the README
+marked.py     the markers that fence off the only README text Burnish may write
+claims.py     test counts and absolutes the README's own prose claims
+measured.py   reads Warden's facts safely (a suite that did not run is not a measurement)
+textsafe.py   makes text from other tools safe to print into a README
+files.py      which files and folders are the target's own, and how to find the README
 finisher.py   the one proposal Warden asks for, once, after the loop
 cli.py        read-only commands
 ```

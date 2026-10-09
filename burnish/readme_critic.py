@@ -123,9 +123,40 @@ class ReadmeReport:
         return "\n".join(out)
 
 
+_BEGIN = "<!-- burnish:begin claims-vs-reality -->"
+_END = "<!-- burnish:end -->"
+
+
+def _without_generated_block(text: str) -> str:
+    """The text with Burnish's own generated block removed, so a README is judged without its last finish.
+
+    This is a small copy of `burnish.marked.without_block` on purpose: the README critic
+    stands alone and imports nothing else from Burnish. Markers inside a code fence are not markers.
+    """
+    lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    fenced, begin, end = False, [], []
+    for number, line in enumerate(lines):
+        if re.match(r"^ {0,3}(`{3,}|~{3,})", line):
+            fenced = not fenced
+        elif not fenced and line.strip() == _BEGIN:
+            begin.append(number)
+        elif not fenced and line.strip() == _END:
+            end.append(number)
+    if len(begin) != 1 or len(end) != 1 or end[0] < begin[0]:
+        return text
+    before = "\n".join(lines[:begin[0]]).rstrip()
+    after = "\n".join(lines[end[0] + 1:]).lstrip("\n")
+    return (before + ("\n\n" + after if after.strip() else "\n")) if before else after
+
+
 def parse(path: Path) -> Readme:
     """Read a README into sections, links and images. Fenced code is never mistaken for prose."""
-    text = Path(path).read_text(encoding="utf-8", errors="replace")
+    return parse_text(path, Path(path).read_text(encoding="utf-8", errors="replace"))
+
+
+def parse_text(path: Path, text: str) -> Readme:
+    """Read README text that is already in hand, as if it had been read from `path`."""
+    text = _without_generated_block(text.lstrip("\ufeff"))
     lines = tuple(text.splitlines())
     sections = tuple(_sections(lines))
     links = tuple((m.group(1), m.group(2).split()[0]) for m in re.finditer(r"!?\[([^\]]*)\]\(([^)\s]+[^)]*)\)", text))
@@ -400,7 +431,15 @@ class ReadmeCritic:
         if path is None:
             missing = Gap(RULES[0], "no README file")
             return ReadmeReport(str(root), (missing,), (), (), (), "There is no README. The project has no front door.")
-        readme = parse(path)
+        return self._judge(path, parse(path))
+
+    def critique_text(self, root: Path, name: str, text: str) -> ReadmeReport:
+        """Judge README text that is not on disk yet, as if it were the file `name` in `root`."""
+        path = Path(root) / name
+        return self._judge(path, parse_text(path, text))
+
+    def _judge(self, path: Path, readme: Readme) -> ReadmeReport:
+        """Run every rule against one parsed README."""
         by_tier: dict[Tier, list[Gap]] = {tier: [] for tier in Tier}
         held: list[str] = []
         for rule in RULES:
@@ -414,9 +453,15 @@ class ReadmeCritic:
 
 
 def _find_readme(root: Path) -> Optional[Path]:
-    for name in ("README.md", "Readme.md", "readme.md", "README.rst", "README"):
-        if (root / name).is_file():
-            return root / name
+    """The README in `root`, found ignoring case: README, .md, .markdown, .rst, .txt, in that order."""
+    try:
+        entries = [p for p in root.iterdir() if p.is_file()]
+    except OSError:
+        return None
+    for wanted in ("readme", "readme.md", "readme.markdown", "readme.rst", "readme.txt"):
+        match = sorted(p for p in entries if p.name.lower() == wanted)
+        if match:
+            return match[0]
     return None
 
 
