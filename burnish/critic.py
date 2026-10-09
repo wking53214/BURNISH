@@ -20,7 +20,11 @@ from pathlib import Path
 
 from warden.epistemic import EpistemicState
 from warden.roles import Facts
+
+from .claims import absolutes, judge, test_claims
+from .measured import Measured, measure
 from .narrative import Narrative, inspect_tree
+from .textsafe import clean
 
 
 @dataclass(frozen=True)
@@ -47,6 +51,8 @@ class CriticReport:
     what_is_unfinished: tuple[str, ...]
     unsupported: tuple[str, ...]
     unknown: tuple[str, ...]
+    #: How many test-count claims the README prose makes (0 means none were found, which is not the same as "all fine").
+    readme_test_claims: int = 0
 
     def as_markdown(self) -> str:
         """The report as a markdown document."""
@@ -95,13 +101,15 @@ class PoetryCritic:
         """Read the tree's documents against what the tree declares and what was measured."""
         nar = narrative or inspect_tree(Path(root))
         notes = _Notes()
+        measured = measure(facts) if facts is not None else None
         _read_readme(nar, notes)
-        _speak_about_measurements(facts, notes)
+        _speak_about_measurements(measured, notes)
+        claimed = _check_readme_claims(nar, measured, notes)
         _check_historical_as_current(nar, notes)
         _check_ownership(nar, notes)
         _check_cns(nar, notes)
         parse_failures = _check_parse_failures(nar, notes)
-        notes.unknown.extend(nar.unknowns)
+        notes.unknown.extend(clean(item) for item in nar.unknowns)
 
         good_enough = not notes.unsupported and not parse_failures
         return CriticReport(
@@ -114,6 +122,7 @@ class PoetryCritic:
             what_is_unfinished=tuple(notes.unfinished),
             unsupported=tuple(notes.unsupported),
             unknown=tuple(notes.unknown),
+            readme_test_claims=claimed,
         )
 
 
@@ -138,25 +147,50 @@ def _read_readme(nar: Narrative, notes: _Notes) -> None:
         notes.unsupported.append("polished README without a claims-vs-reality section")
 
 
-def _speak_about_measurements(facts: Facts | None, notes: _Notes) -> None:
+def _speak_about_measurements(measured: Measured | None, notes: _Notes) -> None:
     """Quote the suite result and Ghost's remaining findings; say plainly when none were given."""
-    if facts is None:
+    if measured is None:
         notes.unknown.append("No measurements were handed to the critic: the suite result and "
                              "Ghost's findings are UNKNOWN here.")
         return
-    suite = facts.suite
-    if suite is None or not suite.ran:
-        notes.unfinished.append("The target's suite was not run by Warden, so nothing here is "
+    suite = measured.suite
+    if suite is None:
+        why = next((s for s in measured.not_run if "suite" in s), "the suite was not run")
+        notes.unfinished.append(f"The suite result is unmeasured ({why}), so nothing here is "
                                 "backed by an executed test.")
     elif suite.green:
         notes.beautiful.append(f"Warden ran the target's suite at the end of the loop: {suite.describe()}.")
     else:
         notes.ugly.append(f"The target's suite is not green: {suite.describe()}.")
         notes.unsupported.append("a suite that is not green")
-    for defect in facts.remaining:
-        notes.ugly.append(f"Ghost still reports {defect.identity}: {defect.summary}")
-    notes.unknown.append(f"The loop ran {facts.cycles} change cycle(s); "
+    for defect in measured.remaining:
+        notes.ugly.append(f"Ghost still reports {clean(defect.identity)}: {clean(defect.summary)}")
+    notes.unknown.append(f"The loop ran {measured.cycles} change cycle(s); "
                          "finished means no proposals were left, not that Ghost is silent.")
+
+
+def _check_readme_claims(nar: Narrative, measured: Measured | None, notes: _Notes) -> int:
+    """Check the README's own test counts and absolutes against the measured suite. It only reports; it never rewrites.
+
+    Returns how many test-count claims the prose makes.
+    """
+    claims = test_claims(nar.readme_text)
+    suite = measured.suite if measured is not None else None
+    for claim in claims:
+        agrees, sentence = judge(claim, suite)
+        notes.claims.append(Claim(text=claim.text, location="README",
+                                  epistemic=EpistemicState.VERIFIED if suite else EpistemicState.UNKNOWN,
+                                  supported=agrees, note=sentence))
+        if suite and not agrees:
+            notes.unsupported.append(sentence)
+        elif not suite:
+            notes.unknown.append(sentence)
+    for phrase in absolutes(nar.readme_text):
+        note = "claim not backed by any measurement in this run"
+        notes.claims.append(Claim(text=phrase, location="README", epistemic=EpistemicState.UNKNOWN,
+                                  supported=False, note=note))
+        notes.unsupported.append(f"'{phrase}': {note}")
+    return len(claims)
 
 
 def _check_historical_as_current(nar: Narrative, notes: _Notes) -> None:
@@ -195,8 +229,8 @@ def _check_parse_failures(nar: Narrative, notes: _Notes) -> list[str]:
     """A file that cannot be parsed is reported, never skipped; silence would read as clean."""
     failures = [m.path for m in nar.modules if m.purpose == "(unparseable)"]
     for path in failures:
-        notes.ugly.append(f"{path} could not be parsed. Structural detectors cannot speak for it.")
-        notes.unfinished.append(path)
+        notes.ugly.append(f"{clean(path)} could not be parsed. Structural detectors cannot speak for it.")
+        notes.unfinished.append(clean(path))
     return failures
 
 

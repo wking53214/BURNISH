@@ -46,7 +46,15 @@ def test_what_ghost_still_reports_is_named_as_ugly(tmp_path: Path):
     assert any("not run" in item for item in report.what_is_unfinished)
 
 
-def test_the_critic_makes_no_claim_about_test_counts(tmp_path: Path):
+def test_the_critic_checks_a_readme_test_count_against_the_measured_suite(tmp_path: Path):
+    """Changed on purpose: it used to ignore test counts in the README. It now only reports them, never counts."""
     _pkg(tmp_path, "# demo\n\nAll 16 tests passed unmodified on python3.\n")
-    report = PoetryCritic().critique(tmp_path)
-    assert report.claims == () and report.good_enough
+    unmeasured = PoetryCritic().critique(tmp_path)
+    assert [c.note for c in unmeasured.claims] == [
+        "The README says 16 tests; this number is unmeasured because the test suite did not run."]
+    assert unmeasured.good_enough
+    wrong = PoetryCritic().critique(tmp_path, facts=Facts(suite=SuiteRun(ran=True, passed=5), remaining=(), cycles=1))
+    assert not wrong.good_enough
+    assert "The README says 16 tests; the measured suite has 5 passing." in wrong.unsupported[0]
+    right = PoetryCritic().critique(tmp_path, facts=Facts(suite=SuiteRun(ran=True, passed=16), remaining=(), cycles=1))
+    assert right.good_enough and right.claims[0].supported

@@ -12,9 +12,9 @@ Warden as `Facts`, and where nothing is known the section says UNKNOWN.
 
 from __future__ import annotations
 
-import re
-
 from .critic import CriticReport
+from .files import dominant_ending
+from .marked import find_block, wrap
 from .narrative import Narrative
 
 __all__ = ["REQUIRED_HEADINGS", "compile_readme", "finalize_readme"]
@@ -81,8 +81,7 @@ def _default_sections(narrative: Narrative, critic: CriticReport) -> dict[str, s
         "WHAT IS IMPLEMENTED": f"- Python modules in this tree: {len(narrative.modules)}",
         "WHAT IS PROVEN": "- Only what an executed test shows. See CLAIMS VS REALITY for what was measured.",
         "WHAT IS NOT PROVEN": ("- Anything no executed test covers.\n"
-                               "- Burnish does not claim this README is complete.\n"
-                               f"- Critic verdict: {critic.verdict}"),
+                               "- Burnish does not claim this README is complete."),
         "WHAT DOES NOT WORK": "- UNKNOWN. Failures not executed here are not listed as passing.",
         "WHAT IS STILL UGLY": ugly,
         "KNOWN DEFECTS": ugly,
@@ -107,10 +106,24 @@ def _scripts(narrative: Narrative) -> str:
     return ", ".join(name for name, _ in narrative.scripts) or "none declared"
 
 
-def _claims_versus_reality(critic: CriticReport) -> str:
-    claims = "\n".join(f"- `{c.text}`: {_plain(c.note)} [{c.epistemic.value}]" for c in critic.claims)
-    return (f"{claims or '- No numeric claims were extracted.'}\n\n"
-            f"Critic: **{_plain(critic.verdict)}**")
+def _claims_versus_reality(critic: CriticReport, complete: bool = True) -> str:
+    """The claims the critic checked, then its verdict. `complete` is False when any check did not run."""
+    lines = [f"- `{c.text}`: {_plain(c.note)} [{c.epistemic.value}]" for c in critic.claims]
+    if not critic.readme_test_claims:
+        lines.append("- No test-count claims found in the README.")
+    return f"{chr(10).join(lines)}\n\nCritic: **{_plain(_verdict(critic, complete))}**"
+
+
+def _verdict(critic: CriticReport, complete: bool) -> str:
+    """The critic's verdict, but never 'consistent' when part of the run was not measured or nothing was checked."""
+    if not critic.good_enough:
+        return critic.verdict
+    if not complete:
+        return ("Part of this run was not measured, so this is not a clean bill of health. "
+                "Nothing found so far contradicts the README.")
+    if not critic.readme_test_claims:
+        return "No contradiction with the measurements was found. That is not a proof of the whole design."
+    return critic.verdict
 
 
 def _plain(text: str) -> str:
@@ -118,35 +131,37 @@ def _plain(text: str) -> str:
     return text.replace(" \u2014 ", ": ").replace("\u2014", "-").replace("\u2013", "-")
 
 
-_CLAIMS_HEADING = re.compile(r"^##[ \t]+claims[ \t]+vs\.?[ \t]+reality[ \t]*$", re.I | re.M)
-_NEXT_HEADING = re.compile(r"^##[ \t]+\S", re.M)
-
-
 def finalize_readme(existing: str, narrative: Narrative, critic: CriticReport,
-                    commentary: str = "", measured: dict[str, str] | None = None) -> str:
-    """The final README: the author's prose kept as written, the critic's commentary current.
+                    commentary: str = "", measured: dict[str, str] | None = None,
+                    complete: bool = True) -> str:
+    """The final README: the author's text kept byte for byte, one marked block of generated facts kept current.
 
-    With no README, one is compiled from the tree. With one, nothing the author
-    wrote is touched or duplicated: the only change is a single CLAIMS VS REALITY
-    section (replaced if present, appended if not) holding what was measured, the
-    critic's verdict and the critic's commentary. No heading is added just
-    because the standard lists it; a section with nothing real to say is not
-    written. `measured` supplies the suite line when Warden ran a green suite.
-    Running it twice changes nothing.
+    Burnish only writes between its own markers (see `burnish.marked`). If the
+    README has no block, one is added at the end, under its own heading, however
+    the author's headings are named. If it has one, only that block is replaced,
+    and when the new block equals the old one the text comes back unchanged, so
+    running it on its own output changes nothing. If the markers are damaged
+    (unbalanced, repeated, reversed) nothing is edited. Line endings follow the file.
+
+    With no README at all, one is compiled from the tree first. `measured`
+    supplies the suite line when Warden measured the suite.
     """
-    if not existing.strip():
-        return compile_readme(narrative, critic, extra_sections={
-            **(measured or {}), "CLAIMS VS REALITY": _claims_versus_reality(critic) + _tail(commentary)})
-    text = existing.rstrip("\n") + "\n"
     suite_line = (measured or {}).get("WHAT WORKS", "")
-    body = "\n\n".join(part for part in (suite_line, _claims_versus_reality(critic)) if part)
-    section = f"## CLAIMS VS REALITY\n\n{body}{_tail(commentary)}\n"
-    start = _CLAIMS_HEADING.search(text)
-    if start is None:
-        return text + "\n" + section
-    following = _NEXT_HEADING.search(text, start.end())
-    end = following.start() if following else len(text)
-    return text[:start.start()] + section + ("\n" + text[end:] if following else "")
+    body = "\n".join(part for part in (suite_line, _claims_versus_reality(critic, complete)) if part)
+    block = wrap(_plain(f"{body}{_tail(commentary)}"))
+    if not existing.strip():
+        return compile_readme(narrative, critic).rstrip("\n") + "\n\n" + block
+    found = find_block(existing)
+    if found.problem:
+        return existing
+    eol = dominant_ending(existing)
+    rendered = block.replace("\n", eol)
+    if found.found:
+        current = existing[found.start:found.end]
+        if current.replace("\r\n", "\n").replace("\r", "\n") == block:
+            return existing
+        return existing[:found.start] + rendered + existing[found.end:]
+    return existing.rstrip("\r\n") + eol + eol + rendered
 
 
 def _tail(commentary: str) -> str:
