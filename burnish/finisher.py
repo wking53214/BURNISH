@@ -25,6 +25,24 @@ WHAT IT WILL NOT DO TO A README
   * It never reads its own earlier output, so running it on its own result
     proposes nothing.
 
+WHAT IT WILL NOT TOUCH
+
+  * a test file, test setting, CI file or Ghost file, not even for whitespace: the Judge
+    rejects the whole finish and Warden puts everything back,
+  * vendored or generated code (the directories and banners Warden refuses), and
+  * a README whose first lines say it is generated.
+
+DOCUMENTATION OR CODE
+
+A finish that mixes README edits with code edits is turned away whole under a
+documentation grant, and a rejected finish puts everything back. Burnish is built with
+no knowledge of the grant, so by default it proposes only the README, which is prose and
+safe under any scope. Tidying code is proposed only when it is told the grant covers it:
+`Burnish(scope="code")`, or `BURNISH_SCOPE=code` in the environment. Either way the two
+halves stay separable: `finish_docs` and `finish_code` return one proposal each, and after
+`finish`, `docs_edits` and `code_edits` hold every edit of each kind (code ones too when
+they were left out), so a governor can choose.
+
 `Burnish.notes` holds, after each `finish`, what it left alone and why. The same
 notes are in the proposal's `architectural_reason`.
 """
@@ -32,6 +50,7 @@ notes are in the proposal's `architectural_reason`.
 from __future__ import annotations
 
 import dataclasses
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -40,7 +59,7 @@ from warden.roles import Facts
 
 from .beautify import tidy_edits
 from .critic import CriticReport, PoetryCritic
-from .files import find_readme, read_strict, readme_is_markdown
+from .files import find_readme, looks_generated, read_strict, readme_is_markdown
 from .marked import HEADING, find_block, has_heading, unclosed_fence
 from .measured import Measured, measure
 from .narrative import Narrative, analysis_text, inspect_tree
@@ -59,18 +78,54 @@ class Burnish:
     #: The seat contract this Finisher was written against. Warden warns when it is missing and refuses a mismatch.
     requires_contract = "1"
 
-    def __init__(self) -> None:
+    def __init__(self, scope: Optional[str] = None) -> None:
         self.notes: list[str] = []
+        self.scope = (scope or os.environ.get("BURNISH_SCOPE") or "documentation").strip().lower()
+        #: After `finish`: the README edits (prose) and the Python tidy edits (code), whether or not they were proposed.
+        self.docs_edits: list[FileEdit] = []
+        self.code_edits: list[FileEdit] = []
+
+    @property
+    def covers_code(self) -> bool:
+        """True when the grant this finisher was told about covers code (`code` or `all`)."""
+        return self.scope in {"code", "all"}
 
     def finish(self, target: Path, baseline: str, facts: Facts) -> Optional[Transformation]:
-        """One proposal: tidied code and the README's generated section, or None if neither would change."""
+        """One proposal: the README's generated section, plus tidied code when the scope covers code; None if nothing changes."""
         target = Path(target).resolve()
         self.notes = []
         facts = facts if facts is not None else _NO_FACTS
-        edits = tidy_edits(target, self.notes)
+        self.code_edits = tidy_edits(target, self.notes)
         readme = self._readme_edit(target, facts, measure(facts))
-        if readme is not None:
-            edits.append(readme)
+        self.docs_edits = [readme] if readme is not None else []
+        edits = [*self.code_edits, *self.docs_edits] if self.covers_code else list(self.docs_edits)
+        if self.code_edits and not self.covers_code:
+            self.notes.append(f"{len(self.code_edits)} Python file(s) could be tidied; not proposed, because a "
+                              "finish that mixes code with the README is rejected whole under a documentation grant. "
+                              "Run with scope=code to include them.")
+        return self._proposal(target, baseline, facts, edits)
+
+    def finish_docs(self, target: Path, baseline: str, facts: Facts) -> Optional[Transformation]:
+        """Only the README edit: prose, so it is inside any grant."""
+        target = Path(target).resolve()
+        self.notes = []
+        facts = facts if facts is not None else _NO_FACTS
+        self.code_edits = []
+        readme = self._readme_edit(target, facts, measure(facts))
+        self.docs_edits = [readme] if readme is not None else []
+        return self._proposal(target, baseline, facts, list(self.docs_edits))
+
+    def finish_code(self, target: Path, baseline: str, facts: Facts) -> Optional[Transformation]:
+        """Only the Python tidy edits: needs a grant whose scope covers code."""
+        target = Path(target).resolve()
+        self.notes = []
+        facts = facts if facts is not None else _NO_FACTS
+        self.docs_edits = []
+        self.code_edits = tidy_edits(target, self.notes)
+        return self._proposal(target, baseline, facts, list(self.code_edits))
+
+    def _proposal(self, target: Path, baseline: str, facts: Facts, edits: list[FileEdit]) -> Optional[Transformation]:
+        """The one proposal for `edits`, or None when there are none."""
         if not edits:
             return None
         return Transformation(
@@ -104,6 +159,9 @@ class Burnish:
                 self.notes.append(f"{clean(path.name)} is not valid UTF-8 or cannot be read, so it was not edited.")
                 return None
         narrative = inspect_tree(target)
+        if path is not None and looks_generated(raw):
+            self.notes.append(f"{clean(path.name)} says in its first lines that it is generated, so it was not edited.")
+            return None
         if path is not None and not readme_is_markdown(path):
             self._report_only(path, narrative, facts, measured)
             return None

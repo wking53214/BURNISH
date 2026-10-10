@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import ast
 import re
+import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -84,19 +85,57 @@ def analysis_text(text: str) -> str:
 
 
 def _project_metadata(root: Path) -> tuple[str, Optional[str], Optional[str], tuple[tuple[str, str], ...]]:
-    """Name, version, description and console scripts, as pyproject.toml declares them."""
+    """Name, version, description and console scripts, as pyproject.toml declares them.
+
+    The name, version and description come from the `[project]` (or `[tool.poetry]`) table, and console scripts
+    only from `[project.scripts]` or `[tool.poetry.scripts]`. A line such as `key = "a:b"` in any other
+    table is a setting, not a command.
+    """
     name, version, description = root.name, None, None
     pyproject = root / "pyproject.toml"
     if not pyproject.is_file():
         return name, version, description, ()
     text = pyproject.read_text(encoding="utf-8", errors="replace")
-    declared = {key: re.search(rf'^{key}\s*=\s*"([^"]+)"', text, re.M) for key in ("version", "description", "name")}
-    version = declared["version"].group(1) if declared["version"] else None
-    description = declared["description"].group(1) if declared["description"] else None
-    name = declared["name"].group(1) if declared["name"] else name
-    scripts = tuple((m.group(1), m.group(2))
-                    for m in re.finditer(r'^([A-Za-z0-9_-]+)\s*=\s*"([^"]+:[^"]+)"', text, re.M))
+    tables = _tables(text)
+    for table in ("project", "tool.poetry"):
+        fields = tables.get(table, {})
+        if isinstance(fields.get("name"), str):
+            name = fields["name"]
+            version = fields["version"] if isinstance(fields.get("version"), str) else None
+            description = fields["description"] if isinstance(fields.get("description"), str) else None
+            break
+    scripts = tuple((key, value) for table in ("project.scripts", "tool.poetry.scripts")
+                    for key, value in tables.get(table, {}).items() if isinstance(value, str) and ":" in value)
     return name, version, description, scripts
+
+
+def _tables(text: str) -> dict[str, dict]:
+    """The `project` and `tool.poetry` tables and their `scripts` tables, parsed, or read line by line if the TOML is broken."""
+    wanted = {"project", "project.scripts", "tool.poetry", "tool.poetry.scripts"}
+    try:
+        data = tomllib.loads(text)
+    except (tomllib.TOMLDecodeError, ValueError):
+        data = None
+    if isinstance(data, dict):
+        project = data.get("project") if isinstance(data.get("project"), dict) else {}
+        tool = data.get("tool") if isinstance(data.get("tool"), dict) else {}
+        poetry = tool.get("poetry")
+        poetry = poetry if isinstance(poetry, dict) else {}
+        found = {"project": project, "tool.poetry": poetry,
+                 "project.scripts": project.get("scripts") if isinstance(project.get("scripts"), dict) else {},
+                 "tool.poetry.scripts": poetry.get("scripts") if isinstance(poetry.get("scripts"), dict) else {}}
+        return found
+    out: dict[str, dict] = {}
+    current = ""
+    for line in text.splitlines():
+        header = re.match(r"^\s*\[([^\[\]]+)\]\s*(?:#.*)?$", line)
+        if header:
+            current = header.group(1).strip()
+            continue
+        pair = re.match(r'^\s*([A-Za-z0-9_.-]+)\s*=\s*"([^"]*)"', line)
+        if pair and current in wanted:
+            out.setdefault(current, {})[pair.group(1)] = pair.group(2)
+    return out
 
 
 @dataclass

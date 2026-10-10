@@ -21,7 +21,7 @@ from pathlib import Path
 from warden.epistemic import EpistemicState
 from warden.roles import Facts
 
-from .claims import absolutes, judge, test_claims
+from .claims import absolutes, judge, test_claims, unchecked_mentions
 from .measured import Measured, measure
 from .narrative import Narrative, inspect_tree
 from .textsafe import clean
@@ -36,6 +36,10 @@ class Claim:
     epistemic: EpistemicState
     supported: bool
     note: str
+    #: "agrees", "disagrees" or "unmeasured" for a README number; empty for any other kind of claim.
+    agreement: str = ""
+    #: A description to print in place of `text` when `text` would repeat the README's own claim.
+    label: str = ""
 
 
 @dataclass(frozen=True)
@@ -53,6 +57,8 @@ class CriticReport:
     unknown: tuple[str, ...]
     #: How many test-count claims the README prose makes (0 means none were found, which is not the same as "all fine").
     readme_test_claims: int = 0
+    #: How many test counts the README mentions that are about something else (a file, a table row, a named subject).
+    readme_unchecked: int = 0
 
     def as_markdown(self) -> str:
         """The report as a markdown document."""
@@ -105,6 +111,7 @@ class PoetryCritic:
         _read_readme(nar, notes)
         _speak_about_measurements(measured, notes)
         claimed = _check_readme_claims(nar, measured, notes)
+        unchecked = unchecked_mentions(nar.readme_text)
         _check_historical_as_current(nar, notes)
         _check_ownership(nar, notes)
         _check_cns(nar, notes)
@@ -123,6 +130,7 @@ class PoetryCritic:
             unsupported=tuple(notes.unsupported),
             unknown=tuple(notes.unknown),
             readme_test_claims=claimed,
+            readme_unchecked=unchecked,
         )
 
 
@@ -178,9 +186,12 @@ def _check_readme_claims(nar: Narrative, measured: Measured | None, notes: _Note
     suite = measured.suite if measured is not None else None
     for claim in claims:
         agrees, sentence = judge(claim, suite)
-        notes.claims.append(Claim(text=claim.text, location="README",
-                                  epistemic=EpistemicState.VERIFIED if suite else EpistemicState.UNKNOWN,
-                                  supported=agrees, note=sentence))
+        states = ((EpistemicState.VERIFIED, "agrees") if agrees else
+                  (EpistemicState.ASSUMED, "disagrees")) if suite else (EpistemicState.UNKNOWN, "unmeasured")
+        what = ("all tests pass" if claim.kind == "green" else
+                f"count {claim.number}" + (", says passing" if claim.kind == "passing" else ""))
+        notes.claims.append(Claim(text=claim.text, location="README", epistemic=states[0], supported=agrees,
+                                  note=sentence, agreement=states[1], label=f"README claim ({what})"))
         if suite and not agrees:
             notes.unsupported.append(sentence)
         elif not suite:

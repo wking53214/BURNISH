@@ -134,14 +134,20 @@ def _without_generated_block(text: str) -> str:
     stands alone and imports nothing else from Burnish. Markers inside a code fence are not markers.
     """
     lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
-    fenced, begin, end = False, [], []
+    fenced, commented, begin, end = False, False, [], []
     for number, line in enumerate(lines):
-        if re.match(r"^ {0,3}(`{3,}|~{3,})", line):
+        if commented:
+            commented = "-->" not in line or line.strip() in {_BEGIN, _END}
+        elif re.match(r"^ {0,3}(`{3,}|~{3,})", line):
             fenced = not fenced
-        elif not fenced and line.strip() == _BEGIN:
+        elif fenced or re.match(r"^(?: {4,}|\t)", line):
+            continue  # fenced or indented code: an example, not a marker
+        elif line.strip() == _BEGIN:
             begin.append(number)
-        elif not fenced and line.strip() == _END:
+        elif line.strip() == _END:
             end.append(number)
+        elif line.lstrip().startswith("<!--") and "-->" not in line:
+            commented = True
     if len(begin) != 1 or len(end) != 1 or end[0] < begin[0]:
         return text
     before = "\n".join(lines[:begin[0]]).rstrip()
