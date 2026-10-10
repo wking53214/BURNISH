@@ -38,14 +38,14 @@ def _auth(root: Path):
 def test_the_finisher_proposes_and_never_writes(tmp_path: Path):
     _tree(tmp_path)
     before = (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8")
-    proposal = Burnish().finish(tmp_path, "base", FACTS)
+    proposal = Burnish(scope="code").finish(tmp_path, "base", FACTS)
     assert {e.path for e in proposal.edits} == {"pkg/__init__.py", "README.md"}
     assert (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8") == before
 
 
 def test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words(tmp_path: Path):
     _tree(tmp_path)
-    result = TagTeam(drafter=Idle(), finisher=Burnish()).run(
+    result = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(
         tmp_path, findings=[], authorization=_auth(tmp_path))
     assert result.decision.startswith("ACCEPT") and result.finished
     assert (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8").endswith("VALUE = 1\n")
@@ -56,8 +56,8 @@ def test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_word
 
 def test_nothing_to_finish_means_no_proposal(tmp_path: Path):
     _tree(tmp_path)
-    TagTeam(drafter=Idle(), finisher=Burnish()).run(tmp_path, findings=[], authorization=_auth(tmp_path))
-    again = Burnish().finish(tmp_path, "base", FACTS)
+    TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(tmp_path, findings=[], authorization=_auth(tmp_path))
+    again = Burnish(scope="code").finish(tmp_path, "base", FACTS)
     assert again is None or [e.path for e in again.edits] == ["README.md"]
 
 
@@ -74,7 +74,7 @@ def test_finalizing_twice_changes_nothing(tmp_path: Path):
 def test_a_missing_readme_is_compiled(tmp_path: Path):
     _tree(tmp_path)
     (tmp_path / "README.md").unlink()
-    proposal = Burnish().finish(tmp_path, "base", FACTS)
+    proposal = Burnish(scope="code").finish(tmp_path, "base", FACTS)
     readme = next(e for e in proposal.edits if e.path == "README.md")
     assert readme.new.startswith("# demo") and "CLAIMS VS REALITY" in readme.new
 
@@ -84,7 +84,7 @@ def test_a_suite_that_the_finishing_change_would_break_is_put_back(tmp_path: Pat
     _tree(tmp_path)
     (tmp_path / "tests" / "test_x.py").write_text(
         'import pkg\n\n\ndef test_a():\n    assert "x  " == "x  "   \n', encoding="utf-8")
-    result = TagTeam(drafter=Idle(), finisher=Burnish()).run(
+    result = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(
         tmp_path, findings=[], authorization=_auth(tmp_path))
     assert result.decision.startswith("ACCEPT")
 
@@ -92,7 +92,7 @@ def test_a_suite_that_the_finishing_change_would_break_is_put_back(tmp_path: Pat
 def _final(tmp_path: Path, intro: str = "# demo\n\nMy hand-written intro.\n") -> str:
     _tree(tmp_path)
     (tmp_path / "README.md").write_text(intro, encoding="utf-8")
-    proposal = Burnish().finish(tmp_path, "base", FACTS)
+    proposal = Burnish(scope="code").finish(tmp_path, "base", FACTS)
     return next(e for e in proposal.edits if e.path == "README.md").new
 
 
@@ -131,7 +131,7 @@ def test_ghost_findings_are_summarised_not_listed(tmp_path: Path):
                         detector="intra_function_duplicate_block")
                  for n in range(9))
     facts = Facts(suite=FACTS.suite, remaining=many, cycles=1)
-    proposal = Burnish().finish(tmp_path, "base", facts)
+    proposal = Burnish(scope="code").finish(tmp_path, "base", facts)
     final = next(e for e in proposal.edits if e.path == "README.md").new
     assert "still reports 9 finding(s) (intra_function_duplicate_block 9)" in final
     assert "repeat number 3" not in final
@@ -142,6 +142,6 @@ def test_the_commentary_says_when_a_check_never_ran(tmp_path):
     (tmp_path / "pkg" / "__init__.py").write_text("V = 1\n", encoding="utf-8")
     (tmp_path / "README.md").write_text("# T\n\nA thing.\n", encoding="utf-8")
     facts = Facts(suite=None, remaining=(), cycles=0, unmeasured=("ghost", "suite"))
-    edit = Burnish().finish(tmp_path, "b", facts).edits[0]
+    edit = Burnish(scope="code").finish(tmp_path, "b", facts).edits[0]
     assert "Not measured: Ghost Tools was not run; the target's own suite was not run." in edit.new
     assert "—" not in edit.new and "–" not in edit.new

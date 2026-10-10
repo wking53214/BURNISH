@@ -55,10 +55,13 @@ def _parser() -> argparse.ArgumentParser:
         ("critic", "claims in the README and PROVENANCE against what the tree contains"),
         ("inspect", "what the tree declares about itself, as JSON"),
         ("readme", "print a README draft compiled from the tree (never writes)"),
-        ("finish", "preview which files the finishing proposal would change (never writes)"),
         ("cns", "CNS seam recommendation (never modifies CNS)"),
     ):
         sub.add_parser(name, help=help_text).add_argument("path", type=Path, nargs="?", default=Path("."))
+    finish = sub.add_parser("finish", help="preview which files the finishing proposal would change (never writes)")
+    finish.add_argument("path", type=Path, nargs="?", default=Path("."))
+    finish.add_argument("--scope", choices=["documentation", "code"], default=None,
+                        help="documentation (default): the README only. code: tidy Python files too")
     readme_critic = sub.add_parser("readme-critic", help="a blunt review of the README against the README standard")
     readme_critic.add_argument("path", type=Path, nargs="?", default=Path("."))
     readme_critic.add_argument("--tier", choices=sorted(_TIERS), default="minimum",
@@ -114,7 +117,7 @@ def _readme(args: argparse.Namespace) -> int:
 
 def _finish(args: argparse.Namespace) -> int:
     """List the files the finisher would change, using no measurements (a preview, not the real hand-off)."""
-    seat = Burnish()
+    seat = Burnish(scope=args.scope)
     proposal = seat.finish(args.path, "preview", Facts(suite=None, remaining=(), cycles=0))
     for edit in () if proposal is None else proposal.edits:
         print(edit.path)

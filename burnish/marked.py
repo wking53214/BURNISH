@@ -15,8 +15,11 @@ Three rules follow from that, and every other module relies on them:
   * The critic and every check read the README with the marked block removed
     (`without_block`), so Burnish never reads its own earlier output. That is
     what makes running it twice on its own result change nothing.
-  * Markers inside a fenced code block are examples, not markers, and a `##`
-    inside a fence is not a heading.
+  * Markers inside a fenced code block, an indented code block or an HTML comment
+    are examples or hidden text, not markers, and a `##` inside any of them is
+    not a heading. A marker must start within three columns of the margin.
+  * A README that ends inside an unclosed HTML comment hides everything that
+    follows, so `ends_inside_comment` tells the caller to close it first.
 """
 
 from __future__ import annotations
@@ -26,7 +29,7 @@ from dataclasses import dataclass
 from typing import Iterator, Optional
 
 __all__ = ["BEGIN", "END", "HEADING", "Block", "find_block", "without_block", "outside_fences",
-           "has_heading", "wrap", "unclosed_fence"]
+           "has_heading", "wrap", "unclosed_fence", "ends_inside_comment"]
 
 BEGIN = "<!-- burnish:begin claims-vs-reality -->"
 END = "<!-- burnish:end -->"
@@ -48,39 +51,96 @@ class Block:
         return self.start >= 0
 
 
-def outside_fences(text: str) -> Iterator[tuple[int, str]]:
-    """(character offset, line without its line break) for each line that is not inside a fenced code block.
+_LIST_ITEM = re.compile(r"^ {0,3}(?:[-*+]|\d{1,9}[.)])(?:\s|$)")
+_BLOCK_LINE = re.compile(r"^ {0,3}(?:#{1,6}(?:\s|$)|(?:[-*_][ \t]*){3,}$)")
 
-    The fence lines themselves are left out too.
+
+def _indent(line: str) -> int:
+    """Columns of white space at the start of `line`, a tab counting as four."""
+    columns = 0
+    for char in line:
+        if char == " ":
+            columns += 1
+        elif char == "\t":
+            columns += 4 - columns % 4
+        else:
+            break
+    return columns
+
+
+def _raw_lines(text: str) -> list[str]:
+    """The lines of `text` with their breaks kept, splitting only on CRLF, LF and CR (not on form feeds)."""
+    return re.findall(r"[^\r\n]*(?:\r\n|\n|\r)|[^\r\n]+$", text)
+
+
+def _classify(text: str) -> tuple[list[tuple[int, str, str]], str]:
+    """(offset, line without its break, kind) for every line, and what the text ends inside.
+
+    kind is one of "text", "blank", "html1" (a one-line HTML comment, which is where the
+    markers live), "comment" (a line of a multi-line HTML comment), "fence" (a fenced
+    code line, fence lines included) or "indented" (an indented code block). The second
+    value is "fence", "comment" or "" for the state at the end of the text.
     """
-    fence = ""
-    offset = 0
-    for raw in text.splitlines(keepends=True):
+    out: list[tuple[int, str, str]] = []
+    fence, comment = "", False
+    previous, in_list, after_block, offset = "blank", False, False, 0
+    for raw in _raw_lines(text):
         line = raw.rstrip("\r\n")
         opening = _FENCE.match(line)
         if fence:
+            kind = "fence"
             if opening and opening.group(1)[0] == fence[0] and len(opening.group(1)) >= len(fence) \
                     and not line.strip().strip(fence[0]):
                 fence = ""
+        elif comment:
+            kind = "comment"
+            comment = "-->" not in line or line.strip() in {BEGIN, END}
+        elif not line.strip():
+            kind = "blank"
         elif opening:
-            fence = opening.group(1)
+            kind, fence = "fence", opening.group(1)
+        elif _indent(line) <= 3 and line.lstrip().startswith("<!--"):
+            start = line.index("<!--")
+            closed = line.find("-->", start + 2) >= 0
+            kind, comment = ("html1", False) if closed else ("comment", True)
         else:
-            yield offset, line
+            kind = "text"
+            if _LIST_ITEM.match(line):
+                in_list = True
+            elif _indent(line) < 2 and previous == "blank":
+                in_list = False
+            if _indent(line) >= 4 and not in_list and (previous in {"blank", "indented", "fence", "html1"}
+                                                      or (previous == "text" and after_block)):
+                kind = "indented"
+        after_block = kind == "text" and bool(_BLOCK_LINE.match(line))
+        out.append((offset, line, kind))
+        previous = kind
         offset += len(raw)
+    return out, ("fence" if fence else "comment" if comment else "")
+
+
+def outside_fences(text: str) -> Iterator[tuple[int, str]]:
+    """(character offset, line without its line break) for each line that is prose.
+
+    Lines inside a fenced code block (fence lines included), an indented code block or an
+    HTML comment are left out. The name is older than the other exclusions.
+    """
+    for offset, line, kind in _classify(text)[0]:
+        if kind in {"text", "blank"}:
+            yield offset, line
 
 
 def unclosed_fence(text: str) -> bool:
     """True when the text ends inside a fenced code block, where anything added at the end would become code."""
-    fence = ""
-    for raw in text.splitlines():
-        opening = _FENCE.match(raw)
-        if fence:
-            if opening and opening.group(1)[0] == fence[0] and len(opening.group(1)) >= len(fence) \
-                    and not raw.strip().strip(fence[0]):
-                fence = ""
-        elif opening:
-            fence = opening.group(1)
-    return bool(fence)
+    return _classify(text)[1] == "fence"
+
+
+def ends_inside_comment(text: str) -> bool:
+    """True when the text ends inside an HTML comment that was opened and never closed.
+
+    Everything after such an opener is hidden, so a block added at the end would be hidden too.
+    """
+    return _classify(text)[1] == "comment"
 
 
 def _line_end(text: str, offset: int) -> int:
@@ -91,8 +151,10 @@ def _line_end(text: str, offset: int) -> int:
 
 def find_block(text: str) -> Block:
     """The generated block in `text`, none, or a problem when the markers are unbalanced, repeated or reversed."""
-    begins = [o for o, line in outside_fences(text) if line.strip() == BEGIN]
-    ends = [o for o, line in outside_fences(text) if line.strip() == END]
+    lines = [(o, line) for o, line, kind in _classify(text)[0]
+             if kind in {"text", "html1"} and _indent(line) <= 3]
+    begins = [o for o, line in lines if line.strip() == BEGIN]
+    ends = [o for o, line in lines if line.strip() == END]
     if not begins and not ends:
         return Block()
     if len(begins) != 1 or len(ends) != 1:

@@ -29,7 +29,7 @@ def _apply(root: Path, proposal) -> None:
 
 
 def _finish(root: Path, facts: Facts = GREEN5):
-    seat = Burnish()
+    seat = Burnish(scope="code")
     return seat.finish(root, "base", facts), seat
 
 
@@ -155,7 +155,7 @@ def test_a_readme_that_claims_more_tests_than_were_measured_is_told_so_and_left_
     _tree(tmp_path, BRAG)
     new = _readme_edit(_finish(tmp_path)[0]).new
     assert new.startswith(BRAG)
-    assert "The README says 999 tests; the measured suite has 5 passing." in new
+    assert "The README says a count of 999; the measured suite has 5 passing. These disagree." in new
     assert "claim not backed by any measurement in this run" in new
     assert "fully verified" in new.lower() and "production ready" in new.lower()
     assert "consistent" not in new and "No numeric claims were extracted" not in new
@@ -171,7 +171,7 @@ def test_when_the_suite_did_not_run_a_readme_number_is_unmeasured(tmp_path: Path
     _tree(tmp_path, BRAG)
     facts = Facts(suite=SuiteRun(ran=False, reason="no pytest"), remaining=(), cycles=0)
     text = _section(_finish(tmp_path, facts)[0])
-    assert "The README says 999 tests; this number is unmeasured" in text
+    assert "The README says a count of 999; this is unmeasured" in text
 
 
 def test_no_claims_says_so_instead_of_consistent(tmp_path: Path):
@@ -195,7 +195,7 @@ def test_an_unsupported_readme_is_not_converted_and_no_markdown_one_appears(tmp_
     assert proposal is None or [e.path for e in proposal.edits] == []
     assert sorted(p.name for p in tmp_path.iterdir() if p.name.lower().startswith("readme")) == [name]
     assert any("not supported" in note for note in seat.notes)
-    assert any("999 tests" in note and "5 passing" in note for note in seat.notes)
+    assert any("a count of 999" in note and "5 passing" in note for note in seat.notes)
 
 
 def test_a_lowercase_readme_is_edited_in_place(tmp_path: Path):
@@ -346,9 +346,9 @@ def test_through_warden_a_second_finish_proposes_nothing(tmp_path: Path):
     (tmp_path / "tests" / "test_x.py").write_text("from pkg import VALUE\n\n\ndef test_a():\n    assert VALUE == 1\n",
                                                   encoding="utf-8")
     auth = grant("william", "transform", str(tmp_path.resolve()), "code", "test")
-    first = TagTeam(drafter=Idle(), finisher=Burnish()).run(tmp_path, findings=[], authorization=auth)
+    first = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(tmp_path, findings=[], authorization=auth)
     assert first.finished
     settled = (tmp_path / "README.md").read_bytes()
-    second = TagTeam(drafter=Idle(), finisher=Burnish()).run(tmp_path, findings=[], authorization=auth)
+    second = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(tmp_path, findings=[], authorization=auth)
     assert not second.finished and (tmp_path / "README.md").read_bytes() == settled
-    assert b"The README says 999 tests; the measured suite has 1 passing." in settled
+    assert b"The README says a count of 999; the measured suite has 1 passing." in settled
