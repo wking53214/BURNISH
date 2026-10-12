@@ -36,7 +36,10 @@ could be judged, improved and applied to itself.
 pip install git+https://github.com/wking53214/Burnish.git
 ```
 
-This also installs [Warden](https://github.com/wking53214/Warden), which
+Burnish is pinned to Warden `v0.9.0` (see below). Install that tag explicitly if you install Warden separately:
+`pip install "git+https://github.com/wking53214/Warden.git@v0.9.0"`.
+
+This also installs [Warden](https://github.com/wking53214/Warden) at its pinned tag `v0.9.0`, which
 Burnish plugs into. Python 3.11 or newer. No other dependencies.
 
 To work on it:
@@ -103,13 +106,15 @@ The other commands:
 
 | Command | What it does |
 |---------|--------------|
-| `burnish critic PATH` | Reads the README and modules against what the tree declares. Exit 1 on "This isn't good enough yet." |
+| `burnish critic PATH` | Checks claims in the README and PROVENANCE against what the tree contains. Exit 1 on "This isn't good enough yet." |
 | `burnish inspect PATH` | What the tree declares about itself, as JSON |
 | `burnish readme PATH` | Prints a README draft compiled from the tree. Never writes |
 | `burnish finish PATH` | Lists the files the finishing proposal would change. Never writes |
 | `burnish cns PATH` | A recommendation about a repository's CNS seam. Never modifies CNS |
 | `burnish criteria` | Every criterion, its level, and how implemented it is |
 | `burnish languages` | What is written down and what is enforced, per language |
+
+The README critic has its own command, `burnish readme-critic PATH [--tier minimum|strong|over-the-top]`, shown above.
 
 To finish a repository, hand Burnish to Warden as the finisher. Nothing
 is written without `--authorize`:
@@ -190,6 +195,8 @@ measured.py   reads Warden's facts; a suite that did not run is not a measuremen
 textsafe.py   makes text from other tools safe to print into a README
 readme.py     compiles and finalizes the README
 finisher.py   the one proposal Warden asks for, once, after the loop
+cns_boundary.py  the read-only CNS seam recommendation (`burnish cns`)
+languages.py  what is written and what is enforced, per language (`burnish languages`)
 ```
 
 Invariants, each enforced by a test:
@@ -267,8 +274,7 @@ CI runs the Python tests on 3.11 and 3.12, runs Burnish on itself, builds the
 Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
 warnings as errors.
 
-148 tests exist in this tree. They are Python `test_*` functions; the
-Rust and C++ exemplars have their own checks under `ctest` and `cargo test`.
+240 test cases are collected in this tree, from 143 Python `test_*` functions (some are parametrized). All 240 pass against the pinned Warden `v0.9.0` on CPython 3.13 (run 2026-10-12). Against Warden `main`, 237 pass and 3 fail: `test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `test_finisher.py::test_nothing_to_finish_means_no_proposal` and `test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`. Each one expects a finishing change to stand after an `ACCEPT_UNVERIFIED` run. Warden `main` holds such a run instead (it puts the tree back), and that rule came after `v0.9.0`. No tests are skipped or marked expected-to-fail. The Rust and C++ exemplars have their own checks under `cargo test` and `ctest`.
 
 ## Claims versus reality
 
