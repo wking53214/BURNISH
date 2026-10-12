@@ -35,6 +35,17 @@ def _auth(root: Path):
     return grant("william", "transform", str(root.resolve()), "code", "test")
 
 
+def _keep(root: Path, digest: str):
+    """A person's grant to keep one held result, for this folder and this digest."""
+    from warden import held
+    return grant("william", held.KEEP_OPERATION, f"{root.resolve()}@{digest}", "held-result", "test")
+
+
+def _keep_held(root: Path, result) -> None:
+    from warden import held
+    held.keep(root, result.held_digest, _keep(root, result.held_digest))
+
+
 def test_the_finisher_proposes_and_never_writes(tmp_path: Path):
     _tree(tmp_path)
     before = (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8")
@@ -47,7 +58,10 @@ def test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_word
     _tree(tmp_path)
     result = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(
         tmp_path, findings=[], authorization=_auth(tmp_path))
-    assert result.decision.startswith("ACCEPT") and result.finished
+    # Warden holds any result that is not a full ACCEPT: the tidy is put back until a person keeps it.
+    assert result.decision == "ACCEPT_UNVERIFIED" and result.held_digest
+    assert (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8").endswith("VALUE = 1   \n")
+    _keep_held(tmp_path, result)
     assert (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8").endswith("VALUE = 1\n")
     readme = (tmp_path / "README.md").read_text(encoding="utf-8")
     assert "My hand-written intro." in readme
@@ -56,7 +70,9 @@ def test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_word
 
 def test_nothing_to_finish_means_no_proposal(tmp_path: Path):
     _tree(tmp_path)
-    TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(tmp_path, findings=[], authorization=_auth(tmp_path))
+    first = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(
+        tmp_path, findings=[], authorization=_auth(tmp_path))
+    _keep_held(tmp_path, first)
     again = Burnish(scope="code").finish(tmp_path, "base", FACTS)
     assert again is None or [e.path for e in again.edits] == ["README.md"]
 
