@@ -347,7 +347,11 @@ def test_through_warden_a_second_finish_proposes_nothing(tmp_path: Path):
                                                   encoding="utf-8")
     auth = grant("william", "transform", str(tmp_path.resolve()), "code", "test")
     first = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(tmp_path, findings=[], authorization=auth)
-    assert first.finished
+    # Held, not accepted: the finish is put back until a person keeps it.
+    assert first.decision == "ACCEPT_UNVERIFIED" and first.held_digest
+    from warden import held
+    held.keep(tmp_path, first.held_digest,
+              grant("william", held.KEEP_OPERATION, f"{tmp_path.resolve()}@{first.held_digest}", "held-result", "test"))
     settled = (tmp_path / "README.md").read_bytes()
     second = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(tmp_path, findings=[], authorization=auth)
     assert not second.finished and (tmp_path / "README.md").read_bytes() == settled
