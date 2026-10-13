@@ -36,10 +36,10 @@ could be judged, improved and applied to itself.
 pip install git+https://github.com/wking53214/Burnish.git
 ```
 
-Burnish is pinned to Warden `v0.10.0` (see below). Install that tag explicitly if you install Warden separately:
-`pip install "git+https://github.com/wking53214/Warden.git@v0.10.0"`.
+Burnish is pinned to Warden `v0.10.1` (see below). Install that tag explicitly if you install Warden separately:
+`pip install "git+https://github.com/wking53214/Warden.git@v0.10.1"`.
 
-This also installs [Warden](https://github.com/wking53214/Warden) at its pinned tag `v0.10.0`, which
+This also installs [Warden](https://github.com/wking53214/Warden) at its pinned tag `v0.10.1`, which
 Burnish plugs into. Python 3.11 or newer. No other dependencies.
 
 To work on it:
@@ -274,7 +274,7 @@ CI runs the Python tests on 3.11 and 3.12, runs Burnish on itself, builds the
 Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
 warnings as errors.
 
-240 test cases are collected in this tree, from 143 Python `test_*` functions (some are parametrized). All 240 pass against the pinned Warden `v0.10.0` on CPython 3.13 (run 2026-10-12). The three Warden-loop tests (`test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `test_finisher.py::test_nothing_to_finish_means_no_proposal` and `test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`) now follow Warden's held-result rule: a finish that is not a full `ACCEPT` is put back and held, and the test keeps it with a grant before checking the result. Their earlier form expected a change to stand after `ACCEPT_UNVERIFIED`, which Warden no longer allows. No tests are skipped or marked expected-to-fail. The Rust and C++ exemplars have their own checks under `cargo test` and `ctest`.
+240 test cases are collected in this tree, from 143 Python `test_*` functions (some are parametrized). All 240 pass against the pinned Warden `v0.10.1` on CPython 3.13 (run 2026-10-13). The three Warden-loop tests (`test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `test_finisher.py::test_nothing_to_finish_means_no_proposal` and `test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`) now follow Warden's held-result rule: a finish that is not a full `ACCEPT` is put back and held, and the test keeps it with a grant before checking the result. Their earlier form expected a change to stand after `ACCEPT_UNVERIFIED`, which Warden no longer allows. No tests are skipped or marked expected-to-fail. The Rust and C++ exemplars have their own checks under `cargo test` and `ctest`.
 
 ## Claims versus reality
 
