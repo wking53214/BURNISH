@@ -33,6 +33,12 @@ SKIPPED_DIRS = frozenset({
     "vendored", "third_party", "thirdparty", "external", "extern", "generated", "gen",
     "site-packages", "build", "dist", "__pycache__", ".mypy_cache", ".pytest_cache",
     ".ruff_cache", "target",
+    # What tests compare against: fixtures, specimens, golden files, snapshots, a corpus. A file there is an
+    # answer, not code to tidy; a whitespace change breaks a recorded hash or a deliberately degraded
+    # specimen. Found when the circuit tidied ASSAY's own specimens and the suite caught it. Warden
+    # protects the same names.
+    "fixtures", "fixture", "specimens", "specimen", "testdata", "test_data", "golden", "snapshots",
+    "__snapshots__", "corpus",
 })
 
 #: Words in the first ten lines that say a file is generated or not for hand editing

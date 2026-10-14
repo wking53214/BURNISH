@@ -302,8 +302,10 @@ a test run that failed to start is reported as not measured; README numbers that
 disagree with the measured suite are named; text that Ghost Tools supplies
 cannot forge a heading or close the generated section; CRLF files, byte order
 marks and files that are not UTF-8 are handled without a crash and without
-changing line endings; environments, vendored code and generated files are not
-tidied.
+changing line endings; environments, vendored code, generated files and test material (`fixtures`,
+`specimens`, `testdata`, `golden`, `snapshots`, `corpus` folders) are not tidied:
+when the circuit ran on ASSAY, its own answer key, the tidy reformatted thirteen
+specimens and only the suite's recorded hashes caught it.
 
 Known defects. The test-count check looks for fixed phrasings such as "999
 tests pass" or "5/5 passed" and misses other wording, for example "ninety
