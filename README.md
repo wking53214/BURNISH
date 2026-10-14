@@ -171,11 +171,13 @@ list Warden uses: `vendor`, `third_party`, `extern`, `external`, `generated`,
 there needs a change in `burnish/files.py`.
 
 A finish that mixes code with the README is rejected whole under Warden's
-default `documentation` grant. Burnish does not know the grant, so by default it
-proposes only the README. To include tidied Python files, say the grant covers
-code: `BURNISH_SCOPE=code`, `Burnish(scope="code")` or `burnish finish PATH
---scope code`. After a finish, `docs_edits` and `code_edits` hold the two kinds
-of edit, and `finish_docs` and `finish_code` return one proposal each.
+default `documentation` grant. Burnish cannot see the grant itself, so by default it
+proposes only the README. Warden (0.11.0 or newer) sets Burnish's `scope` to the
+grant's scope before the finish, so a run with `--scope code` gets the tidied
+Python files too. Outside Warden, say it yourself: `BURNISH_SCOPE=code`,
+`Burnish(scope="code")` or `burnish finish PATH --scope code`. After a finish,
+`docs_edits` and `code_edits` hold the two kinds of edit, and `finish_docs` and
+`finish_code` return one proposal each.
 
 ## Architecture
 
@@ -319,7 +321,7 @@ Outstanding, in the order a person would likely want them:
 1. A first rewrite for names or comments in the finisher, behind Warden's gate.
 2. Read the parts of the C++ Core Guidelines the first pass missed, and add their criteria.
 3. A Rust checker, if Clippy's lints are not enough.
-4. Run Warden's loop with Drafter and Burnish in their seats on a real repository and record it in Warden's registry.
+4. Run Warden's loop with Drafter and Burnish in their seats on a real repository and record it in Warden's registry. The loop has run with every seat live on a scratch repository (2026-10-14, `warden tagteam --stack`; under a `code` grant Burnish's tidy and README section were both applied and the run ended `ACCEPT`), and that run is in Warden's `docs/REGISTRY.json`; a real repository is still to do.
 
 ## Support
 
