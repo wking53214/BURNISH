@@ -36,10 +36,10 @@ could be judged, improved and applied to itself.
 pip install git+https://github.com/wking53214/Burnish.git
 ```
 
-Burnish is pinned to Warden `v0.10.1` (see below). Install that tag explicitly if you install Warden separately:
-`pip install "git+https://github.com/wking53214/Warden.git@v0.10.1"`.
+Burnish is pinned to Warden `v0.11.0` (see below). Install that tag explicitly if you install Warden separately:
+`pip install "git+https://github.com/wking53214/Warden.git@v0.11.0"`.
 
-This also installs [Warden](https://github.com/wking53214/Warden) at its pinned tag `v0.10.1`, which
+This also installs [Warden](https://github.com/wking53214/Warden) at its pinned tag `v0.11.0`, which
 Burnish plugs into. Python 3.11 or newer. No other dependencies.
 
 To work on it:
@@ -171,11 +171,13 @@ list Warden uses: `vendor`, `third_party`, `extern`, `external`, `generated`,
 there needs a change in `burnish/files.py`.
 
 A finish that mixes code with the README is rejected whole under Warden's
-default `documentation` grant. Burnish does not know the grant, so by default it
-proposes only the README. To include tidied Python files, say the grant covers
-code: `BURNISH_SCOPE=code`, `Burnish(scope="code")` or `burnish finish PATH
---scope code`. After a finish, `docs_edits` and `code_edits` hold the two kinds
-of edit, and `finish_docs` and `finish_code` return one proposal each.
+default `documentation` grant. Burnish cannot see the grant itself, so by default it
+proposes only the README. Warden (0.11.0 or newer) sets Burnish's `scope` to the
+grant's scope before the finish, so a run with `--scope code` gets the tidied
+Python files too. Outside Warden, say it yourself: `BURNISH_SCOPE=code`,
+`Burnish(scope="code")` or `burnish finish PATH --scope code`. After a finish,
+`docs_edits` and `code_edits` hold the two kinds of edit, and `finish_docs` and
+`finish_code` return one proposal each.
 
 ## Architecture
 
@@ -274,7 +276,7 @@ CI runs the Python tests on 3.11 and 3.12, runs Burnish on itself, builds the
 Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
 warnings as errors.
 
-240 test cases are collected in this tree, from 143 Python `test_*` functions (some are parametrized). All 240 pass against the pinned Warden `v0.10.1` on CPython 3.13 (run 2026-10-13). The three Warden-loop tests (`test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `test_finisher.py::test_nothing_to_finish_means_no_proposal` and `test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`) now follow Warden's held-result rule: a finish that is not a full `ACCEPT` is put back and held, and the test keeps it with a grant before checking the result. Their earlier form expected a change to stand after `ACCEPT_UNVERIFIED`, which Warden no longer allows. No tests are skipped or marked expected-to-fail. The Rust and C++ exemplars have their own checks under `cargo test` and `ctest`.
+240 test cases are collected in this tree, from 143 Python `test_*` functions (some are parametrized). All 240 pass against the pinned Warden `v0.11.0` on CPython 3.13 (run 2026-10-14). The three Warden-loop tests (`test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `test_finisher.py::test_nothing_to_finish_means_no_proposal` and `test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`) now follow Warden's held-result rule: a finish that is not a full `ACCEPT` is put back and held, and the test keeps it with a grant before checking the result. Their earlier form expected a change to stand after `ACCEPT_UNVERIFIED`, which Warden no longer allows. No tests are skipped or marked expected-to-fail. The Rust and C++ exemplars have their own checks under `cargo test` and `ctest`.
 
 ## Claims versus reality
 
@@ -319,7 +321,7 @@ Outstanding, in the order a person would likely want them:
 1. A first rewrite for names or comments in the finisher, behind Warden's gate.
 2. Read the parts of the C++ Core Guidelines the first pass missed, and add their criteria.
 3. A Rust checker, if Clippy's lints are not enough.
-4. Run Warden's loop with Drafter and Burnish in their seats on a real repository and record it in Warden's registry.
+4. Run Warden's loop with Drafter and Burnish in their seats on a real repository and record it in Warden's registry. The loop has run with every seat live on a scratch repository (2026-10-14, `warden tagteam --stack`; under a `code` grant Burnish's tidy and README section were both applied and the run ended `ACCEPT`), and that run is in Warden's `docs/REGISTRY.json`; a real repository is still to do.
 
 ## Support
 

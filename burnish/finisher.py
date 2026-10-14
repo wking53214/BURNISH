@@ -37,11 +37,13 @@ DOCUMENTATION OR CODE
 A finish that mixes README edits with code edits is turned away whole under a
 documentation grant, and a rejected finish puts everything back. Burnish is built with
 no knowledge of the grant, so by default it proposes only the README, which is prose and
-safe under any scope. Tidying code is proposed only when it is told the grant covers it:
-`Burnish(scope="code")`, or `BURNISH_SCOPE=code` in the environment. Either way the two
-halves stay separable: `finish_docs` and `finish_code` return one proposal each, and after
-`finish`, `docs_edits` and `code_edits` hold every edit of each kind (code ones too when
-they were left out), so a governor can choose.
+safe under any scope. Tidying code is proposed only when it is told the grant covers it.
+Warden tells it: before the finish it sets `scope` to the grant's scope (Warden 0.11.0 or
+newer; see `warden.roles`). Outside Warden, `Burnish(scope="code")` or `BURNISH_SCOPE=code`
+in the environment says the same. Either way the two halves stay separable: `finish_docs`
+and `finish_code` return one proposal each, and after `finish`, `docs_edits` and
+`code_edits` hold every edit of each kind (code ones too when they were left out), so a
+governor can choose.
 
 `Burnish.notes` holds, after each `finish`, what it left alone and why. The same
 notes are in the proposal's `architectural_reason`.
