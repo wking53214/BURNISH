@@ -18,8 +18,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from warden.epistemic import EpistemicState
-from warden.roles import Facts
+from cns.epistemic import EpistemicState
+from cns.seat import Facts
 
 from .claims import absolutes, judge, test_claims, unchecked_mentions
 from .measured import Measured, measure

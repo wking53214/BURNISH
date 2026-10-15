@@ -3,8 +3,8 @@
 from pathlib import Path
 
 from warden.models import defects_from_ghost
-from warden.roles import Facts
-from warden.suite import SuiteRun
+from cns.seat import Facts
+from cns.suite import SuiteRun
 
 from burnish.critic import PoetryCritic
 

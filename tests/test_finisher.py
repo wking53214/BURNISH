@@ -3,8 +3,8 @@
 from pathlib import Path
 
 from warden.authorization import grant
-from warden.roles import Facts
-from warden.suite import SuiteRun
+from cns.seat import Facts
+from cns.suite import SuiteRun
 from warden.tagteam import TagTeam
 
 from burnish.finisher import Burnish
@@ -141,7 +141,7 @@ def test_generated_text_has_no_em_or_en_dash_and_the_authors_text_is_left_alone(
 
 
 def test_ghost_findings_are_summarised_not_listed(tmp_path: Path):
-    from warden.models import Defect, DefectSeverity
+    from cns.defect import Defect, DefectSeverity
     _tree(tmp_path)
     many = tuple(Defect(ghost_id=f"ghost-{n}", summary=f"repeat number {n}", severity=DefectSeverity.LOW,
                         detector="intra_function_duplicate_block")
