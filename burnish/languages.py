@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from warden.epistemic import EpistemicState
+from cns.epistemic import EpistemicState
 
 from .criteria import for_scope
 

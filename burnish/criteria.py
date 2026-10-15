@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-from warden.epistemic import EpistemicState
+from cns.epistemic import EpistemicState
 
 from .readme_critic import RULES as README_RULES
 

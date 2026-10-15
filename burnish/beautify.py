@@ -34,7 +34,7 @@ import tokenize
 from pathlib import Path
 from typing import Optional
 
-from warden.models import FileEdit
+from cns.seat import FileEdit
 
 from .textsafe import clean
 from .files import dominant_ending, is_protected, looks_generated, python_files, read_strict, split_endings

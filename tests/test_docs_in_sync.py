@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-from warden.epistemic import EpistemicState
+from cns.epistemic import EpistemicState
 
 from burnish.checks import CHECK_IDS, check_tree
 from burnish.criteria import CRITERIA, Level, by_id, for_scope

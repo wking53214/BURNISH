@@ -22,7 +22,7 @@ from . import __version__
 from .checks import check_tree, summarize
 from .cns_boundary import analyse as cns_analyse
 from .cns_boundary import to_dict as cns_to_dict
-from warden.roles import Facts
+from cns.seat import Facts
 
 from .criteria import CRITERIA
 from .critic import PoetryCritic

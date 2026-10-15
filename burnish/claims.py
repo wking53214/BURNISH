@@ -32,7 +32,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-from warden.suite import SuiteRun
+from cns.suite import SuiteRun
 
 from .marked import outside_fences, without_block
 from .textsafe import clean

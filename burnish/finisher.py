@@ -56,8 +56,9 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from warden.models import FileEdit, Transformation, TransformationStatus
-from warden.roles import Facts
+from cns.seat import FileEdit
+from warden.models import Transformation, TransformationStatus
+from cns.seat import Facts
 
 from .beautify import tidy_edits
 from .critic import CriticReport, PoetryCritic

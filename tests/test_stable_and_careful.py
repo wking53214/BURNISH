@@ -3,9 +3,9 @@
 from pathlib import Path
 
 import pytest
-from warden.models import Defect, DefectSeverity
-from warden.roles import Facts
-from warden.suite import SuiteRun
+from cns.defect import Defect, DefectSeverity
+from cns.seat import Facts
+from cns.suite import SuiteRun
 
 from burnish.finisher import Burnish
 from burnish.marked import BEGIN, END, HEADING

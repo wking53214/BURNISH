@@ -17,8 +17,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from warden.models import Defect
-from warden.suite import SuiteRun
+from cns.defect import Defect
+from cns.suite import SuiteRun
 
 from .textsafe import clean
 
