@@ -132,7 +132,9 @@ def test_cli_exit_codes_follow_the_requested_tier(tmp_path: Path):
     bare = _repo_in(tmp_path / "bare", "# demo\n\nA thing.\n")
     good = _repo_in(tmp_path / "good", OVER_THE_TOP)
     assert main(["readme-critic", str(bare)]) == 1
-    assert main(["readme-critic", str(good), "--tier", "over-the-top"]) == 0
+    assert main(["readme-critic", str(good), "--tier", "over-the-top", "--collected", "12"]) == 0
+    assert main(["readme-critic", str(good), "--tier", "over-the-top"]) == 1   # "12 tests exist" has nothing measured behind it
+    assert main(["readme-critic", str(good), "--tier", "over-the-top", "--collected", "13"]) == 1
 
 
 def _repo_in(path: Path, readme: str) -> Path:

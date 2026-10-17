@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Optional
+from typing import Iterator, Optional
 
 from cns.suite import SuiteRun
 
@@ -46,13 +46,13 @@ _PASSING = r"(?:pass|passed|passing|passes|green)"
 _STANDALONE = r"(?<![\w.,/\-])"
 _RATIO = re.compile(rf"{_STANDALONE}{_NUMBER}\s*/\s*{_NUMBER}\s+(?:tests?\s+)?{_PASSING}\b", re.I)
 _COUNT = re.compile(
-    rf"{_STANDALONE}(?P<all>all\s+)?{_NUMBER}\s+(?:(?P<q>[A-Za-z][\w-]*)\s+)?tests?\b(?![\w/\-]|\.\w)", re.I)
+    rf"{_STANDALONE}(?P<all>all\s+)?{_NUMBER}\s+(?:(?P<q>[A-Za-z][\w-]*)\s+)?tests?(?:\s+cases?)?\b(?![\w/\-]|\.\w)", re.I)
 _GREEN = re.compile(r"\ball\s+(?:of\s+)?(?:the\s+|our\s+|its\s+)?tests?\s+(?:are\s+|now\s+|currently\s+|all\s+)*"
                     rf"{_PASSING}\b", re.I)
 #: Words that may sit between the number and "tests" and still leave it a count of the whole suite.
 _WHOLE = frozenset({"automated", "total", "pytest", "passing", "passed", "green"})
 _PASS_AFTER = re.compile(rf"^\s+(?:(?:all|are|now|currently)\s+)*{_PASSING}\b", re.I)
-_TAIL = re.compile(r"^(?:[ \t]*(?:[,.;:)!]|\n|$)|\s+(?:in\s+total|total|collected|exists?|ran|runs?|covers?|covering|"
+_TAIL = re.compile(r"^(?:[ \t]*(?:[,.;:)!]|\n|$)|\s+(?:in\s+total|total|(?:are\s+)?collected|exists?|ran|runs?|covers?|covering|"
                    r"in\s+the\s+suite|in\s+this\s+repo\w*|and)\b)", re.I)
 _LOWER_BOUND = re.compile(r"(?:at least|over|more than|above|\d\s*\+|plus)\s*$", re.I)
 _NO_SKIPS = re.compile(r"\b(?:no|zero|without|never|0|none|nothing)\s+(?:tests?\s+)?(?:skips?|skipped|skipping)\b|"
@@ -81,7 +81,7 @@ _LEAD_INS = frozenset((
     "collected contains holds runs run ran adds added totals totalling totaling reaching reached leaving leaves "
     "comprising numbering counts gained gains gain grew grown grows growing minus removed removes dropped drops extra "
     "net more fewer claimed reported said currently presently there here we suite tests test total full entire whole "
-    "every so ci pytest also now currently ships includes include including currently").split())
+    "every so ci pytest also now currently ships includes include including currently least above").split())
 _SCOPED_TO_FILE = re.compile(r"\b\w+\.py\b|\btests?/|\btest_\w+|--ignore|\bpytest\s+\S", re.I)
 
 _ABSOLUTES = ("fully verified", "production ready", "battle tested", "100% coverage", "no known bugs")
@@ -161,7 +161,7 @@ def _scoped(text: str, start: int, end: int) -> bool:
     return False
 
 
-def _candidates(text: str):
+def _candidates(text: str) -> Iterator[tuple[int, int, TestClaim, re.Match[str]]]:
     """Every phrase that could be a test-count claim: (start, end, claim or None, why-not-judged)."""
     for match in _RATIO.finditer(text):
         yield match.start(), match.end(), TestClaim(clean(match.group(0), 80), _int(match.group(1)), "passing",

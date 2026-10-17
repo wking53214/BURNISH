@@ -4,6 +4,7 @@ from pathlib import Path
 
 from burnish.checks import check_tree
 from burnish.critic import PoetryCritic
+from burnish.drift import check_test_claims, check_tree_claims
 from burnish.readme_critic import ReadmeCritic
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -22,3 +23,10 @@ def test_burnishes_readme_is_over_the_top_by_its_own_critic():
 def test_burnishes_documents_tell_the_truth_about_its_tree():
     report = PoetryCritic().critique(ROOT)
     assert report.good_enough, report.as_markdown()
+
+
+def test_burnishes_readme_makes_no_claim_its_tree_contradicts():
+    """The pin, dependency and test-count classes that once went unchallenged are held against Burnish itself."""
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    drifts = check_tree_claims(ROOT) + check_test_claims(readme)
+    assert drifts == [], "\n".join(d.render() for d in drifts)

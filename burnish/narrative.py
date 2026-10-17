@@ -109,6 +109,11 @@ def _project_metadata(root: Path) -> tuple[str, Optional[str], Optional[str], tu
     return name, version, description, scripts
 
 
+def _table(value: object) -> dict:
+    """`value` if it is a TOML table, otherwise an empty one."""
+    return value if isinstance(value, dict) else {}
+
+
 def _tables(text: str) -> dict[str, dict]:
     """The `project` and `tool.poetry` tables and their `scripts` tables, parsed, or read line by line if the TOML is broken."""
     wanted = {"project", "project.scripts", "tool.poetry", "tool.poetry.scripts"}
@@ -117,14 +122,10 @@ def _tables(text: str) -> dict[str, dict]:
     except (tomllib.TOMLDecodeError, ValueError):
         data = None
     if isinstance(data, dict):
-        project = data.get("project") if isinstance(data.get("project"), dict) else {}
-        tool = data.get("tool") if isinstance(data.get("tool"), dict) else {}
-        poetry = tool.get("poetry")
-        poetry = poetry if isinstance(poetry, dict) else {}
-        found = {"project": project, "tool.poetry": poetry,
-                 "project.scripts": project.get("scripts") if isinstance(project.get("scripts"), dict) else {},
-                 "tool.poetry.scripts": poetry.get("scripts") if isinstance(poetry.get("scripts"), dict) else {}}
-        return found
+        project = _table(data.get("project"))
+        poetry = _table(_table(data.get("tool")).get("poetry"))
+        return {"project": project, "tool.poetry": poetry,
+                "project.scripts": _table(project.get("scripts")), "tool.poetry.scripts": _table(poetry.get("scripts"))}
     out: dict[str, dict] = {}
     current = ""
     for line in text.splitlines():

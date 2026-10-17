@@ -22,6 +22,7 @@ from cns.epistemic import EpistemicState
 from cns.seat import Facts
 
 from .claims import absolutes, judge, test_claims, unchecked_mentions
+from .drift import Drift, check_test_claims, check_tree_claims
 from .measured import Measured, measure
 from .narrative import Narrative, inspect_tree
 from .textsafe import clean
@@ -103,14 +104,19 @@ class PoetryCritic:
     """Brutally honest. No scores."""
 
     def critique(self, root: Path, narrative: Narrative | None = None,
-                 facts: Facts | None = None) -> CriticReport:
-        """Read the tree's documents against what the tree declares and what was measured."""
+                 facts: Facts | None = None, collected: int | None = None) -> CriticReport:
+        """Read the tree's documents against what the tree declares and what was measured.
+
+        `collected` is a test count somebody else produced (for example from `pytest --collect-only`). With
+        neither it nor `facts`, a number the README gives for its tests is reported as unverifiable.
+        """
         nar = narrative or inspect_tree(Path(root))
         notes = _Notes()
         measured = measure(facts) if facts is not None else None
         _read_readme(nar, notes)
         _speak_about_measurements(measured, notes)
         claimed = _check_readme_claims(nar, measured, notes)
+        _check_against_the_tree(nar, facts, collected, notes)
         unchecked = unchecked_mentions(nar.readme_text)
         _check_historical_as_current(nar, notes)
         _check_ownership(nar, notes)
@@ -202,6 +208,18 @@ def _check_readme_claims(nar: Narrative, measured: Measured | None, notes: _Note
                                   supported=False, note=note))
         notes.unsupported.append(f"'{phrase}': {note}")
     return len(claims)
+
+
+def _check_against_the_tree(nar: Narrative, facts: Facts | None, collected: int | None, notes: _Notes) -> None:
+    """A pin, a dependency list or a test count the README states and the tree contradicts or cannot back."""
+    drifts: list[Drift] = check_tree_claims(Path(nar.root), nar.readme_text)
+    if facts is None:   # with facts, Warden's measured suite judges the counts instead
+        drifts += check_test_claims(nar.readme_text, collected)
+    for drift in drifts:
+        if drift.verdict != "unverifiable":   # an unverifiable count already has its "unmeasured" row from the claim reader
+            notes.claims.append(Claim(text=drift.claim, location="README", epistemic=EpistemicState.ASSUMED, supported=False,
+                                      note=drift.problem, agreement=drift.verdict, label=f"README claim ({drift.kind})"))
+        notes.unsupported.append(drift.problem)
 
 
 def _check_historical_as_current(nar: Narrative, notes: _Notes) -> None:

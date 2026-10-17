@@ -132,7 +132,7 @@ def test_a_suite_that_tried_and_failed_to_run_is_not_measured_and_never_consiste
 
 def test_unmeasured_given_as_a_bare_string_is_one_name_not_letters(tmp_path: Path):
     _tree(tmp_path)
-    facts = Facts(suite=None, remaining=(), cycles=1, unmeasured="ghost")
+    facts = Facts(suite=None, remaining=(), cycles=1, unmeasured="ghost")  # type: ignore[arg-type]  # a bare string is the case under test
     text = _section(_finish(tmp_path, facts)[0])
     assert "Ghost Tools was not run" in text
     assert "g was not run" not in text and "h was not run" not in text

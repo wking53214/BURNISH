@@ -215,11 +215,11 @@ def test_a_disagreement_is_tagged_as_one_not_as_verified(tmp_path: Path):
 
 def test_an_agreement_is_verified_and_an_unmeasured_number_is_unknown(tmp_path: Path):
     _tree(tmp_path, "# demo\n\nThe suite has 5 tests.\n")
-    line = next(l for l in _block(_finish(tmp_path, "documentation")[0]).splitlines() if l.startswith("- README claim"))
+    line = next(x for x in _block(_finish(tmp_path, "documentation")[0]).splitlines() if x.startswith("- README claim"))
     assert "[verified]" in line
     none = Facts(suite=SuiteRun(ran=False, reason="no pytest"), remaining=(), cycles=0)
-    line = next(l for l in _block(_finish(tmp_path, "documentation", none)[0]).splitlines()
-                if l.startswith("- README claim"))
+    line = next(x for x in _block(_finish(tmp_path, "documentation", none)[0]).splitlines()
+                if x.startswith("- README claim"))
     assert "[unknown]" in line
 
 
@@ -385,6 +385,7 @@ def test_a_settings_line_in_another_table_is_not_listed_in_a_compiled_readme(tmp
     _tree(tmp_path, None)
     _write(tmp_path, "pyproject.toml", '[project]\nname = "demo"\nversion = "0.0.1"\n[tool.x]\nkey = "a:b"\n')
     proposal = Burnish(scope="documentation").finish(tmp_path, "base", FACTS)
+    assert proposal is not None
     text = next(e for e in proposal.edits if e.path == "README.md").new
     assert "Console scripts: none declared" in text and "a:b" not in text
 

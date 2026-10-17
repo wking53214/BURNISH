@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Iterator, Optional
+from typing import Iterator
 
 __all__ = ["BEGIN", "END", "HEADING", "Block", "find_block", "without_block", "outside_fences",
            "has_heading", "wrap", "unclosed_fence", "ends_inside_comment"]

@@ -16,7 +16,7 @@ import re
 
 from .critic import CriticReport
 from .files import GENERATED_MARKERS, dominant_ending
-from .marked import ends_inside_comment, find_block, wrap
+from .marked import Block, ends_inside_comment, find_block, wrap
 from .narrative import Narrative
 
 __all__ = ["REQUIRED_HEADINGS", "compile_readme", "finalize_readme"]
@@ -187,7 +187,7 @@ def finalize_readme(existing: str, narrative: Narrative, critic: CriticReport,
 _BREAK = re.compile(r"\r\n|\n|\r")
 
 
-def _replace_block(existing: str, found, block: str, eol: str) -> str:
+def _replace_block(existing: str, found: Block, block: str, eol: str) -> str:
     """`existing` with only the text between its markers changed, in the line ending that block already used.
 
     When the end marker is the last line and has no line break, the file keeps having none.

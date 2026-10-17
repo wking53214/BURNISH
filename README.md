@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.2.0, alpha, maintained by one person. The Python checker, the README critic and the finisher work. The finisher tidies whitespace and keeps one generated, clearly marked facts section in the README; the rewrites for names, comments and guards are designed and **not built**; see [What it does not do](#what-it-does-not-do).
+**Status:** version 0.3.0, alpha, maintained by one person. The Python checker, the README critic and the finisher work. The finisher tidies whitespace and keeps one generated, clearly marked facts section in the README; the rewrites for names, comments and guards are designed and **not built**; see [What it does not do](#what-it-does-not-do).
 
 ## What this is
 
@@ -36,11 +36,11 @@ could be judged, improved and applied to itself.
 pip install git+https://github.com/wking53214/Burnish.git
 ```
 
-Burnish is pinned to Warden `v0.11.0` (see below). Install that tag explicitly if you install Warden separately:
-`pip install "git+https://github.com/wking53214/Warden.git@2cf0eeccf839f88d624deb133fe1cb4b16a99009"`.
-
-This also installs [Warden](https://github.com/wking53214/Warden) at its pinned tag `v0.11.0`, which
-Burnish plugs into. Python 3.11 or newer. No other dependencies.
+This also installs the two things Burnish is built on, each pinned to one exact commit that
+`pyproject.toml` records (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
+[Warden](https://github.com/wking53214/Warden), which Burnish plugs into, and
+[CNS](https://github.com/wking53214/CNS), the shared data shapes that both import. Python 3.11 or newer.
+Those two are the only runtime dependencies. If you install Warden separately, use the commit `pyproject.toml` names.
 
 To work on it:
 
@@ -49,6 +49,8 @@ git clone https://github.com/wking53214/Burnish.git
 cd Burnish
 pip install -e ".[dev]"
 pytest
+ruff check .
+mypy
 ```
 
 ### Bumping the Warden pin
@@ -56,9 +58,10 @@ pytest
 This package depends on one exact Warden commit (see `dependencies` in `pyproject.toml`), so a change on
 Warden's `main` cannot break it without anyone noticing. To move to a newer Warden:
 
-1. Pick the Warden commit (or `vX.Y.Z` tag) you want.
-2. Put it after the `@` in the `warden @ git+...` line of `pyproject.toml`.
-3. Run `pip install -e ".[dev]"` and `pytest`. The tests check that the pin is a tag or a full commit and that
+1. Pick the Warden commit you want, and note the release it belongs to.
+2. Put the full 40-character commit after the `@` in the `warden @ git+...` line of `pyproject.toml`, and the release it
+   corresponds to in the comment on that line. The same rule applies to the CNS line.
+3. Run `pip install -e ".[dev]"` and `pytest`. The tests check that each pin is a full commit and that
    this package's `requires_contract` matches the installed Warden's `CONTRACT`.
 4. Open a pull request. CI runs the same checks.
 
@@ -84,7 +87,8 @@ This README fails the minimum: 5 thing(s) a reader needs are missing or broken. 
 
 That output is real: it is what the critic said about a sibling repository on
 the day it was written. The exit code is 1 when the README is below the tier
-asked for (`--tier minimum`, `strong` or `over-the-top`).
+asked for (`--tier minimum`, `strong` or `over-the-top`), or when it states a pin, a dependency list or a test count
+that the tree contradicts or cannot back.
 
 Check Python code against the rules a program can judge:
 
@@ -106,7 +110,7 @@ The other commands:
 
 | Command | What it does |
 |---------|--------------|
-| `burnish critic PATH` | Checks claims in the README and PROVENANCE against what the tree contains. Exit 1 on "This isn't good enough yet." |
+| `burnish critic PATH` | Checks claims in the README and PROVENANCE against what the tree contains: test counts, pins, dependency lists. Exit 1 on "This isn't good enough yet." |
 | `burnish inspect PATH` | What the tree declares about itself, as JSON |
 | `burnish readme PATH` | Prints a README draft compiled from the tree. Never writes |
 | `burnish finish PATH` | Lists the files the finishing proposal would change. Never writes |
@@ -115,6 +119,35 @@ The other commands:
 | `burnish languages` | What is written down and what is enforced, per language |
 
 The README critic has its own command, `burnish readme-critic PATH [--tier minimum|strong|over-the-top]`, shown above.
+
+### What the critics catch that a reader would
+
+Three kinds of sentence are checked against the tree, not just against the README's own shape:
+
+- **A pin.** "Pinned to tag X" is compared with the ref and the release comment on that dependency's line in
+  `pyproject.toml`. The README should point at `pyproject.toml` rather than restate the pin.
+- **A dependency list.** "No other dependencies" is compared with the dependencies declared there and the third-party
+  modules the code imports.
+- **A test count.** Burnish counts no tests, so a number the README gives for its suite is reported as unverifiable
+  unless a count is supplied: `--collected N` takes the total from `pytest --collect-only -q`, and when the
+  finisher runs under Warden the measured suite is used instead. A count that cannot be true is reported either way.
+  The simplest honest README states no such number.
+
+### Exit codes and logging
+
+Every command that takes a path reads a folder, and a folder it cannot read has no verdict: a missing path, a path
+that is not a folder, a folder with nothing to read (no Python files, or for `readme-critic` no README) and an
+unreadable file all exit 2 with the reason on stderr, never "0 findings".
+
+| Code | Meaning |
+|------|---------|
+| 0 | Nothing to report at the level asked for. |
+| 1 | Findings, or a README below the requested tier, or a README claim the tree contradicts. |
+| 2 | Could not run: bad usage, a path that is missing or unreadable, or a path with nothing to check. |
+
+Messages go to stderr through Python's `logging`. `--verbose` (or `-v`, before or after the command) shows the debug trail,
+and `BURNISH_LOG_LEVEL` (`DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`) sets the level when `--verbose` is not given.
+A test keeps this table equal to the code.
 
 To finish a repository, hand Burnish to Warden as the finisher. Nothing
 is written without `--authorize`:
@@ -272,11 +305,15 @@ authority to change it.
 
 ## Evidence
 
-CI runs the Python tests on 3.11 and 3.12, runs Burnish on itself, builds the
+CI runs the Python tests on 3.11, 3.12 and 3.13, runs `ruff` and `mypy` as gates, runs Burnish on itself, builds the
 Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
 warnings as errors.
 
-240 test cases are collected in this tree, from 143 Python `test_*` functions (some are parametrized). All 240 pass against the pinned Warden `v0.11.0` on CPython 3.13 (run 2026-10-14). The three Warden-loop tests (`test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `test_finisher.py::test_nothing_to_finish_means_no_proposal` and `test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`) now follow Warden's held-result rule: a finish that is not a full `ACCEPT` is put back and held, and the test keeps it with a grant before checking the result. Their earlier form expected a change to stand after `ACCEPT_UNVERIFIED`, which Warden no longer allows. No tests are skipped or marked expected-to-fail. The Rust and C++ exemplars have their own checks under `cargo test` and `ctest`.
+The suite passes against the Warden commit that `pyproject.toml` pins. This README states no test count on purpose: a number
+here goes stale the first time a test is added, and Burnish's own critic reports an unbacked count as a defect.
+`pytest --collect-only -q` gives the real figure.
+
+The three Warden-loop tests (`test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `test_finisher.py::test_nothing_to_finish_means_no_proposal` and `test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`) now follow Warden's held-result rule: a finish that is not a full `ACCEPT` is put back and held, and the test keeps it with a grant before checking the result. Their earlier form expected a change to stand after `ACCEPT_UNVERIFIED`, which Warden no longer allows. No tests are skipped or marked expected-to-fail. The Rust and C++ exemplars have their own checks under `cargo test` and `ctest`.
 
 ## Claims versus reality
 

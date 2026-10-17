@@ -169,13 +169,14 @@ class Burnish:
             self._report_only(path, narrative, facts, measured)
             return None
         if raw.strip():
-            problem = self._refuse(raw, path)
+            problem = self._refuse(raw, path.name if path is not None else "README.md")
             if problem:
                 self.notes.append(problem)
                 return None
             base = raw
             if has_heading(raw, r"claims\s+vs\.?\s+reality") and not find_block(raw).found:
-                self.notes.append(f"{path.name} has its own Claims vs reality section; it was left exactly as written. "
+                label = clean(path.name) if path is not None else "README.md"
+                self.notes.append(f"{label} has its own Claims vs reality section; it was left exactly as written. "
                                   f"The generated facts are in a separate section headed \"{HEADING[3:]}\".")
         else:
             base = self._compiled(target, narrative, facts, measured)
@@ -187,13 +188,13 @@ class Burnish:
                               complete=measured.complete)
         return None if new == raw else FileEdit(path=name, kind="write", new=new, old=raw)
 
-    def _refuse(self, raw: str, path: Optional[Path]) -> str:
+    def _refuse(self, raw: str, name: str) -> str:
         """Why the README cannot be edited safely, or an empty string when it can."""
         block = find_block(raw)
         if block.problem:
-            return f"{clean(path.name)}: {block.problem}, so the README was not edited."
+            return f"{clean(name)}: {block.problem}, so the README was not edited."
         if not block.found and unclosed_fence(raw):
-            return f"{clean(path.name)} ends inside a code block, so nothing was added to it."
+            return f"{clean(name)} ends inside a code block, so nothing was added to it."
         return ""
 
     def _compiled(self, target: Path, narrative: Narrative, facts: Facts, measured: Measured) -> str:
@@ -218,7 +219,8 @@ class Burnish:
 
 
 def _commentary(report: CriticReport, readme: ReadmeReport, measured: Measured) -> str:
-    """The critic's words for the README: what did not run, Ghost's open findings in brief, what is unsupported or unknown, then the README critic's gaps."""
+    """The critic's words for the README: what did not run, Ghost's open findings in brief, what is unsupported or
+    unknown, then the README critic's gaps."""
     lines = _not_measured(measured) + _ghost_summary(measured)
     lines += [f"- Unsupported: {clean(item, 300)}" for item in report.unsupported]
     lines += [f"- Unknown: {clean(item, 300)}" for item in report.unknown]

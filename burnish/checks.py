@@ -29,7 +29,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Iterator, Sequence
 
-__all__ = ["Finding", "CHECK_IDS", "check_source", "check_tree", "summarize", "only"]
+__all__ = ["Finding", "CHECK_IDS", "check_source", "check_tree", "checkable_files", "summarize", "only"]
 
 CHECK_IDS = ("PY-EXC", "PY-SWALLOW", "PY-STAR", "PY-DOC", "PY-NAME", "PY-CMP", "PY-RET", "PY-TYPE")
 
@@ -56,7 +56,7 @@ def check_tree(root: Path) -> list[Finding]:
     """Every finding in every Python file under `root`, in path and line order."""
     root = Path(root)
     findings: list[Finding] = []
-    for path in _python_files(root):
+    for path in checkable_files(root):
         relative = path.relative_to(root).as_posix()
         source = path.read_text(encoding="utf-8", errors="replace")
         findings.extend(check_source(source, relative, is_test=_is_test_file(relative)))
@@ -82,8 +82,9 @@ def check_source(source: str, path: str, *, is_test: bool = False) -> list[Findi
     return found
 
 
-def _python_files(root: Path) -> Iterator[Path]:
-    for path in sorted(root.rglob("*.py")):
+def checkable_files(root: Path) -> Iterator[Path]:
+    """The Python files `check_tree` reads under `root`, in path order."""
+    for path in sorted(Path(root).rglob("*.py")):
         if not _SKIPPED_DIRS.intersection(path.relative_to(root).parts):
             yield path
 
@@ -131,7 +132,7 @@ def _comparisons(tree: ast.AST, path: str) -> Iterator[Finding]:
 
 def _equates_a_singleton(comparison: ast.Compare) -> bool:
     left = comparison.left
-    for operator, right in zip(comparison.ops, comparison.comparators):
+    for operator, right in zip(comparison.ops, comparison.comparators, strict=True):
         if isinstance(operator, (ast.Eq, ast.NotEq)) and (_is_singleton(left) or _is_singleton(right)):
             return True
         left = right

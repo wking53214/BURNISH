@@ -51,7 +51,8 @@ def test_module_without_docstring_is_found():
 
 
 def test_bad_names_are_found():
-    found = {f.message for f in check_source('"""m."""\n\ndef BadName() -> None:\n    """x."""\n\nclass bad_class:\n    """x."""\n', "m.py")}
+    source = '"""m."""\n\ndef BadName() -> None:\n    """x."""\n\nclass bad_class:\n    """x."""\n'
+    found = {f.message for f in check_source(source, "m.py")}
     assert any("BadName" in m for m in found) and any("bad_class" in m for m in found)
 
 

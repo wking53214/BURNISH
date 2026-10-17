@@ -50,6 +50,7 @@ def test_the_finisher_proposes_and_never_writes(tmp_path: Path):
     _tree(tmp_path)
     before = (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8")
     proposal = Burnish(scope="code").finish(tmp_path, "base", FACTS)
+    assert proposal is not None
     assert {e.path for e in proposal.edits} == {"pkg/__init__.py", "README.md"}
     assert (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8") == before
 
@@ -91,6 +92,7 @@ def test_a_missing_readme_is_compiled(tmp_path: Path):
     _tree(tmp_path)
     (tmp_path / "README.md").unlink()
     proposal = Burnish(scope="code").finish(tmp_path, "base", FACTS)
+    assert proposal is not None
     readme = next(e for e in proposal.edits if e.path == "README.md")
     assert readme.new.startswith("# demo") and "CLAIMS VS REALITY" in readme.new
 
@@ -109,6 +111,7 @@ def _final(tmp_path: Path, intro: str = "# demo\n\nMy hand-written intro.\n") ->
     _tree(tmp_path)
     (tmp_path / "README.md").write_text(intro, encoding="utf-8")
     proposal = Burnish(scope="code").finish(tmp_path, "base", FACTS)
+    assert proposal is not None
     return next(e for e in proposal.edits if e.path == "README.md").new
 
 
@@ -148,6 +151,7 @@ def test_ghost_findings_are_summarised_not_listed(tmp_path: Path):
                  for n in range(9))
     facts = Facts(suite=FACTS.suite, remaining=many, cycles=1)
     proposal = Burnish(scope="code").finish(tmp_path, "base", facts)
+    assert proposal is not None
     final = next(e for e in proposal.edits if e.path == "README.md").new
     assert "still reports 9 finding(s) (intra_function_duplicate_block 9)" in final
     assert "repeat number 3" not in final
@@ -158,6 +162,8 @@ def test_the_commentary_says_when_a_check_never_ran(tmp_path):
     (tmp_path / "pkg" / "__init__.py").write_text("V = 1\n", encoding="utf-8")
     (tmp_path / "README.md").write_text("# T\n\nA thing.\n", encoding="utf-8")
     facts = Facts(suite=None, remaining=(), cycles=0, unmeasured=("ghost", "suite"))
-    edit = Burnish(scope="code").finish(tmp_path, "b", facts).edits[0]
+    proposal = Burnish(scope="code").finish(tmp_path, "b", facts)
+    assert proposal is not None
+    edit = proposal.edits[0]
     assert "Not measured: Ghost Tools was not run; the target's own suite was not run." in edit.new
     assert "—" not in edit.new and "–" not in edit.new

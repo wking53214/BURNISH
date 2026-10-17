@@ -52,7 +52,8 @@ def test_the_critic_checks_a_readme_test_count_against_the_measured_suite(tmp_pa
     unmeasured = PoetryCritic().critique(tmp_path)
     assert [c.note for c in unmeasured.claims] == [
         "The README says a count of 16; this is unmeasured because the test suite did not run."]
-    assert unmeasured.good_enough
+    assert not unmeasured.good_enough
+    assert "counts no tests" in unmeasured.unsupported[0]
     wrong = PoetryCritic().critique(tmp_path, facts=Facts(suite=SuiteRun(ran=True, passed=5), remaining=(), cycles=1))
     assert not wrong.good_enough
     assert "The README says a count of 16; the measured suite has 5 passing. These disagree." in wrong.unsupported[0]

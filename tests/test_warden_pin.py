@@ -1,4 +1,4 @@
-"""Warden is pinned to a tag or commit, never to a moving branch."""
+"""Warden is pinned to a full commit, never to a moving branch or a movable tag."""
 
 import re
 import tomllib
@@ -6,7 +6,7 @@ from pathlib import Path
 
 PYPROJECT = Path(__file__).resolve().parent.parent / "pyproject.toml"
 WARDEN = re.compile(r"^warden @ git\+https://github\.com/wking53214/Warden\.git@(?P<ref>[^\s@]+)$")
-PINNED = re.compile(r"^(?:[0-9a-f]{40}|v\d+\.\d+\.\d+)$")
+PINNED = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _warden_dependency() -> re.Match:
@@ -16,9 +16,9 @@ def _warden_dependency() -> re.Match:
     return found[0]
 
 
-def test_warden_is_pinned_to_a_tag_or_a_full_commit():
+def test_warden_is_pinned_to_a_full_commit():
     ref = _warden_dependency().group("ref")
-    assert PINNED.match(ref), f"Warden is pinned to {ref!r}; use a vX.Y.Z tag or a full 40-character commit"
+    assert PINNED.match(ref), f"Warden is pinned to {ref!r}; use a full 40-character commit"
 
 
 def test_burnish_declares_the_contract_of_the_warden_it_is_pinned_to():

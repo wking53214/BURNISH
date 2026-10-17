@@ -66,7 +66,7 @@ def _tidy(source: str) -> tuple[Optional[str], str]:
     if not kept:
         return None, ""
     last = endings[len(kept) - 1] if len(kept) - 1 < len(endings) else dominant_ending(source)
-    tidied = "".join(line + ending for line, ending in zip(kept[:-1], endings)) + kept[-1] + last
+    tidied = "".join(line + ending for line, ending in zip(kept[:-1], endings, strict=False)) + kept[-1] + last
     if tidied == source:
         return None, ""
     try:
