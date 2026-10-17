@@ -96,6 +96,16 @@ def test_an_unreadable_python_file_makes_check_exit_2(tmp_path: Path, monkeypatc
     assert "0 finding" not in out + err
 
 
+@pytest.mark.parametrize("name", [".py", "gone.py"])
+def test_a_broken_symlink_makes_check_exit_2_and_names_the_true_reason(name: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    (tmp_path / "ok.py").write_text(GOOD_PYTHON, encoding="utf-8")
+    (tmp_path / name).symlink_to(tmp_path / "no-such-target")
+    code, out, err = _run(capsys, "check", str(tmp_path))
+    assert code == 2 and out == ""
+    assert "broken symbolic link" in err and name in err
+    assert "Is a directory" not in err and "0 finding" not in err
+
+
 @pytest.mark.parametrize("command", ["critic", "readme-critic", "inspect", "readme", "finish"])
 def test_an_unreadable_readme_makes_the_command_exit_2(command: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
                                                        capsys: pytest.CaptureFixture[str]):

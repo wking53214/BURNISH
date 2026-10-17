@@ -24,6 +24,7 @@ test's name is its documentation.
 from __future__ import annotations
 
 import ast
+import errno
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -58,6 +59,9 @@ def check_tree(root: Path) -> list[Finding]:
     findings: list[Finding] = []
     for path in checkable_files(root):
         relative = path.relative_to(root).as_posix()
+        if path.is_symlink() and not path.exists():
+            # Name the true reason (the link leads nowhere) instead of whatever error a read of it would raise.
+            raise OSError(errno.ENOENT, "broken symbolic link (its target cannot be reached)", str(path))
         source = path.read_text(encoding="utf-8", errors="replace")
         findings.extend(check_source(source, relative, is_test=_is_test_file(relative)))
     return sorted(findings, key=lambda f: (f.path, f.line, f.check))
