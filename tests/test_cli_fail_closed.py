@@ -87,6 +87,17 @@ def test_critic_and_inspect_accept_a_readme_with_no_python(tmp_path: Path, capsy
     assert _run(capsys, "critic", str(tmp_path))[0] in (0, 1)
 
 
+@pytest.mark.parametrize("command", ["critic", "readme", "inspect", "cns", "finish"])
+def test_python_with_no_readme_is_reported_not_refused(command: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    """The README's exit-code section says so: a missing README is a finding or a generated file, and the exit is 0."""
+    (tmp_path / "one.py").write_text(GOOD_PYTHON, encoding="utf-8")
+    code, out, err = _run(capsys, command, str(tmp_path))
+    assert code == 0 and out != ""
+    said = {"critic": "There is no README", "inspect": '"readme_exists": false', "readme": "# ", "finish": "README.md"}
+    if command in said:
+        assert said[command] in out
+
+
 def test_an_unreadable_python_file_makes_check_exit_2(tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
                                                       capsys: pytest.CaptureFixture[str]):
     (tmp_path / "locked.py").write_text(GOOD_PYTHON, encoding="utf-8")

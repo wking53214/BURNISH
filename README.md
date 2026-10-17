@@ -76,17 +76,38 @@ burnish readme-critic path/to/repo
 ```text
 # README critic: README.md
 
-This README fails the minimum: 5 thing(s) a reader needs are missing or broken. It is not ready to be someone's first impression.
+Over the top. Every rule holds. Re-run it after every change; it will not stay that way by itself.
 
-## Failures (minimum not met)
-- [RM-ONELINER] It never says what the project is in one plain sentence. (the first sentence is 446 characters; the limit is 120)
-- [RM-INSTALL] A reader cannot get this running. (no section matching /install|setup|getting started/)
-- [RM-LICENSE] A reader cannot tell whether they may use it. (no License section)
-- [RM-CONTRIB] Nobody can tell if help is wanted. (no Contributing section)
+## What holds
+- RM-TITLE Title
+- RM-ONELINER One-line description
+- RM-INSTALL Install, with a command
+- RM-USAGE Usage, with a code block
+- RM-LICENSE License, named
+- RM-LINKS No broken relative links
+- RM-SIZE Under GitHub's size limit
+- RM-CONTRIB Contributing, with a stance
+- RM-LIMITS Says what it will not do
+- RM-STATUS Project status
+- RM-SUPPORT Where to get help
+- RM-TOC Navigation for a long README
+- RM-FENCES Code blocks name their language
+- RM-EXAMPLES Runnable examples
+- OT-QUICKLINKS A way in within one screen
+- OT-VISUAL A picture of the thing
+- OT-DEMO A demo with its output
+- OT-BADGES Badges that carry information
+- OT-ARCH Architecture with invariants
+- OT-EVIDENCE Claims come with their evidence
+- OT-FAQ A FAQ
+- OT-ALTERNATIVES Compared with the alternatives
+- OT-ROADMAP A roadmap
+- OT-DECISIONS Design decisions linked
 ```
 
-That output is real: it is what the critic said about a sibling repository on
-the day it was written. The exit code is 1 when the README is below the tier
+That output is real: it is what `burnish readme-critic .` prints for this repository's own README, and a test fails
+if this block stops matching the command. A README with gaps gets a failures section instead, one line per broken rule.
+The exit code is 1 when the README is below the tier
 asked for (`--tier minimum`, `strong` or `over-the-top`), or when it states a pin, a dependency list or a test count
 that the tree contradicts or cannot back.
 
@@ -137,7 +158,13 @@ Three kinds of sentence are checked against the tree, not just against the READM
 
 Every command that takes a path reads a folder, and a folder it cannot read has no verdict: a missing path, a path
 that is not a folder, a folder with nothing to read (no Python files, or for `readme-critic` no README) and an
-unreadable file all exit 2 with the reason on stderr, never "0 findings".
+unreadable file (including a broken symbolic link with a Python name, which `check` reports as such) all exit 2 with the
+reason on stderr, never "0 findings".
+
+A folder with Python but no README is not a failure for `critic`, `readme`, `inspect`, `cns` or `finish`; only
+`readme-critic` needs a README to judge. The missing README is itself reported or supplied: `critic` lists "There is no
+README" among what is still ugly, `inspect` says `readme_exists` is false, `readme` prints a compiled draft, and `finish` lists
+`README.md` as a file it would create. Each exits 0, and a test keeps that so.
 
 | Code | Meaning |
 |------|---------|

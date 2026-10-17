@@ -8,7 +8,7 @@ from cns.epistemic import EpistemicState
 from burnish.checks import CHECK_IDS, check_tree
 from burnish.criteria import CRITERIA, Level, by_id, for_scope
 from burnish.languages import LANGUAGES
-from burnish.readme_critic import RULES
+from burnish.readme_critic import RULES, ReadmeCritic
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
@@ -72,3 +72,11 @@ def test_the_python_exemplar_passes_the_python_checker():
 def test_only_human_judgement_is_claimed_for_what_a_program_cannot_judge():
     human = [c for c in CRITERIA if c.level is Level.HUMAN]
     assert human and all(c.check is None for c in human)
+
+
+def test_the_readme_sample_is_what_the_readme_critic_says_about_this_repository():
+    """The sample under Usage is the real output of `burnish readme-critic .`; change either and this tells you which to update."""
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    blocks = re.findall(r"^```text\n(# README critic: .*?)^```$", readme, re.M | re.S)
+    assert len(blocks) == 1, "expected exactly one README critic sample"
+    assert blocks[0].strip() == ReadmeCritic().critique(ROOT).as_markdown().strip()
