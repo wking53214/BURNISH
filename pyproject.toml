@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "burnish"
-version = "0.3.0"
+version = "0.3.1"
 description = "What makes code beautiful, written down, checked, and applied to itself"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -27,7 +27,7 @@ classifiers = [
 # cannot silently break this seat. The release each commit corresponds to is in the comment on its line.
 # To bump: see "Bumping the Warden pin" in README.md.
 dependencies = [
-    "warden @ git+https://github.com/wking53214/Warden.git@2cf0eeccf839f88d624deb133fe1cb4b16a99009",  # Warden 0.12.0, no release tag yet
+    "warden @ git+https://github.com/wking53214/Warden.git@ec551d8e10f82b6e3e681593a97011ae517d360b",  # Warden 0.13.1, not tagged
     "cns @ git+https://github.com/wking53214/CNS.git@5252ceebe98185f7be81212d988055ccf9884568",  # v1.8.0
 ]
 

@@ -7,6 +7,14 @@ below point at commits and at the working branch until the owner tags one.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-17
+
+### Changed
+- Warden is re-pinned from `2cf0eec...` (0.12.0) to the full commit `ec551d8e10f82b6e3e681593a97011ae517d360b` (Warden 0.13.1,
+  not tagged). Warden now pins CNS to the same commit as Burnish (`5252cee...`, v1.8.0), so `pip install -e ".[dev]"` resolves
+  in a fresh environment with `pip check` clean and without `--no-deps`.
+- The drift tests use the same Warden release and commit in their fixture pyproject.
+
 ## [0.3.0] - 2026-10-17
 
 ### Added
@@ -61,6 +69,7 @@ below point at commits and at the working branch until the owner tags one.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/commits/claude/horsemen-production-status-5wsndb
+[0.3.1]: https://github.com/wking53214/Burnish/commits/claude/horsemen-production-status-5wsndb
 [0.3.0]: https://github.com/wking53214/Burnish/commits/claude/horsemen-production-status-5wsndb
 [0.2.0]: https://github.com/wking53214/Burnish/commit/7d3a8ea
 [0.1.0]: https://github.com/wking53214/Burnish/commit/420156d
