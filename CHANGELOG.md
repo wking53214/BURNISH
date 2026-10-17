@@ -2,10 +2,37 @@
 
 All notable changes to Burnish are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project follows
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html). No release has been tagged yet; the links
-below point at commits and at the working branch until the owner tags one.
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html). Releases of this version are not tagged yet: tagging is the
+owner's decision and has not been made. A tag named `v0.10.0` does exist, left over from the earlier Streamline numbering
+before the rename; it is higher than 0.3.x and does not correspond to any version recorded here. The links at the foot of
+this file therefore point at commits (compare views between them), not at tags. The 0.3.2 link ends at the last commit
+before the commit that sets the version, which cannot name itself.
 
 ## [Unreleased]
+
+## [0.3.2] - 2026-10-17
+
+### Added
+- Tests that every GitHub Action in the workflow is pinned to a full commit with its tag in a comment, that the Rust exemplar's
+  `Cargo.lock` is tracked and that the Rust job builds with `--locked`.
+- A test that the sample output under Usage in the README is exactly what `burnish readme-critic .` prints for this repository.
+- A test that `critic`, `readme`, `inspect`, `cns` and `finish` on Python with no README report or generate the README and
+  exit 0 (as the README's exit-code section now says).
+- Tests that the changelog says no release is tagged without claiming the older `v0.10.0` tag is current, and that its links
+  point at commits.
+
+### Changed
+- The Rust exemplar's `Cargo.lock` is committed (it was in `.gitignore`), and CI runs `cargo clippy` and `cargo test` with
+  `--locked`, so the Rust job is reproducible.
+- `actions/checkout` (v4.2.2) and `actions/setup-python` (v5.6.0) are pinned to full commits in CI.
+- The README's critic sample is regenerated from the real command on this repository. The old one was output about another
+  repository and listed four failures under a headline that said five.
+- The changelog no longer says that no release has been tagged yet without mentioning the older `v0.10.0` tag, and its links
+  are compare views between commits instead of the branch.
+
+### Fixed
+- `burnish check` on a broken symbolic link with a Python name (for example `.py`) still exits 2 and now says "broken symbolic
+  link" instead of the error a read of it happened to raise.
 
 ## [0.3.1] - 2026-10-17
 
@@ -68,8 +95,9 @@ below point at commits and at the working branch until the owner tags one.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/commits/claude/horsemen-production-status-5wsndb
-[0.3.1]: https://github.com/wking53214/Burnish/commits/claude/horsemen-production-status-5wsndb
-[0.3.0]: https://github.com/wking53214/Burnish/commits/claude/horsemen-production-status-5wsndb
-[0.2.0]: https://github.com/wking53214/Burnish/commit/7d3a8ea
-[0.1.0]: https://github.com/wking53214/Burnish/commit/420156d
+[Unreleased]: https://github.com/wking53214/Burnish/commit/d708bc83c86206f21ff9735b8fbe82c105b0008c
+[0.3.2]: https://github.com/wking53214/Burnish/compare/34a8c8b6fb72a83f531b6d3f7806f996b6fa6316...d708bc83c86206f21ff9735b8fbe82c105b0008c
+[0.3.1]: https://github.com/wking53214/Burnish/compare/26b6bda96d849e6d2045cd4f724ed1bb4845d799...34a8c8b6fb72a83f531b6d3f7806f996b6fa6316
+[0.3.0]: https://github.com/wking53214/Burnish/compare/7d3a8ead654c45fa5d8fec48fee8dba25e4cb926...26b6bda96d849e6d2045cd4f724ed1bb4845d799
+[0.2.0]: https://github.com/wking53214/Burnish/compare/420156d1ec8a3dd98a55f356265370ecb0bcc4c7...7d3a8ead654c45fa5d8fec48fee8dba25e4cb926
+[0.1.0]: https://github.com/wking53214/Burnish/commit/420156d1ec8a3dd98a55f356265370ecb0bcc4c7

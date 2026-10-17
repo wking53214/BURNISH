@@ -87,3 +87,19 @@ def test_the_rust_exemplar_lockfile_is_committed_and_ci_builds_with_it_locked():
     for command in ("cargo clippy", "cargo test"):
         assert re.search(rf"run: {command} --locked\b", WORKFLOW), f"`{command}` must run with --locked"
 
+
+def test_the_docs_do_not_say_that_no_release_is_tagged_when_an_older_tag_exists():
+    for name in ("README.md", "CHANGELOG.md"):
+        text = (ROOT / name).read_text(encoding="utf-8")
+        assert "No release has been tagged yet" not in text, name
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "v0.10.0" in changelog and "not tagged yet" in changelog and "owner" in changelog
+
+
+def test_the_changelog_links_point_at_commits_not_at_a_branch():
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    links = re.findall(r"^\[[^\]]+\]: (\S+)$", changelog, re.M)
+    assert links
+    for link in links:
+        assert "/commits/" not in link and "claude/" not in link, f"{link} points at a branch"
+        assert re.search(r"/(commit|compare)/", link), link
