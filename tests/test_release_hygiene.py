@@ -66,3 +66,24 @@ def test_the_release_in_each_pin_comment_is_the_release_installed(module: str, n
     claimed = re.search(r"#.*?v?(\d+\.\d+\.\d+)", line)
     assert claimed, f"the {name} pin has no release comment"
     assert claimed.group(1) == imported.__version__
+
+
+WORKFLOW = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+
+
+def test_every_action_is_pinned_to_a_full_commit_with_its_tag_in_a_comment():
+    uses = re.findall(r"^\s*-?\s*uses:\s*(\S+)(.*)$", WORKFLOW, re.M)
+    assert uses
+    for target, rest in uses:
+        assert FULL_SHA.match(target.rsplit("@", 1)[1]), f"{target} is not pinned to a full 40-character commit"
+        assert re.search(r"#\s*v\d+\.\d+\.\d+", rest), f"{target} has no tag comment"
+
+
+def test_the_rust_exemplar_lockfile_is_committed_and_ci_builds_with_it_locked():
+    ignored = (ROOT / ".gitignore").read_text(encoding="utf-8").split()
+    assert "Cargo.lock" not in ignored, "Cargo.lock must be tracked so the Rust job is reproducible"
+    lock = ROOT / "exemplars" / "rust" / "Cargo.lock"
+    assert lock.is_file() and 'name = "defect_ids"' in lock.read_text(encoding="utf-8")
+    for command in ("cargo clippy", "cargo test"):
+        assert re.search(rf"run: {command} --locked\b", WORKFLOW), f"`{command}` must run with --locked"
+
