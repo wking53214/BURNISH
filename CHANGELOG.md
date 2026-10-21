@@ -12,6 +12,16 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.7] - 2026-10-21
+
+### Changed
+- Warden is re-pinned from `36e98433f4928b7d12905f02b56e55ee1943b56e` (0.13.4) to the full commit
+  `decc3c3b5af479ad0eef3df4d66dbcb21e90897c` (Warden 0.13.5, not tagged).
+- CNS is re-pinned from `5252ceebe98185f7be81212d988055ccf9884568` (v1.8.0) to the full commit
+  `da18e411743d4e3b0e783105394d845fb1c16746` (v1.9.0).
+- The drift tests use the same Warden and CNS releases and commits in their fixture pyproject.
+- `main` (`ef5e4ef`) was already contained in this branch, so no new merge was needed.
+
 ## [0.3.6] - 2026-10-21
 
 ### Changed
@@ -145,6 +155,7 @@ the true head by the commit that last wrote it.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/2244d9cb6ce2ce1e48f38ff59f7386ef2d194897...c4727bc5790f134f997c15156c1f21b4a89e7430
+[0.3.7]: https://github.com/wking53214/Burnish/compare/2244d9cb6ce2ce1e48f38ff59f7386ef2d194897...a625ec266d214177651acc08122452b3612a559c
 [0.3.6]: https://github.com/wking53214/Burnish/compare/72f0681756b14ffaf88249472fb840775c93df75...201c0e660cb9ccbddafbea8af25216d8dc28fb5a
 [0.3.5]: https://github.com/wking53214/Burnish/compare/077ce13b93773bbb68bd085b0b33d5b5cb1042f2...5692b33092a79a33b52d08ca7949aa662895ee97
 [0.3.4]: https://github.com/wking53214/Burnish/compare/057f3ee90f8c24419cd690f1fcd72c1c886922e6...5a054841b466c7faeb2d3649383f8db9fc74d656
