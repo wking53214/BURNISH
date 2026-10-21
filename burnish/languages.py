@@ -42,7 +42,7 @@ LANGUAGES: tuple[Language, ...] = (
              "cargo fmt --check, cargo clippy -D warnings, cargo test"),
     Language("cpp23", "C++23", "docs/languages/cpp23.md", "exemplars/cpp23",
              "C++ Core Guidelines (https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)",
-             EpistemicState.NOT_IMPLEMENTED, "g++ -std=c++23 -Wall -Wextra -Wpedantic -Werror, ctest"),
+             EpistemicState.NOT_IMPLEMENTED, "cmake (C++23) with -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror, ctest"),
 )
 
 

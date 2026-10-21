@@ -9,8 +9,9 @@ rule text was not in what was read.** Those rules are not summarised here.
 ## Status, said plainly
 
 Burnish **does not check C++ trees**. The criteria are written down and the
-exemplar follows them. CI builds the exemplar with `g++ -std=c++23 -Wall
--Wextra -Wpedantic -Wconversion -Wshadow -Werror` and runs it under `ctest`.
+exemplar follows them. CI configures the exemplar with `cmake` (`CMAKE_CXX_STANDARD 23`),
+which compiles it with `-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror`, and runs it
+under `ctest`.
 
 ## Criteria
 

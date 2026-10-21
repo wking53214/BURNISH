@@ -65,6 +65,18 @@ def test_every_language_has_a_guide_and_an_exemplar():
     assert (ROOT / "exemplars" / "vectors.txt").is_file()
 
 
+def test_the_cpp_warning_flags_the_docs_name_are_the_flags_cmake_sets():
+    cmake = (ROOT / "exemplars" / "cpp23" / "CMakeLists.txt").read_text(encoding="utf-8")
+    flags = re.search(r"target_compile_options\(defect_ids INTERFACE ([^)]*)\)", cmake)
+    assert flags, "the exemplar sets no compile options"
+    named = " ".join(flags.group(1).split())
+    cpp = next(language for language in LANGUAGES if language.key == "cpp23")
+    guide = " ".join((ROOT / "docs" / "languages" / "cpp23.md").read_text(encoding="utf-8").split())
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for where, text in {"burnish languages": cpp.enforced_in_ci_by, "docs/languages/cpp23.md": guide, "README.md": readme}.items():
+        assert named in text, f"{where} does not name the flags CMakeLists.txt sets: {named}"
+
+
 def test_the_python_exemplar_passes_the_python_checker():
     assert check_tree(ROOT / "exemplars" / "python") == []
 

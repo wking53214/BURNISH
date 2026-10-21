@@ -282,7 +282,7 @@ The reasoning, the analogy behind the design, and what was rejected are in
 |----------|-----------|----------------------|----------|-------------------|
 | Python | [PEP 8](https://peps.python.org/pep-0008/) | **Yes**, eight rules | [exemplars/python](exemplars/python) | `burnish check`, `pytest` |
 | Rust | [API Guidelines](https://rust-lang.github.io/api-guidelines/) | **No**, written down only | [exemplars/rust](exemplars/rust) | `cargo fmt`, `clippy -D warnings`, `cargo test` |
-| C++23 | [Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) | **No**, written down only | [exemplars/cpp23](exemplars/cpp23) | `g++ -std=c++23 -Werror`, `ctest` |
+| C++23 | [Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) | **No**, written down only | [exemplars/cpp23](exemplars/cpp23) | `cmake` with `-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror` (C++23), `ctest` |
 
 Each exemplar is the same small program, durable defect IDs (rule `R9`),
 written to its language's rules. All three read one file of test vectors,
