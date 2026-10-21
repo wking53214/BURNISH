@@ -62,7 +62,7 @@ from cns.seat import Facts
 
 from .beautify import tidy_edits
 from .critic import CriticReport, PoetryCritic
-from .files import find_readme, looks_generated, read_strict, readme_is_markdown
+from .files import broken_readme_links, find_readme, looks_generated, read_strict, readme_is_markdown
 from .marked import HEADING, find_block, has_heading, unclosed_fence
 from .measured import Measured, measure
 from .narrative import Narrative, analysis_text, inspect_tree
@@ -101,6 +101,7 @@ class Burnish:
         self.code_edits = tidy_edits(target, self.notes)
         readme = self._readme_edit(target, facts, measure(facts))
         self.docs_edits = [readme] if readme is not None else []
+        self._drop_linked(target)
         edits = [*self.code_edits, *self.docs_edits] if self.covers_code else list(self.docs_edits)
         if self.code_edits and not self.covers_code:
             self.notes.append(f"{len(self.code_edits)} Python file(s) could be tidied; not proposed, because a "
@@ -116,6 +117,7 @@ class Burnish:
         self.code_edits = []
         readme = self._readme_edit(target, facts, measure(facts))
         self.docs_edits = [readme] if readme is not None else []
+        self._drop_linked(target)
         return self._proposal(target, baseline, facts, list(self.docs_edits))
 
     def finish_code(self, target: Path, baseline: str, facts: Facts) -> Optional[Transformation]:
@@ -125,7 +127,26 @@ class Burnish:
         facts = facts if facts is not None else _NO_FACTS
         self.docs_edits = []
         self.code_edits = tidy_edits(target, self.notes)
+        self._drop_linked(target)
         return self._proposal(target, baseline, facts, list(self.code_edits))
+
+    def _drop_linked(self, target: Path) -> None:
+        """Remove every edit whose path is a symbolic link, or lies under one, and say why in the notes.
+
+        A write through a link lands on its target, which may not exist yet or may be outside `target`. Nothing here may
+        be proposed through one, whether the link is dangling or not.
+        """
+        for edits in (self.code_edits, self.docs_edits):
+            for edit in list(edits):
+                here = target
+                for part in Path(edit.path).parts:
+                    here = here / part
+                    if here.is_symlink():
+                        reason = "its target cannot be reached" if not here.exists() else "it is a link"
+                        self.notes.append(f"{clean(edit.path)} is, or is under, a symbolic link ({reason}), "
+                                          "so no edit was proposed for it.")
+                        edits.remove(edit)
+                        break
 
     def _proposal(self, target: Path, baseline: str, facts: Facts, edits: list[FileEdit]) -> Optional[Transformation]:
         """The one proposal for `edits`, or None when there are none."""
@@ -152,6 +173,12 @@ class Burnish:
         """The edit to the README that is there (or a new README.md), or None, with the reason in the notes."""
         path = find_readme(target)
         raw = ""
+        if path is None:
+            dangling = broken_readme_links(target)
+            if dangling:
+                self.notes.append(f"{clean(dangling[0].name)} is a broken symbolic link (its target cannot be reached), "
+                                  "so no README was created or edited.")
+                return None
         if path is not None:
             if path.is_symlink():
                 self.notes.append(f"{clean(path.name)} is a link, so it was not edited.")

@@ -138,6 +138,32 @@ def test_a_broken_py_symlink_does_not_stop_readme_critic_which_reads_no_python(t
     assert _run(capsys, "readme-critic", str(tmp_path))[0] in (0, 1)
 
 
+@pytest.mark.parametrize("name", ["README.md", "readme", "README.rst", "Readme.txt"])
+@pytest.mark.parametrize("with_python", [False, True])
+@pytest.mark.parametrize("command", ["critic", "inspect", "readme", "cns", "finish", "readme-critic"])
+def test_a_broken_readme_symlink_makes_every_command_that_reads_or_writes_the_readme_exit_2(
+        command: str, with_python: bool, name: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    """Not "no README": `finish` would otherwise propose creating README.md, and a write through the link creates its target."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    target = tmp_path / "repo"
+    target.mkdir()
+    if with_python:
+        (target / "ok.py").write_text(GOOD_PYTHON, encoding="utf-8")
+    (target / name).symlink_to(outside / "created-by-a-write.md")
+    code, out, err = _run(capsys, command, str(target))
+    assert code == 2 and out == ""
+    assert "broken symbolic link" in err and name in err
+    assert "found no" not in err
+    assert list(outside.iterdir()) == []
+
+
+def test_check_does_not_read_the_readme_so_a_broken_readme_link_does_not_stop_it(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    (tmp_path / "ok.py").write_text(GOOD_PYTHON, encoding="utf-8")
+    (tmp_path / "README.md").symlink_to(tmp_path / "no-such-target")
+    assert _run(capsys, "check", str(tmp_path))[0] == 0
+
+
 @pytest.mark.parametrize("with_python", [False, True])
 def test_a_broken_readme_symlink_is_named_as_one_by_readme_critic(with_python: bool, tmp_path: Path,
                                                                   capsys: pytest.CaptureFixture[str]):
