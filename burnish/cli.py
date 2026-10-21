@@ -20,6 +20,7 @@ LOGGING
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import logging
 import os
@@ -36,7 +37,7 @@ from cns.seat import Facts
 from .criteria import CRITERIA
 from .critic import PoetryCritic
 from .drift import check_test_claims, check_tree_claims
-from .files import find_readme, python_files
+from .files import broken_python_links, broken_readme_links, find_readme, python_files
 from .finisher import Burnish
 from .languages import describe
 from .narrative import inspect_tree
@@ -112,6 +113,13 @@ def _require_something_to_read(command: str, path: Path) -> None:
     if not path.is_dir():
         raise CannotRun(f"{path}: not a directory; give the folder that holds the code and the README")
     needs = _NEEDS[command]
+    # A link that leads nowhere is an unreadable file, not an absent one. `check` meets a dangling `.py` link in its own
+    # walk and says the same; the other commands skip links, so they are looked for here.
+    dangling = broken_readme_links(path) if command == "readme-critic" else []
+    if command not in ("check", "readme-critic"):
+        dangling = list(broken_python_links(path))
+    if dangling:
+        raise OSError(errno.ENOENT, "broken symbolic link (its target cannot be reached)", str(dangling[0]))
     pythons = sum(1 for _ in (checkable_files(path) if command == "check" else python_files(path)))
     readme = find_readme(path)
     log.debug("%s: %d Python file(s), README %s", path, pythons, readme.name if readme else "absent")

@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Iterator, Optional
 
 __all__ = ["SKIPPED_DIRS", "GENERATED_MARKERS", "README_NAMES", "MARKDOWN_SUFFIXES", "python_files",
-           "read_strict", "looks_generated", "is_protected", "find_readme", "readme_is_markdown", "dominant_ending", "split_endings"]
+           "broken_python_links", "broken_readme_links", "read_strict", "looks_generated", "is_protected", "find_readme", "readme_is_markdown", "dominant_ending", "split_endings"]
 
 #: Directories that hold code the target does not own, or output it can rebuild. The first
 #: row mirrors what Warden refuses to touch (its forbidden and vendored directories); the
@@ -76,6 +76,28 @@ def python_files(root: Path) -> Iterator[Path]:
             path = Path(here) / name
             if name.endswith(".py") and path.is_file() and not path.is_symlink():
                 yield path
+
+
+def broken_python_links(root: Path) -> Iterator[Path]:
+    """Every `.py` symbolic link under `root` (walked as `python_files` walks) whose target cannot be reached, in path order.
+
+    `python_files` leaves links alone, so without this a dangling one would be skipped as if it were not there.
+    """
+    for here, dirs, names in os.walk(Path(root), followlinks=False):
+        dirs[:] = sorted(d for d in dirs if not _skipped(d))
+        for name in sorted(names):
+            path = Path(here) / name
+            if name.endswith(".py") and path.is_symlink() and not path.exists():
+                yield path
+
+
+def broken_readme_links(root: Path) -> list[Path]:
+    """The README-named symbolic links directly in `root` whose target cannot be reached, in name order."""
+    try:
+        entries = sorted(Path(root).iterdir())
+    except OSError:
+        return []
+    return [p for p in entries if p.name.lower() in README_NAMES and p.is_symlink() and not p.exists()]
 
 
 def read_strict(path: Path) -> str:
