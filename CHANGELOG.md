@@ -12,6 +12,33 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.9] - 2026-10-21
+
+### Changed
+- Warden is re-pinned from `0c1ea567f0b69586cfd735f82260774aec9552bb` (0.13.6) to the full commit
+  `1636e1a21f124eedbf6e158db95dc75344f4308d` (Warden 0.13.7, not tagged). The `Warden.git` spelling and the CNS tag
+  `@v1.9.0` are unchanged. The drift-test fixture and the strings it asserts use the new pin; `tests/test_drift.py` is the
+  only existing test file edited, and only for those values.
+- The Rust and C++23 CI jobs run on `ubuntu-24.04` instead of `ubuntu-latest`.
+
+### Fixed
+- `STACK.md` called CNS private. It is public: an unauthenticated request returns 200 and CI installs it without a token. The
+  README never made that claim.
+- The C++ gate was described as `g++ -std=c++23 -Wall -Wextra -Wpedantic -Werror` (`burnish languages`) and
+  `g++ -std=c++23 -Werror` (README table). CI runs cmake, and `exemplars/cpp23/CMakeLists.txt` sets `CMAKE_CXX_STANDARD 23`
+  with `-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror`. `burnish languages`, the README table and
+  `docs/languages/cpp23.md` now say that, and a new test fails if they stop naming the flags `CMakeLists.txt` sets.
+
+### Added
+- `exemplars/rust/rust-toolchain.toml` pins Rust 1.99.0 with clippy and rustfmt, the release the runner image used by the
+  last green run ships (from the image manifest; the job log does not print it). The Rust job installs it, prints the
+  `rustc`, `cargo` and `clippy` versions, and fails if `rustc` is not that release. `cargo clippy -D warnings` is kept.
+  `rust-version = "1.74"` in `Cargo.toml` stays as a declared minimum and is documented as not tested by CI.
+- The C++23 job prints the g++ and cmake versions and fails unless the g++ major version is 13 and the cmake release
+  series is 3.28.
+- "Bumping the toolchain pins" in the README says how to move either pin. Tests in `tests/test_release_hygiene.py` check
+  the pins, and one in `tests/test_docs_in_sync.py` checks the C++ flags named in the docs.
+
 ## [0.3.8] - 2026-10-21
 
 ### Changed
@@ -165,6 +192,7 @@ the true head by the commit that last wrote it.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/9e37d33dd64239ab0702dd23a85afe1add3f4597...9e37d33dd64239ab0702dd23a85afe1add3f4597
+[0.3.9]: https://github.com/wking53214/Burnish/compare/9e37d33dd64239ab0702dd23a85afe1add3f4597...815cc0353236f3def816a4ada9434299c1a402e8
 [0.3.8]: https://github.com/wking53214/Burnish/compare/befc4291b07c48a18a5bdfddec803144b58f9043...2f1d3eb8dab98050966e33c842e843c6ec70c4b1
 [0.3.7]: https://github.com/wking53214/Burnish/compare/2244d9cb6ce2ce1e48f38ff59f7386ef2d194897...a625ec266d214177651acc08122452b3612a559c
 [0.3.6]: https://github.com/wking53214/Burnish/compare/72f0681756b14ffaf88249472fb840775c93df75...201c0e660cb9ccbddafbea8af25216d8dc28fb5a
