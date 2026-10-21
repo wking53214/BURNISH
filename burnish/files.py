@@ -22,7 +22,8 @@ from pathlib import Path
 from typing import Iterator, Optional
 
 __all__ = ["SKIPPED_DIRS", "GENERATED_MARKERS", "README_NAMES", "MARKDOWN_SUFFIXES", "python_files",
-           "broken_python_links", "broken_readme_links", "read_strict", "looks_generated", "is_protected", "find_readme", "readme_is_markdown", "dominant_ending", "split_endings"]
+           "broken_python_links", "broken_readme_links", "read_strict", "looks_generated", "is_protected", "find_readme",
+           "readme_is_markdown", "dominant_ending", "split_endings"]
 
 #: Directories that hold code the target does not own, or output it can rebuild. The first
 #: row mirrors what Warden refuses to touch (its forbidden and vendored directories); the
