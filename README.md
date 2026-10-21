@@ -37,7 +37,7 @@ pip install git+https://github.com/wking53214/Burnish.git
 ```
 
 Burnish is pinned to Warden `v0.11.0` (see below). Install that tag explicitly if you install Warden separately:
-`pip install "git+https://github.com/wking53214/Warden.git@2cf0eeccf839f88d624deb133fe1cb4b16a99009"`.
+`pip install "git+https://github.com/wking53214/Warden.git@72e5745d6f9febc4753160bc248badcfb449bc3d"`.
 
 This also installs [Warden](https://github.com/wking53214/Warden) at its pinned tag `v0.11.0`, which
 Burnish plugs into. Python 3.11 or newer. No other dependencies.
