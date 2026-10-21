@@ -12,6 +12,14 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.6] - 2026-10-21
+
+### Changed
+- Warden is re-pinned from `580f659...` (0.13.3) to the full commit `36e98433f4928b7d12905f02b56e55ee1943b56e` (Warden 0.13.4,
+  not tagged). Warden still pins CNS to the same commit as Burnish (`5252cee...`, v1.8.0), so `pip install -e ".[dev]"`
+  resolves in a fresh environment with `pip check` clean and without `--no-deps`.
+- The drift tests use the same Warden release and commit in their fixture pyproject.
+
 ## [0.3.5] - 2026-10-21
 
 ### Fixed
@@ -133,6 +141,7 @@ the true head by the commit that last wrote it.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/72f0681756b14ffaf88249472fb840775c93df75...72f0681756b14ffaf88249472fb840775c93df75
+[0.3.6]: https://github.com/wking53214/Burnish/compare/72f0681756b14ffaf88249472fb840775c93df75...201c0e660cb9ccbddafbea8af25216d8dc28fb5a
 [0.3.5]: https://github.com/wking53214/Burnish/compare/077ce13b93773bbb68bd085b0b33d5b5cb1042f2...5692b33092a79a33b52d08ca7949aa662895ee97
 [0.3.4]: https://github.com/wking53214/Burnish/compare/057f3ee90f8c24419cd690f1fcd72c1c886922e6...5a054841b466c7faeb2d3649383f8db9fc74d656
 [0.3.3]: https://github.com/wking53214/Burnish/compare/1a3489170a6844a20f41dd92f819026350ccc0f6...ca4235963e022c1df476b7a737de12f05641d945
