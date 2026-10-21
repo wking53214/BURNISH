@@ -34,8 +34,9 @@ the true head by the commit that last wrote it.
   last green run ships (from the image manifest; the job log does not print it). The Rust job installs it, prints the
   `rustc`, `cargo` and `clippy` versions, and fails if `rustc` is not that release. `cargo clippy -D warnings` is kept.
   `rust-version = "1.74"` in `Cargo.toml` stays as a declared minimum and is documented as not tested by CI.
-- The C++23 job prints the g++ and cmake versions and fails unless the g++ major version is 13 and the cmake release
-  series is 3.28.
+- The C++23 job prints the g++ and cmake versions and fails unless the g++ major version is 13 and the cmake major
+  version is 3. Only the major version of cmake is asserted because the runner's cmake changed between CI runs (3.28.3,
+  then 3.31.6) while the build and its warnings stayed the same.
 - "Bumping the toolchain pins" in the README says how to move either pin. Tests in `tests/test_release_hygiene.py` check
   the pins, and one in `tests/test_docs_in_sync.py` checks the C++ flags named in the docs.
 

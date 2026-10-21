@@ -77,10 +77,11 @@ The Rust and C++23 jobs are pinned so that a new stable release cannot turn CI r
   `rust-version` in `exemplars/rust/Cargo.toml` is the declared minimum the crate says it supports; CI does not build with
   it, so it is not claimed to be tested. Keep it at or below `channel`.
 - **C++23.** The job runs on the named image `ubuntu-24.04`, installs `g++-${GXX_MAJOR}` and `cmake` from apt, prints
-  both versions, and fails unless the g++ major version is `GXX_MAJOR` and the cmake release series is `CMAKE_SERIES`
+  both versions, and fails unless the g++ major version is `GXX_MAJOR` and the cmake major version is `CMAKE_MAJOR`
   (both set in the job's `env:` in `.github/workflows/ci.yml`). Exact apt package versions are not pinned because the
-  archive drops old ones. To move to another compiler, change `GXX_MAJOR` and `CMAKE_SERIES` together with the image,
-  then run the three `cmake` and `ctest` steps from that job.
+  archive drops old ones. The cmake release is whatever the image provides (CI runs have seen both 3.28.3 and 3.31.6),
+  so only its major version is asserted; the warnings come from g++. To move to another compiler, change `GXX_MAJOR`
+  together with the image, then run the three `cmake` and `ctest` steps from that job.
 - **Runner image.** Moving either job to a newer Ubuntu image is a bump of the same kind: change `runs-on`, then the values above.
 
 ## Usage

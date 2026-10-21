@@ -156,7 +156,7 @@ def test_the_rust_and_cpp_jobs_run_on_a_named_image_not_the_moving_latest():
 
 def test_the_cpp_job_prints_and_asserts_the_compiler_and_cmake_versions_before_building():
     job = _job("cpp23")
-    assert re.search(r'^\s+GXX_MAJOR: "\d+"$', job, re.M) and re.search(r'^\s+CMAKE_SERIES: "\d+\.\d+"$', job, re.M)
-    for tool in ('"g++-${GXX_MAJOR}" --version', "cmake --version", "-dumpversion", '= "${GXX_MAJOR}"', '= "${CMAKE_SERIES}"'):
+    assert re.search(r'^\s+GXX_MAJOR: "\d+"$', job, re.M) and re.search(r'^\s+CMAKE_MAJOR: "\d+"$', job, re.M)
+    for tool in ('"g++-${GXX_MAJOR}" --version', "cmake --version", "-dumpversion", '= "${GXX_MAJOR}"', '= "${CMAKE_MAJOR}"'):
         assert tool in job, tool
     assert job.index("-dumpversion") < job.index("cmake -S")
