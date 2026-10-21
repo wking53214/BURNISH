@@ -103,3 +103,11 @@ def test_the_changelog_links_point_at_commits_not_at_a_branch():
     for link in links:
         assert "/commits/" not in link and "claude/" not in link, f"{link} points at a branch"
         assert re.search(r"/(commit|compare)/", link), link
+
+
+def test_the_unreleased_link_is_a_compare_view_between_two_full_commits():
+    """Not a single-commit URL: [Unreleased] shows what changed from a commit to a commit."""
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    link = re.search(r"^\[Unreleased\]: (\S+)$", changelog, re.M)
+    assert link, "the [Unreleased] link is missing"
+    assert re.fullmatch(r"https://github\.com/wking53214/Burnish/compare/[0-9a-f]{40}\.\.\.[0-9a-f]{40}", link.group(1)), link.group(1)
