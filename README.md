@@ -66,6 +66,23 @@ Warden's `main` cannot break it without anyone noticing. To move to a newer Ward
    pinned by tag, and that this package's `requires_contract` matches the installed Warden's `CONTRACT`.
 4. Open a pull request. CI runs the same checks.
 
+### Bumping the toolchain pins
+
+The Rust and C++23 jobs are pinned so that a new stable release cannot turn CI red without anyone choosing it:
+
+- **Rust.** `exemplars/rust/rust-toolchain.toml` names one exact release (`channel = "1.99.0"`, with clippy and rustfmt).
+  The job installs it, prints `rustc`, `cargo` and `clippy` versions, and fails if `rustc` is not that release. To move,
+  change `channel`, then run `cargo fmt --check`, `cargo clippy --locked --all-targets -- -D warnings` and
+  `cargo test --locked` in `exemplars/rust`, fix any new lint the release brings, and open a pull request.
+  `rust-version` in `exemplars/rust/Cargo.toml` is the declared minimum the crate says it supports; CI does not build with
+  it, so it is not claimed to be tested. Keep it at or below `channel`.
+- **C++23.** The job runs on the named image `ubuntu-24.04`, installs `g++-${GXX_MAJOR}` and `cmake` from apt, prints
+  both versions, and fails unless the g++ major version is `GXX_MAJOR` and the cmake release series is `CMAKE_SERIES`
+  (both set in the job's `env:` in `.github/workflows/ci.yml`). Exact apt package versions are not pinned because the
+  archive drops old ones. To move to another compiler, change `GXX_MAJOR` and `CMAKE_SERIES` together with the image,
+  then run the three `cmake` and `ctest` steps from that job.
+- **Runner image.** Moving either job to a newer Ubuntu image is a bump of the same kind: change `runs-on`, then the values above.
+
 ## Usage
 
 Ask for a blunt review of any repository's README:
@@ -338,7 +355,7 @@ authority to change it.
 
 CI runs the Python tests on 3.11, 3.12 and 3.13, runs `ruff` and `mypy` as gates, runs Burnish on itself, builds the
 Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
-warnings as errors.
+warnings as errors. Both toolchains are pinned and their versions are asserted in the job.
 
 The suite passes against the Warden commit that `pyproject.toml` pins. This README states no test count on purpose: a number
 here goes stale the first time a test is added, and Burnish's own critic reports an unbacked count as a defect.

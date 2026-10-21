@@ -115,3 +115,48 @@ def test_the_unreleased_link_is_a_compare_view_between_two_full_commits():
     link = re.search(r"^\[Unreleased\]: (\S+)$", changelog, re.M)
     assert link, "the [Unreleased] link is missing"
     assert re.fullmatch(r"https://github\.com/wking53214/Burnish/compare/[0-9a-f]{40}\.\.\.[0-9a-f]{40}", link.group(1)), link.group(1)
+
+
+TOOLCHAIN = tomllib.loads((ROOT / "exemplars" / "rust" / "rust-toolchain.toml").read_text(encoding="utf-8"))["toolchain"]
+CARGO = tomllib.loads((ROOT / "exemplars" / "rust" / "Cargo.toml").read_text(encoding="utf-8"))["package"]
+
+
+def _release(text: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in text.split("."))
+
+
+def _job(name: str) -> str:
+    block = re.search(rf"^  {name}:\n(.*?)(?=^  \w[\w-]*:\n|\Z)", WORKFLOW, re.M | re.S)
+    assert block, f"no {name} job"
+    return block.group(1)
+
+
+def test_the_rust_toolchain_is_one_exact_release_with_the_tools_ci_runs():
+    assert re.fullmatch(r"\d+\.\d+\.\d+", TOOLCHAIN["channel"]), "name a release such as 1.99.0, not stable or a range"
+    assert {"clippy", "rustfmt"} <= set(TOOLCHAIN["components"])
+
+
+def test_the_declared_rust_minimum_is_not_above_the_pinned_toolchain():
+    assert _release(CARGO["rust-version"]) <= _release(TOOLCHAIN["channel"])
+
+
+def test_the_rust_job_installs_the_pinned_toolchain_and_asserts_it_before_linting():
+    job = _job("rust")
+    assert re.search(r"^\s*- run: rustup toolchain install$", job, re.M)
+    assert "rust-toolchain.toml" in job and "rustc --version" in job and "cargo clippy --version" in job
+    assert job.index("rustup toolchain install") < job.index("rustc --version") < job.index("cargo clippy --locked")
+    assert "-D warnings" in job
+
+
+def test_the_rust_and_cpp_jobs_run_on_a_named_image_not_the_moving_latest():
+    for name in ("rust", "cpp23"):
+        runs_on = re.search(r"^    runs-on: (\S+)$", _job(name), re.M)
+        assert runs_on and re.fullmatch(r"ubuntu-\d\d\.\d\d", runs_on.group(1)), name
+
+
+def test_the_cpp_job_prints_and_asserts_the_compiler_and_cmake_versions_before_building():
+    job = _job("cpp23")
+    assert re.search(r'^\s+GXX_MAJOR: "\d+"$', job, re.M) and re.search(r'^\s+CMAKE_SERIES: "\d+\.\d+"$', job, re.M)
+    for tool in ('"g++-${GXX_MAJOR}" --version', "cmake --version", "-dumpversion", '= "${GXX_MAJOR}"', '= "${CMAKE_SERIES}"'):
+        assert tool in job, tool
+    assert job.index("-dumpversion") < job.index("cmake -S")

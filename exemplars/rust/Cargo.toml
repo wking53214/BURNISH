@@ -2,7 +2,7 @@
 name = "defect_ids"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.74"
+rust-version = "1.74"  # declared minimum only: CI builds with the exact release in rust-toolchain.toml
 description = "Durable defect IDs (Elegant.md Rule 9): a Rust exemplar that follows the Rust API Guidelines"
 license = "Apache-2.0"
 authors = ["William N. King"]

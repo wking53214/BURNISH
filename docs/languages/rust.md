@@ -8,7 +8,9 @@ Read on 2026-10-08 as a summary of the checklist, not item by item.
 Burnish **does not check Rust trees**. These criteria are written down and
 the exemplar follows them. CI enforces the exemplar with Rust's own tools:
 `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` with the
-pedantic group on, and `cargo test` (which runs the doc examples).
+pedantic group on, and `cargo test` (which runs the doc examples). The compiler is pinned to one exact
+release by `exemplars/rust/rust-toolchain.toml`, so a new stable release changes nothing until the pin is moved. `rust-version`
+in `Cargo.toml` is the declared minimum and is not built or tested by CI.
 
 ## Criteria
 

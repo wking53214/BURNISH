@@ -1,0 +1,6 @@
+# The Rust release CI and local builds use. A new stable release changes clippy's lints, so it is adopted on purpose:
+# see "Bumping the toolchain pins" in the top-level README.md. Cargo.toml's rust-version is a declared minimum, not this.
+[toolchain]
+channel = "1.99.0"
+profile = "minimal"
+components = ["clippy", "rustfmt"]

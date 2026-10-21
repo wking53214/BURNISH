@@ -11,7 +11,8 @@ rule text was not in what was read.** Those rules are not summarised here.
 Burnish **does not check C++ trees**. The criteria are written down and the
 exemplar follows them. CI configures the exemplar with `cmake` (`CMAKE_CXX_STANDARD 23`),
 which compiles it with `-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror`, and runs it
-under `ctest`.
+under `ctest`. The job runs on a named Ubuntu image and fails unless the g++ major version and the cmake release series are the
+ones its `env:` names.
 
 ## Criteria
 
