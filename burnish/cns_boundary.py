@@ -119,9 +119,9 @@ def analyse(root: Path, narrative: Narrative | None = None) -> CnsAnalysis:
     if name in {"composition-engine"}:
         rec = CnsRecommendation.ADAPTER
         reason = (
-            "composition-engine already optional-imports cns.gate and falls back "
-            "locally. Keep the adapter. Do not vendor CNS. Do not treat the "
-            "fallback digest (json.dumps) as the CNS canonical digest."
+            "composition-engine is retired, folded into CNS "
+            "(cns_composition.super_gate). Nothing imports it. Do not vendor CNS. "
+            "Do not treat a fallback digest (json.dumps) as the CNS canonical digest."
         )
     return CnsAnalysis(
         repository=name,
