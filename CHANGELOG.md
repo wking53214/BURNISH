@@ -12,6 +12,16 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-10-21
+
+### Changed
+- CNS is re-pinned from the full commit `da18e411743d4e3b0e783105394d845fb1c16746` to its release tag, spelled
+  `cns @ git+https://github.com/wking53214/CNS.git@v1.9.0` (the tag peels to that same commit).
+- Warden is re-pinned from `decc3c3b5af479ad0eef3df4d66dbcb21e90897c` (0.13.5) to the full commit
+  `0c1ea567f0b69586cfd735f82260774aec9552bb` (Warden 0.13.6, not tagged).
+- The drift tests use the same pins in their fixture pyproject. The test that checks the git dependencies now expects a
+  full commit for Warden and a release tag for CNS.
+
 ## [0.3.7] - 2026-10-21
 
 ### Changed
@@ -155,6 +165,7 @@ the true head by the commit that last wrote it.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/befc4291b07c48a18a5bdfddec803144b58f9043...befc4291b07c48a18a5bdfddec803144b58f9043
+[0.3.8]: https://github.com/wking53214/Burnish/compare/befc4291b07c48a18a5bdfddec803144b58f9043...2f1d3eb8dab98050966e33c842e843c6ec70c4b1
 [0.3.7]: https://github.com/wking53214/Burnish/compare/2244d9cb6ce2ce1e48f38ff59f7386ef2d194897...a625ec266d214177651acc08122452b3612a559c
 [0.3.6]: https://github.com/wking53214/Burnish/compare/72f0681756b14ffaf88249472fb840775c93df75...201c0e660cb9ccbddafbea8af25216d8dc28fb5a
 [0.3.5]: https://github.com/wking53214/Burnish/compare/077ce13b93773bbb68bd085b0b33d5b5cb1042f2...5692b33092a79a33b52d08ca7949aa662895ee97
