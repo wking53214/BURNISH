@@ -12,6 +12,17 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-10-21
+
+### Fixed
+- A broken symbolic link with a README name (`README.md` and the other names Burnish looks for) is no longer read as "no
+  README". `critic`, `inspect`, `readme`, `cns` and `finish` now exit 2 with "broken symbolic link", as `readme-critic`
+  already did. Before, `finish` proposed creating `README.md` over such a link, and a write through a dangling link creates
+  its target, possibly outside the repository. `check` reads no README and is unchanged.
+- The finisher never proposes an edit whose path is a symbolic link or lies under one, dangling or not, pointing inside or
+  outside the folder. It drops the edit and says why in its notes. A README that is a working link was already left alone;
+  that is now also guarded for every edit.
+
 ## [0.3.4] - 2026-10-21
 
 ### Changed
@@ -121,7 +132,8 @@ the true head by the commit that last wrote it.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/077ce13b93773bbb68bd085b0b33d5b5cb1042f2...077ce13b93773bbb68bd085b0b33d5b5cb1042f2
+[Unreleased]: https://github.com/wking53214/Burnish/compare/5692b33092a79a33b52d08ca7949aa662895ee97...5692b33092a79a33b52d08ca7949aa662895ee97
+[0.3.5]: https://github.com/wking53214/Burnish/compare/077ce13b93773bbb68bd085b0b33d5b5cb1042f2...5692b33092a79a33b52d08ca7949aa662895ee97
 [0.3.4]: https://github.com/wking53214/Burnish/compare/057f3ee90f8c24419cd690f1fcd72c1c886922e6...5a054841b466c7faeb2d3649383f8db9fc74d656
 [0.3.3]: https://github.com/wking53214/Burnish/compare/1a3489170a6844a20f41dd92f819026350ccc0f6...ca4235963e022c1df476b7a737de12f05641d945
 [0.3.2]: https://github.com/wking53214/Burnish/compare/34a8c8b6fb72a83f531b6d3f7806f996b6fa6316...d708bc83c86206f21ff9735b8fbe82c105b0008c
