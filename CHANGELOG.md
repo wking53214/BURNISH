@@ -19,6 +19,10 @@ the true head by the commit that last wrote it.
   not tagged). Warden still pins CNS to the same commit as Burnish (`5252cee...`, v1.8.0), so `pip install -e ".[dev]"`
   resolves in a fresh environment with `pip check` clean and without `--no-deps`.
 - The drift tests use the same Warden release and commit in their fixture pyproject.
+- `main` (through `ef5e4ef`, PRs #17 and #18) is merged into this branch. From PR #17: a retired repository named
+  `composition-engine` is `NO_ACTION`, not `ADAPTER`, in `cns_boundary`, with its test. PR #18 pinned Warden 0.12.0 and CNS
+  `v1.9.0`; this branch keeps the Warden 0.13.4 commit and the CNS v1.8.0 commit that Warden 0.13.4 itself pins, because
+  CNS `v1.9.0` conflicts with that Warden pin in a single environment. Both pins stay full commits.
 
 ## [0.3.5] - 2026-10-21
 

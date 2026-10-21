@@ -117,11 +117,10 @@ def analyse(root: Path, narrative: Narrative | None = None) -> CnsAnalysis:
         "authoritative representation already *is* a CNS row."
     )
     if name in {"composition-engine"}:
-        rec = CnsRecommendation.ADAPTER
+        rec = CnsRecommendation.NO_ACTION
         reason = (
             "composition-engine is retired, folded into CNS "
-            "(cns_composition.super_gate). Nothing imports it. Do not vendor CNS. "
-            "Do not treat a fallback digest (json.dumps) as the CNS canonical digest."
+            "(cns_composition.super_gate). Nothing imports it, so no adapter is needed."
         )
     return CnsAnalysis(
         repository=name,

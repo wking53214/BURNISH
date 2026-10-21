@@ -23,3 +23,13 @@ def test_cns_named_tree_is_never_a_rewrite_target(tmp_path: Path):
     assert a.recommendation is CnsRecommendation.NO_ACTION
     assert "does not modify" in a.reason.lower() or "DEFER" in a.reason
     assert a.cns_modified == "NO"
+
+
+def test_a_retired_repository_that_mentions_cns_needs_no_adapter(tmp_path: Path):
+    retired = tmp_path / "composition-engine"
+    retired.mkdir()
+    (retired / "x.py").write_text("from cns.gate import GateOutcome\n", encoding="utf-8")
+    a = analyse(retired)
+    assert a.recommendation is CnsRecommendation.NO_ACTION
+    assert "retired" in a.reason and "super_gate" in a.reason
+    assert a.cns_modified == "NO"
