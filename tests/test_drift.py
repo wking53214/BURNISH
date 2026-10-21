@@ -8,13 +8,13 @@ from burnish import cli
 from burnish.critic import PoetryCritic
 from burnish.drift import check_test_claims, check_tree_claims
 
-SHA = "ec551d8e10f82b6e3e681593a97011ae517d360b"
+SHA = "9d9a71d1bc3195f0abd9aee8fe553cc09838b684"
 PYPROJECT = f"""[project]
 name = "demo"
 version = "0.1.0"
 description = "demo"
 dependencies = [
-    "warden @ git+https://github.com/example/Warden.git@{SHA}",  # Warden 0.13.1, not tagged
+    "warden @ git+https://github.com/example/Warden.git@{SHA}",  # Warden 0.13.2, not tagged
     "cns @ git+https://github.com/example/CNS.git@5252ceebe98185f7be81212d988055ccf9884568",  # v1.8.0
 ]
 """
@@ -46,17 +46,17 @@ def test_a_pin_claim_that_pyproject_does_not_have_is_reported(tmp_path: Path, se
     _tree(tmp_path, f"# demo\n\n{sentence}\n")
     drifts = check_tree_claims(tmp_path)
     assert [d.kind for d in drifts] == ["pin"]
-    assert "pyproject.toml pins warden at commit ec551d8" in drifts[0].problem and "not tagged" not in drifts[0].claim
+    assert "pyproject.toml pins warden at commit 9d9a71d" in drifts[0].problem and "not tagged" not in drifts[0].claim
 
 
 def test_a_pin_claim_that_pyproject_confirms_is_not_reported(tmp_path: Path):
-    _tree(tmp_path, "# demo\n\nDemo is pinned to Warden 0.13.1, and to CNS `v1.8.0`.\n")
+    _tree(tmp_path, "# demo\n\nDemo is pinned to Warden 0.13.2, and to CNS `v1.8.0`.\n")
     assert check_tree_claims(tmp_path) == []
 
 
 def test_a_pin_claim_is_judged_against_the_dependency_it_names(tmp_path: Path):
-    _tree(tmp_path, "# demo\n\nDemo is pinned to CNS v0.13.1.\n")
-    assert _kinds(tmp_path) == ["pin"]   # 0.13.1 is Warden's release, not CNS's
+    _tree(tmp_path, "# demo\n\nDemo is pinned to CNS v0.13.2.\n")
+    assert _kinds(tmp_path) == ["pin"]   # 0.13.2 is Warden's release, not CNS's
 
 
 def test_a_commit_claim_must_be_the_commit_in_pyproject(tmp_path: Path):
