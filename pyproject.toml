@@ -27,7 +27,7 @@ classifiers = [
 # cannot silently break this seat. The release each commit corresponds to is in the comment on its line.
 # To bump: see "Bumping the Warden pin" in README.md.
 dependencies = [
-    "warden @ git+https://github.com/wking53214/Warden.git@9d9a71d1bc3195f0abd9aee8fe553cc09838b684",  # Warden 0.13.2, not tagged
+    "warden @ git+https://github.com/wking53214/Warden.git@580f659336818b4a5a2c0ca235d2344012536426",  # Warden 0.13.3, not tagged
     "cns @ git+https://github.com/wking53214/CNS.git@5252ceebe98185f7be81212d988055ccf9884568",  # v1.8.0
 ]
 
