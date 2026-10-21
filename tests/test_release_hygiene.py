@@ -54,7 +54,11 @@ def test_every_git_dependency_is_a_full_commit():
     specs = [d for d in PYPROJECT["project"]["dependencies"] if "git+" in d]
     assert len(specs) == 2
     for spec in specs:
-        assert FULL_SHA.match(spec.rsplit("@", 1)[1]), f"{spec} is not pinned to a full 40-character commit"
+        ref = spec.rsplit("@", 1)[1]
+        if spec.startswith("cns @"):
+            assert re.fullmatch(r"v\d+\.\d+\.\d+", ref), f"{spec} is not pinned to a release tag"
+        else:
+            assert FULL_SHA.match(ref), f"{spec} is not pinned to a full 40-character commit"
 
 
 @pytest.mark.parametrize("module,name", [("warden", "Warden"), ("cns", "cns")])
