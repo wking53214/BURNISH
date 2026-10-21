@@ -144,7 +144,7 @@ the true head by the commit that last wrote it.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/2244d9cb6ce2ce1e48f38ff59f7386ef2d194897...2244d9cb6ce2ce1e48f38ff59f7386ef2d194897
+[Unreleased]: https://github.com/wking53214/Burnish/compare/2244d9cb6ce2ce1e48f38ff59f7386ef2d194897...c4727bc5790f134f997c15156c1f21b4a89e7430
 [0.3.6]: https://github.com/wking53214/Burnish/compare/72f0681756b14ffaf88249472fb840775c93df75...201c0e660cb9ccbddafbea8af25216d8dc28fb5a
 [0.3.5]: https://github.com/wking53214/Burnish/compare/077ce13b93773bbb68bd085b0b33d5b5cb1042f2...5692b33092a79a33b52d08ca7949aa662895ee97
 [0.3.4]: https://github.com/wking53214/Burnish/compare/057f3ee90f8c24419cd690f1fcd72c1c886922e6...5a054841b466c7faeb2d3649383f8db9fc74d656
