@@ -5,10 +5,18 @@ All notable changes to Burnish are recorded here. The format follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Releases of this version are not tagged yet: tagging is the
 owner's decision and has not been made. A tag named `v0.10.0` does exist, left over from the earlier Streamline numbering
 before the rename; it is higher than 0.3.x and does not correspond to any version recorded here. The links at the foot of
-this file therefore point at commits (compare views between them), not at tags. The 0.3.2 link ends at the last commit
+this file therefore point at commits (compare views between them), not at tags. The 0.3.3 link ends at the last commit
 before the commit that sets the version, which cannot name itself.
 
 ## [Unreleased]
+
+## [0.3.3] - 2026-10-21
+
+### Changed
+- Warden is re-pinned from `ec551d8...` (0.13.1) to the full commit `9d9a71d1bc3195f0abd9aee8fe553cc09838b684` (Warden 0.13.2,
+  not tagged). Warden still pins CNS to the same commit as Burnish (`5252cee...`, v1.8.0), so `pip install -e ".[dev]"`
+  resolves in a fresh environment with `pip check` clean and without `--no-deps`.
+- The drift tests use the same Warden release and commit in their fixture pyproject.
 
 ## [0.3.2] - 2026-10-17
 
@@ -95,7 +103,8 @@ before the commit that sets the version, which cannot name itself.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/commit/d708bc83c86206f21ff9735b8fbe82c105b0008c
+[Unreleased]: https://github.com/wking53214/Burnish/commit/ca4235963e022c1df476b7a737de12f05641d945
+[0.3.3]: https://github.com/wking53214/Burnish/compare/1a3489170a6844a20f41dd92f819026350ccc0f6...ca4235963e022c1df476b7a737de12f05641d945
 [0.3.2]: https://github.com/wking53214/Burnish/compare/34a8c8b6fb72a83f531b6d3f7806f996b6fa6316...d708bc83c86206f21ff9735b8fbe82c105b0008c
 [0.3.1]: https://github.com/wking53214/Burnish/compare/26b6bda96d849e6d2045cd4f724ed1bb4845d799...34a8c8b6fb72a83f531b6d3f7806f996b6fa6316
 [0.3.0]: https://github.com/wking53214/Burnish/compare/7d3a8ead654c45fa5d8fec48fee8dba25e4cb926...26b6bda96d849e6d2045cd4f724ed1bb4845d799
