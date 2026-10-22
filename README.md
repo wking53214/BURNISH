@@ -177,10 +177,12 @@ Three kinds of sentence are checked against the tree, not just against the READM
 
 Every command that takes a path reads a folder, and a folder it cannot read has no verdict: a missing path, a path
 that is not a folder, a folder with nothing to read (no Python files, or for `readme-critic` no README) and an
-unreadable file all exit 2 with the reason on stderr, never "0 findings". A broken symbolic link with a Python name
-(`.py`) is an unreadable file, and every command that reads Python says "broken symbolic link" for it. So is a broken link with a README name, for every
-command that reads or may write the README (all but `check`), instead of "found no README": a write through it would create its
-target, wherever that is. `finish` also never proposes an edit to a file that is a symbolic link or lies under one, whether the
+unreadable file all exit 2 with the reason on stderr, never "0 findings". `critic` compares the README with the code, so a
+folder that holds a README and no Python files also exits 2 ("nothing to check"): a verdict that the story is consistent
+with nothing would be empty. `readme-critic` reads a README on its own, and `inspect`, `readme`, `cns` and `finish` still
+accept one. A broken symbolic link with a Python name (`.py`) is an unreadable file, and every command that reads Python
+says "broken symbolic link" for it. So is a broken link with a README name, for every command that reads or may write the
+README (all but `check`), instead of "found no README": a write through it would create its target, wherever that is. `finish` also never proposes an edit to a file that is a symbolic link or lies under one, whether the
 link is broken or not; it says so in its notes.
 
 A folder with Python but no README is not a failure for `critic`, `readme`, `inspect`, `cns` or `finish`; only

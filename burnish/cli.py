@@ -202,6 +202,9 @@ def _require_something_to_read(command: str, path: Path) -> None:
     if not found:
         wanted = {"python": "Python files", "readme": "README", "either": "Python files or README"}[needs]
         raise CannotRun(f"{path}: found no {wanted} to read, so there is nothing to report")
+    if command == "critic" and pythons == 0:   # a README alone: the critic's verdict compares it with code, and there is none
+        raise CannotRun(f"{path}: found a README but no Python files to check it against, so there is nothing to check; "
+                        "`readme-critic` reads a README on its own")
 
 
 def _parser() -> argparse.ArgumentParser:

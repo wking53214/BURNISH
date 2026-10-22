@@ -81,10 +81,41 @@ def test_readme_critic_with_only_python_has_no_readme_to_read(tmp_path: Path, ca
     assert code == 2 and "README" in err and out == ""
 
 
-def test_critic_and_inspect_accept_a_readme_with_no_python(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+def test_inspect_accepts_a_readme_with_no_python_and_critic_refuses_it(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
     (tmp_path / "README.md").write_text("# demo\n", encoding="utf-8")
     assert _run(capsys, "inspect", str(tmp_path))[0] == 0
-    assert _run(capsys, "critic", str(tmp_path))[0] in (0, 1)
+    assert _run(capsys, "critic", str(tmp_path))[0] == 2
+
+
+@pytest.mark.parametrize("readme", [b"# hi\n", b"# hi\n\xff\xfe\x00 not utf-8\n", b"# demo\n\nA powerful, seamless tool.\n"],
+                         ids=["trivial", "not-utf-8", "marketing"])
+def test_critic_on_a_readme_with_no_code_says_there_is_nothing_to_check(readme: bytes, tmp_path: Path,
+                                                                        capsys: pytest.CaptureFixture[str]):
+    """The verdict "the story is consistent" over a tree with no code would compare the README with nothing."""
+    (tmp_path / "README.md").write_bytes(readme)
+    code, out, err = _run(capsys, "critic", str(tmp_path))
+    assert code == 2 and out == ""
+    assert "nothing to check" in err and "consistent" not in err and "Traceback" not in err
+
+
+def test_critic_with_a_readme_and_a_manifest_but_no_python_still_has_nothing_to_check(tmp_path: Path,
+                                                                                      capsys: pytest.CaptureFixture[str]):
+    (tmp_path / "README.md").write_text("# demo\n", encoding="utf-8")
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "demo"\nversion = "0.1.0"\n', encoding="utf-8")
+    assert _run(capsys, "critic", str(tmp_path))[0] == 2
+
+
+@pytest.mark.parametrize("command", ["readme-critic", "inspect", "readme", "cns", "finish"])
+def test_the_other_commands_still_read_a_readme_with_no_python(command: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    (tmp_path / "README.md").write_text("# hi\n", encoding="utf-8")
+    assert _run(capsys, command, str(tmp_path))[0] in (0, 1)
+
+
+def test_critic_still_reads_a_trivial_readme_beside_code(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    (tmp_path / "README.md").write_text("# hi\n", encoding="utf-8")
+    (tmp_path / "one.py").write_text(GOOD_PYTHON, encoding="utf-8")
+    code, out, _ = _run(capsys, "critic", str(tmp_path))
+    assert code in (0, 1) and out.startswith("# Poetry critic")
 
 
 @pytest.mark.parametrize("command", ["critic", "readme", "inspect", "cns", "finish"])
