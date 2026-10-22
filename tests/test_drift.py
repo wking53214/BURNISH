@@ -15,7 +15,7 @@ version = "0.1.0"
 description = "demo"
 dependencies = [
     "warden @ git+https://github.com/example/Warden.git@{SHA}",  # Warden 0.13.8, not tagged
-    "cns @ git+https://github.com/example/CNS.git@v1.9.0",
+    "cns @ git+https://github.com/example/CNS.git@v2.0.0",
 ]
 """
 IMPORTS_BOTH = '"""demo."""\n\nimport json\n\nimport cns\nimport warden\n\nfrom . import sibling\n'
@@ -50,7 +50,7 @@ def test_a_pin_claim_that_pyproject_does_not_have_is_reported(tmp_path: Path, se
 
 
 def test_a_pin_claim_that_pyproject_confirms_is_not_reported(tmp_path: Path):
-    _tree(tmp_path, "# demo\n\nDemo is pinned to Warden 0.13.8, and to CNS `v1.9.0`.\n")
+    _tree(tmp_path, "# demo\n\nDemo is pinned to Warden 0.13.8, and to CNS `v2.0.0`.\n")
     assert check_tree_claims(tmp_path) == []
 
 
