@@ -12,6 +12,44 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.11] - 2026-10-22
+
+### Changed
+- CNS is re-pinned from the tag `v1.9.0` to the tag `v2.0.0`, spelled
+  `cns @ git+https://github.com/wking53214/CNS.git@v2.0.0` with the comment
+  `# v2.0.0 = b13e5d2f9e0e4291725f82794b89117c3d840ac1` (the annotated tag peels to that commit). In a fresh environment on
+  3.11, 3.12 and 3.13 the installed `cns` records the requested revision `v2.0.0` and that commit, and the suite passes against
+  it with no change to Burnish's source. Burnish imports `cns.seat`, `cns.suite`, `cns.epistemic` and `cns.defect`, and not
+  `cns.stack`.
+- Warden is re-pinned from `380894f0304ef40587dd29efd41b4ceccf94a5d3` (0.13.8) to the full commit
+  `b57b81e1c98333c43d422666c89a8fcf3ae6eaca` (Warden 0.13.9, not tagged). The `Warden.git` spelling is unchanged. Burnish pins
+  no other circuit repository, so nothing else moved. `pip install -e ".[dev]"` resolves and `pip check` is clean on all three
+  Pythons.
+- The README is rewritten around what works (each line names a test, a CI job or a command), what does not work or is not
+  proven, the open defects, the ledger of what broke and how it was fixed, self-hosting, and the limits of one young
+  repository. The content that was already true was kept.
+
+### Fixed
+- The README listed "the tidy still reaches test files" as a known defect. It is false: the finisher never proposes a test file,
+  and `tests/test_second_red_team.py::test_a_protected_file_is_never_proposed_even_for_whitespace` holds that. The line is gone.
+- The README said nothing is called `IMPLEMENTED` unless Burnish enforces it. The criteria `R5`, `R7` and `R9` are `IMPLEMENTED`
+  with Warden as their owner; the sentence now says what the tests check.
+- The README said no tests are skipped. Some tests in `tests/test_cli_delivery.py` carry conditional skip markers; none was
+  skipped in the CI runs or the release runs. The README now says that.
+- The README said the rules were cut to headings in one edit in Warden. That could not be verified and is replaced by Warden's
+  commit `81cd431`, whose message supports it.
+
+### Added
+- `tests/test_readme_ledger.py`: the required README sections exist and are in order, no marketing word or dash comes back,
+  every test the README names exists, the ledger's versions and dates are CHANGELOG headings, the named CI jobs exist, the eight
+  Python checks and three README tiers equal the code, the Rust release equals the toolchain file, `STACK.md` does not call CNS
+  private, and the worded test-count gap the README lists as open is still open.
+
+### Existing tests edited
+- `tests/test_drift.py`: the CNS tag in the fixture pyproject and in the README sentence it asserts (`v1.9.0` to `v2.0.0`, step
+  1), and the Warden commit and release strings (`380894f` and 0.13.8 to `b57b81e` and 0.13.9, step 2). Nothing else about the
+  tests changed.
+
 ## [0.3.10] - 2026-10-22
 
 ### Changed
@@ -227,6 +265,7 @@ the true head by the commit that last wrote it.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/cd09fb49567f9fcf053999233c6ad64da9c6ebe0...cd09fb49567f9fcf053999233c6ad64da9c6ebe0
+[0.3.11]: https://github.com/wking53214/Burnish/compare/cd09fb49567f9fcf053999233c6ad64da9c6ebe0...801ef9b2897cf35dec94a0c17387a13ad4beccc1
 [0.3.10]: https://github.com/wking53214/Burnish/compare/61823a9423a7193e726f5d792f0af50429576474...42d6130df7b8f157e05f0de5dc3c9d9663f2d9aa
 [0.3.9]: https://github.com/wking53214/Burnish/compare/9e37d33dd64239ab0702dd23a85afe1add3f4597...815cc0353236f3def816a4ada9434299c1a402e8
 [0.3.8]: https://github.com/wking53214/Burnish/compare/befc4291b07c48a18a5bdfddec803144b58f9043...2f1d3eb8dab98050966e33c842e843c6ec70c4b1

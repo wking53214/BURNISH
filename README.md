@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.3.10, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.3.11, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -311,6 +311,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.3.11** (2026-10-22)
+- *The README stated things that were not true.* It listed "the tidy still reaches test files" as a known defect when the finisher never proposes a test file; it said nothing is `IMPLEMENTED` unless Burnish enforces it when three criteria are `IMPLEMENTED` with Warden as owner; it said no tests are skipped when some carry conditional skip markers; and it said the rules were cut to headings in one edit in Warden, which could not be verified. Found while checking every line of the old README against the tests and the code for this rewrite. Guard: `tests/test_readme_ledger.py`, which holds the sections, the named tests, the ledger dates, the check and tier counts and the skip markers to the tree. A sentence it does not name is still only as good as the author's check.
 
 **0.3.10** (2026-10-22)
 - *A closed pipe ended in a traceback.* `burnish readme-critic . --tier over-the-top | head -3` ended in a `BrokenPipeError` traceback (exit 1, or exit status 120 when Python's output is buffered), and so did every command that prints. A closed standard output was a silent exit 0 and a full device was a traceback. The CHANGELOG does not say how it was found. Now one line on stderr says why, an earned 1 or 2 is kept, and an earned 0 becomes the new exit code 3. Guard: `tests/test_cli_delivery.py::test_a_closed_pipe_is_not_a_traceback_and_keeps_the_earned_code`, `tests/test_cli_delivery.py::test_a_closed_standard_output_is_reported_and_never_exits_0` and `tests/test_cli_delivery.py::test_a_full_device_is_reported_and_never_exits_0`.
