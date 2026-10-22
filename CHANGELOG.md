@@ -12,6 +12,40 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.10] - 2026-10-22
+
+### Changed
+- Warden is re-pinned from `1636e1a21f124eedbf6e158db95dc75344f4308d` (0.13.7) to the full commit
+  `380894f0304ef40587dd29efd41b4ceccf94a5d3` (Warden 0.13.8, not tagged). The `Warden.git` spelling and the CNS tag
+  `@v1.9.0` are unchanged. The drift-test fixture and the strings it asserts use the new pin.
+- `.github/workflows/ci.yml` has a top-level `permissions: contents: read`, so no job runs with the repository's default
+  token. The actions stay pinned to full commits, and a new test in `tests/test_release_hygiene.py` fails without the block or
+  if a job widens it.
+- `burnish critic` on a folder that holds a README and no Python files now exits 2 and says there is nothing to check. It
+  exited 0 with "the artifact's story is consistent" for a bare `# hi` README or one that is not UTF-8, a verdict that compared
+  the README with nothing, while an empty folder already exited 2. `readme-critic`, `inspect`, `readme`, `cns` and `finish`
+  still accept a README with no Python.
+
+### Fixed
+- `burnish readme-critic . --tier over-the-top | head -3` ended in a `BrokenPipeError` traceback (exit 1, or exit status 120
+  when Python's output is buffered), and the same happened for every command that prints. A closed standard output was a
+  silent exit 0 and a full device was a traceback. Now no command ends in a traceback for any of them, `--version` and `--help`
+  included. When the reader of a pipe went away, one line on stderr says so and the exit code stays the one the check earned.
+  For any other failure to write standard output, one line says why; an earned 1 or 2 is kept and an earned 0 becomes the new
+  exit code 3, "the report could not be delivered". The README's exit-code table lists it, and a test keeps the table equal to
+  the code.
+
+### Added
+- `tests/test_cli_delivery.py` runs each printing command against a closed pipe, a closed descriptor and a full device, in
+  a real process with Python's output buffered and unbuffered, plus in-process cases. It fails on the code before this release.
+
+### Existing tests edited
+- `tests/test_drift.py`: the Warden commit and release strings (the pin).
+- `tests/test_cli_ops.py::test_every_documented_code_is_returned_by_some_run`: it asserts that the documented exit codes are
+  exactly the codes some run returns, so it gains the one run that returns the new code 3.
+- `tests/test_cli_fail_closed.py::test_critic_and_inspect_accept_a_readme_with_no_python`: its `critic` line now expects exit 2
+  instead of 0 or 1, and the test is renamed `test_inspect_accepts_a_readme_with_no_python_and_critic_refuses_it` to stay true.
+
 ## [0.3.9] - 2026-10-21
 
 ### Changed
@@ -193,6 +227,7 @@ the true head by the commit that last wrote it.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/61823a9423a7193e726f5d792f0af50429576474...61823a9423a7193e726f5d792f0af50429576474
+[0.3.10]: https://github.com/wking53214/Burnish/compare/61823a9423a7193e726f5d792f0af50429576474...42d6130df7b8f157e05f0de5dc3c9d9663f2d9aa
 [0.3.9]: https://github.com/wking53214/Burnish/compare/9e37d33dd64239ab0702dd23a85afe1add3f4597...815cc0353236f3def816a4ada9434299c1a402e8
 [0.3.8]: https://github.com/wking53214/Burnish/compare/befc4291b07c48a18a5bdfddec803144b58f9043...2f1d3eb8dab98050966e33c842e843c6ec70c4b1
 [0.3.7]: https://github.com/wking53214/Burnish/compare/2244d9cb6ce2ce1e48f38ff59f7386ef2d194897...a625ec266d214177651acc08122452b3612a559c
