@@ -83,6 +83,14 @@ def test_every_action_is_pinned_to_a_full_commit_with_its_tag_in_a_comment():
         assert re.search(r"#\s*v\d+\.\d+\.\d+", rest), f"{target} has no tag comment"
 
 
+def test_the_workflow_token_is_read_only_for_every_job():
+    """A top-level `permissions: contents: read`, and no job asks for more: the default token can write to the repository."""
+    top = re.search(r"^permissions:\n((?:  .*\n)+)", WORKFLOW, re.M)
+    assert top, "ci.yml needs a top-level permissions: block"
+    assert top.group(1).strip() == "contents: read", f"the workflow token must be contents: read only, got {top.group(1)!r}"
+    assert not re.search(r"^\s{2,}permissions:", WORKFLOW, re.M), "a job must not widen the token the workflow sets"
+
+
 def test_the_rust_exemplar_lockfile_is_committed_and_ci_builds_with_it_locked():
     ignored = (ROOT / ".gitignore").read_text(encoding="utf-8").split()
     assert "Cargo.lock" not in ignored, "Cargo.lock must be tracked so the Rust job is reproducible"

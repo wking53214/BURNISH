@@ -3,6 +3,10 @@ on:
   push:
   pull_request:
 
+# The default token can write to the repository; nothing here needs that, so every job gets read access to the contents only.
+permissions:
+  contents: read
+
 jobs:
   python:
     runs-on: ubuntu-latest
