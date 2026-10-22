@@ -8,27 +8,17 @@ What makes code beautiful, written down, checked, and applied to itself.
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 
-[Install](#install) | [Usage](#usage) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
+[Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.3.10, alpha, maintained by one person. The Python checker, the README critic and the finisher work. The finisher tidies whitespace and keeps one generated, clearly marked facts section in the README; the rewrites for names, comments and guards are designed and **not built**; see [What it does not do](#what-it-does-not-do).
+**Status:** version 0.3.10, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
-Burnish is the home of the beautification criteria: naming as truth,
-narrative documentation, architectural properties as comments, the rewriting
-rules, best practices for Python, Rust and C++23, and the standard for a README
-that is over the top. It also holds the tools that measure a tree against those
-criteria and say, bluntly, where it falls short.
-
-It is the finisher: it runs once, after the loop of Ghost Tools, Drafter, Warden and SWIZZLE has converged. It tidies the code and keeps one generated section in the README, with the critic's commentary. It still never writes a file itself. It returns a proposal, and [Warden](https://github.com/wking53214/Warden) applies it, which needs a named human and a green test suite first, and puts it back if the suite breaks or Ghost finds anything new.
+Burnish is a written set of rules for what makes Python, Rust and C++23 code and a README better, plus the tools that measure a tree against the rules a program can judge: eight Python checks, a README critic with a rule list, and a critic that compares what a README says with what the tree contains. It is also the finisher in the Warden loop: it runs once, after the loop has converged, and proposes a whitespace tidy and one generated section in the README. It never writes a file itself; it returns a proposal, and [Warden](https://github.com/wking53214/Warden) applies it or puts everything back.
 
 ## Why it exists
 
-Beautifying code is easy to do badly. The original rules lived inside Warden,
-mixed with the discipline of change, and in one edit the detailed text of the
-principles and rules 1 to 6 was cut down to headings. The opinion about what
-better code is deserved its own repository, with its full text restored, so it
-could be judged, improved and applied to itself.
+On 2026-10-08 the critic, the narrative reader and the README compiler were removed from Warden's package (Warden commit `81cd431`, when Warden was still called Elegant), so that Warden would only govern change and the opinion about what better code is would live in its own repository. This repository started the same day under the name Streamline. The opinion could then be judged, improved and applied to itself.
 
 ## Install
 
@@ -36,11 +26,12 @@ could be judged, improved and applied to itself.
 pip install git+https://github.com/wking53214/Burnish.git
 ```
 
-This also installs the two things Burnish is built on, each pinned to one exact commit that
-`pyproject.toml` records (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
+This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
 [Warden](https://github.com/wking53214/Warden), which Burnish plugs into, and
-[CNS](https://github.com/wking53214/CNS), the shared data shapes that both import. Python 3.11 or newer.
+[CNS](https://github.com/wking53214/CNS), the shared data shapes that both import. Python 3.11 or newer; CI runs 3.11, 3.12 and 3.13 on Linux.
 Those two are the only runtime dependencies. If you install Warden separately, use the commit `pyproject.toml` names.
+
+Do not install any of these by bare name. Burnish is not on PyPI (on 2026-10-22 there was no project of that name there), and `warden` and `cns` on PyPI are other people's projects. Use the git URL above or a checkout.
 
 To work on it:
 
@@ -52,6 +43,8 @@ pytest
 ruff check .
 mypy
 ```
+
+CNS has a migration note. The pin moved from `v1.9.0` to `v2.0.0` in Burnish 0.3.11. Burnish imports `cns.seat`, `cns.suite`, `cns.epistemic` and `cns.defect`, and its suite passes against the installed 2.0.0 with no change to Burnish's source code.
 
 ### Bumping the Warden pin
 
@@ -216,6 +209,8 @@ is written without `--authorize`:
 warden tagteam path/to/repo --drafter drafter.seat:Drafter --finisher burnish.finisher:Burnish --ghost-root ../ghost_tools --swizzle-root ../SWIZZLE
 ```
 
+That command needs the Drafter installed and checkouts of Ghost Tools and SWIZZLE beside the target, and it is a sketch of the shape: the flags exist in the pinned Warden's `warden tagteam --help`, but no test in this repository runs this exact command. Run with `--finisher burnish.finisher:Burnish` and no Drafter, Warden only observes and ends `INCONCLUSIVE` (exit 6) with nothing proposed; that was seen once by hand on 2026-10-22 and no test holds it.
+
 ### What the finisher does to a README
 
 It writes only between two comment lines of its own, which Markdown does not
@@ -272,6 +267,102 @@ Python files too. Outside Warden, say it yourself: `BURNISH_SCOPE=code`,
 `docs_edits` and `code_edits` hold the two kinds of edit, and `finish_docs` and
 `finish_code` return one proposal each.
 
+## What works, and what shows it
+
+Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.11, 3.12 and 3.13, `rust`, `cpp23`) or the command that shows it. A line with no such pointer would be cut. The tests run against the Warden commit and the CNS tag that `pyproject.toml` names; for this release the suite ran on 3.11, 3.12 and 3.13 with nothing skipped.
+
+- **The Python checker finds eight things.** The checks are `PY-EXC`, `PY-SWALLOW`, `PY-STAR`, `PY-DOC`, `PY-NAME`, `PY-CMP`, `PY-RET` and `PY-TYPE`. `tests/test_checks.py` has a test for each, for example `tests/test_checks.py::test_bare_except_is_found`. A file it cannot parse is a finding, not silence (`tests/test_checks.py::test_unparseable_file_is_reported_not_skipped`).
+- **Burnish passes its own checks.** `tests/test_self.py::test_burnish_passes_its_own_python_checks` and `tests/test_self.py::test_burnishes_readme_is_over_the_top_by_its_own_critic`. CI runs `burnish check .`, `burnish critic .` and `burnish readme-critic . --tier over-the-top` in the `python` job.
+- **The README critic judges a README against its rules and gives no score.** `tests/test_readme_critic.py`. The sample under Usage is held to the real output by `tests/test_docs_in_sync.py::test_the_readme_sample_is_what_the_readme_critic_says_about_this_repository`.
+- **The claims critic compares a README's pin, dependency list and test count with the tree.** `tests/test_drift.py`. Burnish's own README is held to it by `tests/test_self.py::test_burnishes_readme_makes_no_claim_its_tree_contradicts`.
+- **Commands fail closed.** A missing path, a path that is not a folder, a folder with nothing to read and an unreadable file exit 2 and say why (`tests/test_cli_fail_closed.py::test_a_path_that_does_not_exist_exits_2_and_says_so`). A broken symbolic link is named as one (`tests/test_cli_fail_closed.py::test_a_broken_py_symlink_among_real_files_makes_every_command_exit_2`).
+- **A report nobody received is not a success.** `tests/test_cli_delivery.py` runs each printing command in a real process against a closed pipe, a closed descriptor and a full device, with Python's output buffered and unbuffered (`tests/test_cli_delivery.py::test_a_closed_pipe_is_not_a_traceback_and_keeps_the_earned_code`). The exit-code table above equals the code: `tests/test_cli_ops.py::test_the_readme_exit_code_table_matches_the_code`.
+- **The finisher proposes and never writes.** `tests/test_finisher.py::test_the_finisher_proposes_and_never_writes`. `tests/test_independence.py::test_no_burnish_module_opens_a_file_for_writing` looks for the calls `write_text`, `write_bytes`, `unlink` and `rmtree` in the package and finds none; it does not look for other ways to write, and a search for `open(` and `os.replace` on 2026-10-22 also found none, which no test holds.
+- **The finisher is a fixed point and edits only between its own markers.** `tests/test_stable_and_careful.py::test_finishing_its_own_output_five_times_changes_nothing`, `tests/test_stable_and_careful.py::test_the_generated_section_is_replaced_only_between_its_markers` and `tests/test_second_red_team.py::test_the_authors_text_is_kept_byte_for_byte_when_the_block_is_added`.
+- **The finisher leaves alone what Warden and the Judge would reject.** Test files, CI files, vendored and generated code, fixture and specimen folders, and anything that is or lies under a symbolic link get no edit: `tests/test_second_red_team.py::test_a_protected_file_is_never_proposed_even_for_whitespace`, `tests/test_second_red_team.py::test_a_vendored_or_generated_directory_is_never_proposed` and `tests/test_no_edit_through_a_link.py::test_the_guard_drops_any_edit_whose_path_is_or_lies_under_a_link`. `tests/test_second_red_team.py::test_burnish_agrees_with_warden_about_what_is_protected` compares the list with the installed Warden's.
+- **It runs inside the real Warden.** Three tests drive the finisher through the pinned Warden's tag team: `tests/test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `tests/test_finisher.py::test_nothing_to_finish_means_no_proposal` and `tests/test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`. They follow Warden's held-result rule: a finish that is not a full `ACCEPT` is put back and held, and the test keeps it with a grant before checking the result. `tests/test_warden_pin.py::test_burnish_declares_the_contract_of_the_warden_it_is_pinned_to` checks the contract number.
+- **Burnish imports Warden's shapes and no other role.** `tests/test_independence.py::test_no_module_imports_another_role` and `tests/test_independence.py::test_no_burnish_module_counts_tests`.
+- **The pins and the CI toolchains are checked.** Warden is a full commit, CNS is a release tag, each pin comment names the release installed (`tests/test_release_hygiene.py::test_every_git_dependency_is_a_full_commit`, `tests/test_release_hygiene.py::test_the_release_in_each_pin_comment_is_the_release_installed`). The Rust release and the g++ and cmake majors are asserted before the build (`tests/test_release_hygiene.py::test_the_rust_job_installs_the_pinned_toolchain_and_asserts_it_before_linting`, `tests/test_release_hygiene.py::test_the_cpp_job_prints_and_asserts_the_compiler_and_cmake_versions_before_building`).
+- **The two other language exemplars build.** The `rust` job runs `cargo fmt --check`, `cargo clippy --locked --all-targets -- -D warnings` and `cargo test --locked`. The `cpp23` job builds with GCC 13 and `-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror`, then runs `ctest`. All three exemplars read the same `exemplars/vectors.txt`.
+- **This README is held to its own rules.** `tests/test_readme_ledger.py` fails if a required section is missing, if a marketing word comes back, if a test this README names does not exist, or if a version or date in the ledger below disagrees with `CHANGELOG.md`.
+
+## What does not work, or is not proven
+
+- **Most of the criteria are not built.** Naming, narrative comments, inline architectural comments, guards and function splits are designed (`PA`, `PB`, `PC`, `R1` to `R4`) and have no rewriter. Today the code tidy removes trailing whitespace and adds a missing final newline, and nothing else. `burnish criteria` prints which criteria are implemented and which are only designed.
+- **Rust and C++23 code is not checked by Burnish.** Their criteria are written down, and each has one small exemplar built by that language's own tools in CI. That shows two programs build and agree on one vector file. It does not show Burnish can judge anyone else's Rust or C++.
+- **The C++ exemplar is proven on one compiler.** CI builds it with GCC 13 only. On 2026-10-22 I built it with Clang 18.1.3 and libstdc++ 13 and it failed (`no member named 'unexpected' in namespace 'std'`), as `docs/languages/cpp23.md` says. Clang with libc++, a newer libstdc++ and MSVC were not tried. No test holds the Clang result.
+- **Only Linux has been run.** CI uses `ubuntu-24.04` and `ubuntu-latest`. Nothing here has been run on macOS or Windows. Some tests in `tests/test_cli_delivery.py` carry conditional skip markers (a system without POSIX pipes, a machine without `/dev/full`); on the CI runners and in the runs for this release none was skipped. No test uses `xfail`.
+- **Burnish alone does not govern a change.** It needs Warden, a human grant, a Drafter and the other instruments. Through the real Warden, only the three tests named above exercise the finisher. The recorded runs of the whole loop with Burnish in its seat (Warden's `docs/REGISTRY.json`, rows 3 to 5, dated 2026-10-14, Warden 0.11.0 and 0.11.1) used scratch repositories and fresh clones of the circuit's own repositories, and nothing from them was committed. No real outside repository has been transformed by the loop with Burnish in its seat.
+- **The top README tier is Burnish's own standard.** The minimum and strong tiers come from the sources listed in `docs/README_STANDARD.md`. The over-the-top tier is a synthesis the standard says it sets for itself, not a rule any source states. The critic reads one README and the files it links to; it does not fetch URLs and cannot tell whether prose is clear.
+- **The critics find claims by phrasing.** Details are under Known defects.
+- **Burnish's section still quotes unbacked status phrases.** When a README makes an unbacked status claim, the generated section repeats the words with a note that no measurement backs them (`tests/test_stable_and_careful.py::test_a_readme_that_claims_more_tests_than_were_measured_is_told_so_and_left_as_written`). On 2026-10-14 a Ghost detector once read that quote as a new claim and the run was rejected (see the ledger, 0.2.0). That was fixed on Ghost's side. Whether the current Ghost reads the quote again is not tested here.
+- **A mention of a version or a count that the critics skip is not checked.** Counts about a file, a table row, a version or a named subject are only counted, never judged.
+
+## Known defects (open)
+
+- **The test-count check misses worded numbers.** It looks for digits, such as "999 tests pass" or "5/5 passed". "ninety tests pass" is not reported (probed on 2026-10-22). `tests/test_readme_ledger.py::test_the_worded_test_count_gap_is_still_open` holds this sentence to the code: it fails the day the gap closes, so this line must then be removed.
+- **Python files that start with a byte order mark are skipped, not tidied.** Warden's own syntax check cannot read them, so the file is left alone and a note says so (`tests/test_stable_and_careful.py::test_a_python_file_with_a_bom_is_left_alone`).
+- **A README that ends inside an unclosed code block is left alone,** so it gets no generated section (`tests/test_stable_and_careful.py::test_a_readme_that_ends_inside_a_code_fence_is_left_alone`).
+- **A `README.rst`, `README.txt` or `README` with no extension is not changed.** Burnish says so in its notes and reports a count mismatch there, but writes no section (`tests/test_stable_and_careful.py::test_an_unsupported_readme_is_not_converted_and_no_markdown_one_appears`).
+- **The protected-file list is a copy of Warden's.** A change in Warden's guard needs a change in `burnish/files.py`. The test that compares the two runs against the installed Warden, so it catches drift when the Warden pin moves (`tests/test_second_red_team.py::test_burnish_agrees_with_warden_about_what_is_protected`), not between pin moves.
+- **The exact cmake release is not pinned.** The `cpp23` job asserts the cmake major version only, because the runner's cmake changed between runs. Pinning the release would need a pip-installed cmake.
+- **A broken stderr is out of scope.** If the one-line message about an undelivered report cannot be written either, the exit code is all there is. No test holds this.
+
+## What broke and how it was fixed
+
+Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.3.10** (2026-10-22)
+- *A closed pipe ended in a traceback.* `burnish readme-critic . --tier over-the-top | head -3` ended in a `BrokenPipeError` traceback (exit 1, or exit status 120 when Python's output is buffered), and so did every command that prints. A closed standard output was a silent exit 0 and a full device was a traceback. The CHANGELOG does not say how it was found. Now one line on stderr says why, an earned 1 or 2 is kept, and an earned 0 becomes the new exit code 3. Guard: `tests/test_cli_delivery.py::test_a_closed_pipe_is_not_a_traceback_and_keeps_the_earned_code`, `tests/test_cli_delivery.py::test_a_closed_standard_output_is_reported_and_never_exits_0` and `tests/test_cli_delivery.py::test_a_full_device_is_reported_and_never_exits_0`.
+- *`critic` on a README with no code said the story was consistent.* A folder holding only a trivial README got exit 0 for a verdict that compared the README with nothing, while an empty folder already exited 2. Now exit 2. Guard: `tests/test_cli_fail_closed.py::test_critic_on_a_readme_with_no_code_says_there_is_nothing_to_check`.
+- *The CI workflow had no `permissions:` block,* so its jobs ran with the repository's default token. Guard: `tests/test_release_hygiene.py::test_the_workflow_token_is_read_only_for_every_job`.
+
+**0.3.9** (2026-10-21)
+- *`STACK.md` called CNS private.* CNS is public: an unauthenticated request returns 200 and CI installs it without a token. This README never said so. No test held it until this README's test file was added. Guard: `tests/test_readme_ledger.py::test_the_stack_doc_does_not_call_the_public_cns_repository_private`.
+- *The C++ gate was described wrongly.* `burnish languages` and the README table said `g++ -std=c++23 -Wall -Wextra -Wpedantic -Werror` or `-Werror` alone; CI runs cmake, and `CMakeLists.txt` sets the flags listed under What works. Guard: `tests/test_docs_in_sync.py::test_the_cpp_warning_flags_the_docs_name_are_the_flags_cmake_sets`.
+- *The Rust and C++ toolchains floated.* A new stable Rust or a new `ubuntu-latest` could turn CI red by itself. Rust is now pinned by `exemplars/rust/rust-toolchain.toml` and the C++ job asserts the g++ major version. The first fix was wrong: it asserted cmake 3.28, the real CI run failed because the runner had 3.31.6, and it now asserts the major version only (commit `fab7a97`). Guard: `tests/test_release_hygiene.py::test_the_rust_toolchain_is_one_exact_release_with_the_tools_ci_runs` and `tests/test_release_hygiene.py::test_the_cpp_job_prints_and_asserts_the_compiler_and_cmake_versions_before_building`.
+
+**0.3.6** (2026-10-21)
+- *Two pins that could not be installed together.* Warden's pin asked for one CNS commit, while the CNS tag that `main` had just moved to conflicted with it in a single environment. This branch kept the older CNS commit that Warden's pin itself needed, so the install resolved. Later releases moved both pins forward together. No test holds the resolution; the `python` CI job's `pip install -e ".[dev]"` step is what fails if it breaks.
+
+**0.3.5** (2026-10-21)
+- *A broken README link was read as "no README".* `critic`, `inspect`, `readme`, `cns` and `finish` treated it that way, so `finish` proposed creating `README.md` over it, and a write through a dangling link creates its target wherever that is. They now exit 2 with "broken symbolic link", and the finisher drops any edit whose path is a link or lies under one. Guard: `tests/test_cli_fail_closed.py::test_a_broken_readme_symlink_makes_every_command_that_reads_or_writes_the_readme_exit_2` and the tests in `tests/test_no_edit_through_a_link.py`.
+
+**0.3.4** (2026-10-21)
+- *A dangling `.py` link was skipped in a tree with real files,* and the command exited 0 while `check` exited 2. `readme-critic` on a dangling README link said it found no README. All now exit 2 with the reason. Guard: `tests/test_cli_fail_closed.py::test_a_broken_py_symlink_among_real_files_makes_every_command_exit_2` and `tests/test_cli_fail_closed.py::test_a_broken_readme_symlink_is_named_as_one_by_readme_critic`.
+
+**0.3.2** (2026-10-17)
+- *The README's critic sample was output about another repository,* and listed four failures under a headline that said five. It is now regenerated from the real command and a test compares them. Guard: `tests/test_docs_in_sync.py::test_the_readme_sample_is_what_the_readme_critic_says_about_this_repository`.
+- *The Rust job was not reproducible.* `Cargo.lock` was in `.gitignore`, and the two GitHub Actions were not pinned to commits. The lock file is committed, CI builds with `--locked`, and the actions are pinned. Guard: `tests/test_release_hygiene.py::test_the_rust_exemplar_lockfile_is_committed_and_ci_builds_with_it_locked` and `tests/test_release_hygiene.py::test_every_action_is_pinned_to_a_full_commit_with_its_tag_in_a_comment`.
+- *A broken `.py` link in `check` gave whatever error the read happened to raise.* It now says "broken symbolic link". Guard: `tests/test_cli_fail_closed.py::test_a_broken_symlink_makes_check_exit_2_and_names_the_true_reason`.
+
+**0.3.0** (2026-10-17)
+- *Commands said "0 finding(s)" for a path they could not read.* A missing path, a non-folder, a folder with nothing to read or an unreadable file exited 0. They now exit 2. Guard: `tests/test_cli_fail_closed.py`.
+- *A README could state a pin, a dependency list or a test count the tree contradicted, and nothing checked it.* The claims critic (`burnish/drift.py`) was added. Guard: `tests/test_drift.py`.
+- *`mypy` and `ruff` found errors* (typing gaps in the package and tests, one unused import) and neither was a gate. Both are fixed and both run in CI. One narrow, commented `# type: ignore[arg-type]` remains in a test that passes a bare string on purpose. Guard: the `ruff check .` and `mypy` steps in the `python` job; no other test.
+- *A closed output pipe was reported as "cannot read a file".* Fixed in 0.3.0 for that message; the wider pipe problem was still open and was fixed in 0.3.10. No separate test.
+
+**0.2.0** (2026-10-08 in the CHANGELOG; the fixes below landed up to 2026-10-14)
+- *The finisher appended template filler to a README that was already well structured* (found by running the loop on CNS, 2026-10-08, commit `0bdfc01`). It now adds only its one marked section and never writes em or en dashes in generated text. Guard: `tests/test_finisher.py::test_no_template_filler_is_written_into_an_existing_readme` and `tests/test_finisher.py::test_generated_text_has_no_em_or_en_dash_and_the_authors_text_is_left_alone`.
+- *An empty findings list read as clean* (2026-10-08, commit `c19510d`). The commentary now says which checks never ran. Guard: `tests/test_finisher.py::test_the_commentary_says_when_a_check_never_ran`.
+- *The finisher was not a fixed point and wrote outside its own text* (2026-10-09, commit `7fcb4f0`, from a red-team review). A second run proposed more, the critic read its own output, and encodings, byte order marks and line endings were mishandled. It now edits only between its markers and proposes nothing on its own output. Guard: `tests/test_stable_and_careful.py::test_finishing_its_own_output_five_times_changes_nothing`, `tests/test_stable_and_careful.py::test_a_crlf_readme_stays_crlf_and_its_own_lines_are_not_rewritten` and `tests/test_stable_and_careful.py::test_ghost_text_with_a_forged_section_cannot_make_a_line_of_its_own`.
+- *The finish could be rejected whole* (2026-10-10, commit `b0963ac`, a second red-team review). It proposed whitespace edits to test files and CI files, which the Judge rejects, and its README section carried phrases Ghost read as new test-count claims. It now never proposes those files, and by default proposes only the README. Guard: `tests/test_second_red_team.py::test_a_protected_file_is_never_proposed_even_for_whitespace`, `tests/test_second_red_team.py::test_warden_would_accept_every_edit_burnish_proposes` and `tests/test_second_red_team.py::test_the_block_does_not_contain_a_phrase_ghost_reads_as_a_test_count_claim`.
+- *The README gave a test count that did not match the suite, and stale install text* (2026-10-12, commit `d0432cc`). Corrected then; the count was later removed altogether, because it went stale at the first new test. Guard: `tests/test_self.py::test_burnishes_readme_makes_no_claim_its_tree_contradicts`.
+- *Three tests expected a finish to stand after `ACCEPT_UNVERIFIED`* (2026-10-12, commit `c61f8f6`), which Warden v0.10.0 no longer allows: it holds such a run and puts the tree back. The three tests were changed, not the finisher: each now keeps the held result with a grant before checking it, and the assertions on the kept result were left as they were. They are the three tests named under What works.
+- *The tidy reformatted answer-key files* (2026-10-14, commit `1ec3ec8`). When the circuit governed a clone of ASSAY, the code tidy reformatted its specimen files, which are deliberately degraded, and only the ASSAY suite's recorded hashes caught it. Burnish now skips fixture, specimen, test-data, golden, snapshot and corpus folders. Guard: `tests/test_second_red_team.py::test_a_vendored_or_generated_directory_is_never_proposed`, which lists those folders.
+- *A critic note fed Ghost a new finding.* In Warden's registry (row 4, 2026-10-14), the first run on a scratch repository ended `FINISH_REJECTED` because Ghost's new status-claim detector read Burnish's note about a status claim in the scratch README as a fresh claim, and its ids moved with line numbers. Both were fixed in Ghost, not in Burnish, and the run was repeated. Burnish still quotes such phrases (see "What does not work"). The guard on Burnish's side covers counts only: `tests/test_second_red_team.py::test_the_block_does_not_contain_a_phrase_ghost_reads_as_a_test_count_claim`. No test here covers the status-word case.
+
+## Self-hosting
+
+Whether this tool governs its own repository has not been established by a recent run. Warden's `docs/REGISTRY.json` records, in row 5 (dated 2026-10-14 in the row, made with Warden 0.11.1), a run that governed the circuit's own repositories as fresh clones of their `main` branches. For Burnish it records `ACCEPT` with one change and its own suite passing (Burnish 0.2.0); the one change was Burnish's generated facts section in the README, and the row says nothing was kept: the changes were not committed. Row 6 (the same day, Warden 0.11.2) ran four other repositories again and does not include Burnish. Both runs predate Warden 0.13.0 and the current rules, and Burnish has changed since. No fresh run on the current commits is recorded yet. A fresh run is meant to be recorded in the CNS repository, https://github.com/wking53214/CNS. This README states no result for that run.
+
+## Ceilings code cannot fix
+
+- The repository is young. Its history starts on 2026-10-08.
+- It has one human maintainer, and most commits were written with an AI assistant (the commit trailers say so).
+- It has no known outside users.
+- Releases are tagged by the owner, not by the code. Check the repository's tags and releases on GitHub for what exists.
+
 ## Architecture
 
 ```text
@@ -296,11 +387,11 @@ languages.py  what is written and what is enforced, per language (`burnish langu
 
 Invariants, each enforced by a test:
 
-- No Burnish module writes or deletes a file.
+- No Burnish module writes or deletes a file (`tests/test_independence.py::test_no_burnish_module_opens_a_file_for_writing`, with the limit described under What works).
 - No Burnish module counts tests or imports another role (Drafter, Ghost Tools, SWIZZLE, ASSAY). What it says about the suite or about defects, it quotes from the facts Warden hands it.
-- Nothing is called `IMPLEMENTED` unless Burnish enforces it, and nothing is called enforced for Rust or C++23.
+- No Python or README criterion is marked `IMPLEMENTED` unless it names a check that exists, and nothing is marked `IMPLEMENTED` for Rust or C++23 (`tests/test_docs_in_sync.py::test_a_python_criterion_marked_implemented_has_a_check`, `tests/test_docs_in_sync.py::test_nothing_is_marked_implemented_for_a_language_burnish_does_not_check`). A few criteria (`R5`, `R7`, `R9`) are marked `IMPLEMENTED` with Warden as their owner.
 - Burnish passes its own Python checks and its own README critic at the over-the-top tier.
-- The criteria table and the documents cannot disagree.
+- The criteria table and the documents cannot disagree (`tests/test_docs_in_sync.py::test_every_criterion_is_written_up_in_the_docs`).
 
 The reasoning, the analogy behind the design, and what was rejected are in
 [docs/DESIGN.md](docs/DESIGN.md).
@@ -341,18 +432,7 @@ language's own tools enforce the exemplar in CI. `burnish languages` says so.
 **Why is the critic so harsh?** Because a critic that praises is a brochure. The
 README critic is allowed, and required, to say a README is not good.
 
-## What it does not do
-
-WHAT IT DOES NOT OWN:
-
-- Writing to a repository. That is Warden's, behind a human grant.
-- The test gate, the SWIZZLE proof gate and the audit file. Also Warden's.
-- Forensic detection of long functions, dead code and duplicates, and counting tests. That is ghost_tools.
-- Proposing fixes inside the loop. That is Drafter.
-- Renaming, narrative comments, inline architectural comments, guards and function splits. They are designed (`PA`, `PB`, `PC`, `R1` to `R4`) and have no rewriter.
-- Checking Rust or C++23 code.
-- Judging whether prose is clear or an image is good, fetching URLs, or telling a dead external link.
-- Scoring anything.
+**What does it not own?** Writing to a repository, the test gate, the SWIZZLE proof gate and the audit file are Warden's, behind a human grant. Forensic detection of long functions, dead code and duplicates, and counting tests, are ghost_tools'. Proposing fixes inside the loop is the Drafter's. Burnish also does not judge whether prose is clear or an image is good, fetch URLs, tell a dead external link, or score anything.
 
 ## Alternatives
 
@@ -362,56 +442,6 @@ and spec checkers such as Standard Readme. Burnish differs in two ways: it
 keeps the criteria, the languages and the README standard in one place that
 checks itself, and it separates the opinion about better code from the
 authority to change it.
-
-## Evidence
-
-CI runs the Python tests on 3.11, 3.12 and 3.13, runs `ruff` and `mypy` as gates, runs Burnish on itself, builds the
-Rust exemplar with clippy and rustfmt, and builds the C++23 exemplar with GCC and
-warnings as errors. Both toolchains are pinned and their versions are asserted in the job.
-
-The suite passes against the Warden commit that `pyproject.toml` pins. This README states no test count on purpose: a number
-here goes stale the first time a test is added, and Burnish's own critic reports an unbacked count as a defect.
-`pytest --collect-only -q` gives the real figure.
-
-The three Warden-loop tests (`test_finisher.py::test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`, `test_finisher.py::test_nothing_to_finish_means_no_proposal` and `test_stable_and_careful.py::test_through_warden_a_second_finish_proposes_nothing`) now follow Warden's held-result rule: a finish that is not a full `ACCEPT` is put back and held, and the test keeps it with a grant before checking the result. Their earlier form expected a change to stand after `ACCEPT_UNVERIFIED`, which Warden no longer allows. No tests are skipped or marked expected-to-fail. The Rust and C++ exemplars have their own checks under `cargo test` and `ctest`.
-
-## Claims versus reality
-
-Here is what the artifact says it is: the home of the beautification criteria,
-with tools that measure code against them and say so bluntly.
-
-Here is what we can establish: the checker, the README critic and the critic
-of claims run, are tested, and pass on this tree. The three exemplars build and
-agree on the same vectors.
-
-Here is where those disagree: the criteria describe far more than is enforced.
-Of the Python criteria, eight are checked. Of the Rust and C++23 criteria, none are
-checked by Burnish. Most of the craft practices need a person. Counting the
-whole table, the share marked `IMPLEMENTED` is small, and `burnish criteria`
-prints exactly which. Clang 18 with libstdc++ 13 cannot build the C++ exemplar;
-only GCC was verified. The research behind the guides has gaps, listed in
-[docs/RESEARCH.md](docs/RESEARCH.md).
-
-What works, measured by the tests in this tree: running the finisher on its
-own output proposes nothing (checked five times over, from a README that was
-missing, old-format and hand-written); a hand-written section is never touched;
-a test run that failed to start is reported as not measured; README numbers that
-disagree with the measured suite are named; text that Ghost Tools supplies
-cannot forge a heading or close the generated section; CRLF files, byte order
-marks and files that are not UTF-8 are handled without a crash and without
-changing line endings; environments, vendored code, generated files and test material (`fixtures`,
-`specimens`, `testdata`, `golden`, `snapshots`, `corpus` folders) are not tidied:
-when the circuit ran on ASSAY, its own answer key, the tidy reformatted thirteen
-specimens and only the suite's recorded hashes caught it.
-
-Known defects. The test-count check looks for fixed phrasings such as "999
-tests pass" or "5/5 passed" and misses other wording, for example "ninety
-tests". Python files that start with a byte order mark are skipped rather than
-tidied, because Warden's own syntax check cannot read them. A README that ends
-inside an unclosed code block is left alone. A README with no file extension, or
-a `.rst` or `.txt` one, gets no generated section. The tidy still reaches test
-files, with whitespace-only changes that Warden allows because the syntax tree
-is identical.
 
 ## Roadmap
 
