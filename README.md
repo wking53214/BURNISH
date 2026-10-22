@@ -193,6 +193,15 @@ README" among what is still ugly, `inspect` says `readme_exists` is false, `read
 | 0 | Nothing to report at the level asked for. |
 | 1 | Findings, or a README below the requested tier, or a README claim the tree contradicts. |
 | 2 | Could not run: bad usage, a path that is missing or unreadable, or a path with nothing to check. |
+| 3 | The report could not be delivered (standard output closed or full) and the check itself would have exited 0. |
+
+A report that cannot be delivered is not a silent success. If the reader of a pipe went away (`burnish critic . | head -3`),
+the output is cut short, one line on stderr says so, and the exit code stays the one the check earned: the reader chose to stop,
+and the check still ran to the end. Any other failure to write standard output (it is closed, or the device is full) also gets
+one line on stderr saying why. An earned 1 or 2 stays as it is; an earned 0 becomes 3, because exit 0 would claim a report
+that nobody received. No command ends in a traceback for this, including `--version` and `--help`, and the exit status 120
+that Python gives a failed flush at exit is never what you see. The line goes to stderr; if stderr cannot be written either,
+the exit code is all there is.
 
 Messages go to stderr through Python's `logging`. `--verbose` (or `-v`, before or after the command) shows the debug trail,
 and `BURNISH_LOG_LEVEL` (`DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`) sets the level when `--verbose` is not given.

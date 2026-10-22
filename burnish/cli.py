@@ -8,9 +8,15 @@ EXIT CODES
   0  nothing to report at the level asked for
   1  findings (or a README below the requested tier)
   2  could not run (bad usage, a path that is missing or unreadable, or a path with nothing to check)
+  3  the report could not be delivered (standard output closed or full) and the check itself would have exited 0
 
 A command that cannot look at anything never reports a clean result: "0 findings" over a tree
 that was not read would be a lie, so it exits 2 and says why on stderr.
+
+A report that cannot be delivered is never a silent success either. If the reader of a pipe went away
+(`burnish critic . | head`) the output is cut short, one line on stderr says so, and the exit code stays the one
+the check earned, as `head` itself intends. For any other failure to write standard output (closed, full device) the
+line says why, an earned 1 or 2 stays as it is, and an earned 0 becomes 3.
 
 LOGGING
   Messages go to stderr. `--verbose` shows the debug trail; `BURNISH_LOG_LEVEL`
@@ -20,13 +26,15 @@ LOGGING
 from __future__ import annotations
 
 import argparse
+import contextlib
 import errno
+import io
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Optional, Sequence, TextIO, cast
 
 from . import __version__
 from .checks import check_tree, checkable_files, summarize
@@ -46,13 +54,14 @@ from .readme_critic import ReadmeCritic, Tier
 
 _TIERS = {"minimum": Tier.MINIMUM, "strong": Tier.STRONG, "over-the-top": Tier.OVER_THE_TOP}
 
-EXIT_OK, EXIT_FINDINGS, EXIT_CANNOT_RUN = 0, 1, 2
+EXIT_OK, EXIT_FINDINGS, EXIT_CANNOT_RUN, EXIT_NOT_DELIVERED = 0, 1, 2, 3
 
 #: The exit codes, as the README's table states them. A test keeps the two in step.
 EXIT_CODES = {
     EXIT_OK: "Nothing to report at the level asked for.",
     EXIT_FINDINGS: "Findings, or a README below the requested tier, or a README claim the tree contradicts.",
     EXIT_CANNOT_RUN: "Could not run: bad usage, a path that is missing or unreadable, or a path with nothing to check.",
+    EXIT_NOT_DELIVERED: "The report could not be delivered (standard output closed or full) and the check itself would have exited 0.",
 }
 
 LOG_LEVEL_ENV = "BURNISH_LOG_LEVEL"
@@ -68,10 +77,45 @@ class CannotRun(Exception):
     """The command could not look at what it was pointed at; main turns this into exit code 2."""
 
 
+class _Stdout(io.StringIO):
+    """Standard output for the length of one command: forwards everything, remembers the first failure, drops the rest.
+
+    A command prints as it goes. If the reader has gone, the stream is closed or the device is full, the command still has
+    to finish, because the exit code it earned does not depend on whether anyone could read the report.
+    """
+
+    def __init__(self, stream: Optional[TextIO]) -> None:
+        super().__init__()
+        self._stream = stream
+        self.failure: Optional[Exception] = None
+
+    def write(self, text: str) -> int:
+        if text and self.failure is None:
+            try:
+                if self._stream is None:
+                    raise OSError(errno.EBADF, "standard output is closed")
+                self._stream.write(text)
+            except (OSError, ValueError) as error:   # ValueError: a closed file object, or text the stream cannot encode
+                self.failure = error
+        return len(text)
+
+    def flush(self) -> None:
+        if self.failure is None and self._stream is not None:
+            try:
+                self._stream.flush()
+            except (OSError, ValueError) as error:
+                self.failure = error
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Run one command and return its exit code (see EXIT_CODES)."""
     parser = _parser()
-    args = parser.parse_args(argv)
+    out = _Stdout(sys.stdout)
+    try:
+        with contextlib.redirect_stdout(out):   # --version and --help print too, then exit
+            args = parser.parse_args(argv)
+    except SystemExit as stop:
+        raise SystemExit(_settle(out, "burnish", stop.code if isinstance(stop.code, int) else EXIT_OK)) from None
     handlers = {
         "check": _check, "critic": _critic, "readme-critic": _readme_critic, "inspect": _inspect,
         "readme": _readme, "finish": _finish, "cns": _cns, "criteria": _criteria, "languages": _languages,
@@ -81,7 +125,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         log.debug("command=%s path=%s", args.command, getattr(args, "path", None))
         if args.command in _NEEDS:
             _require_something_to_read(args.command, args.path)
-        code = handlers[args.command](args)
+        with contextlib.redirect_stdout(out):
+            code = handlers[args.command](args)
     except CannotRun as error:
         print(f"burnish {args.command}: {error}", file=sys.stderr)
         code = EXIT_CANNOT_RUN
@@ -90,8 +135,35 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             raise
         print(f"burnish {args.command}: cannot read {error.filename or 'a file'}: {error.strerror or error}", file=sys.stderr)
         code = EXIT_CANNOT_RUN
+    code = _settle(out, f"burnish {args.command}", code)
     log.info("exit code %d: %s", code, EXIT_CODES[code])
     return code
+
+
+def _settle(out: _Stdout, who: str, code: int) -> int:
+    """Flush the report and say so on stderr if it did not arrive; an earned 0 becomes 3, any other code is kept."""
+    out.flush()
+    error = out.failure
+    if error is None:
+        return code
+    sys.stdout = cast(TextIO, None)   # the stream is unusable; None keeps the flush at exit from failing again
+    if isinstance(error, BrokenPipeError):
+        message = "the reader of standard output went away (broken pipe), so the output is cut short"
+    else:
+        message = f"could not write the report to standard output: {getattr(error, 'strerror', None) or error}"
+    _say(f"{who}: {message}")
+    return EXIT_NOT_DELIVERED if code == EXIT_OK and not isinstance(error, BrokenPipeError) else code
+
+
+def _say(line: str) -> bool:
+    """Write one line to stderr; False when stderr itself cannot be written (there is nowhere left to say it)."""
+    if sys.stderr is None:   # print(file=None) would write to standard output, the stream that just failed
+        return False
+    try:
+        print(line, file=sys.stderr)
+    except (OSError, ValueError):
+        return False
+    return True
 
 
 def _configure_logging(verbose: bool) -> None:

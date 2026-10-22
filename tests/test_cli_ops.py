@@ -1,6 +1,7 @@
 """The exit-code table in the README is the code's table, and logging goes to stderr at the level asked for."""
 
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -26,12 +27,16 @@ def test_the_module_docstring_lists_the_same_codes():
         assert re.search(rf"^\s+{code}\s+\S", cli.__doc__ or "", re.M), f"exit code {code} missing from the cli docstring"
 
 
-def test_every_documented_code_is_returned_by_some_run(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+def test_every_documented_code_is_returned_by_some_run(tmp_path: Path, capsys: pytest.CaptureFixture[str],
+                                                       monkeypatch: pytest.MonkeyPatch):
     _tree(tmp_path)
     seen = {cli.main(["check", str(tmp_path)])}
     (tmp_path / "bad.py").write_text("from os import *\n", encoding="utf-8")
     seen.add(cli.main(["check", str(tmp_path)]))
     seen.add(cli.main(["check", str(tmp_path / "missing")]))
+    with monkeypatch.context() as unwritable:
+        unwritable.setattr(sys, "stdout", None)   # standard output closed: a report that would exit 0 exits 3
+        seen.add(cli.main(["criteria"]))
     capsys.readouterr()
     assert seen == set(cli.EXIT_CODES)
 
