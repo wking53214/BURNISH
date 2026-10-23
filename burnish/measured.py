@@ -22,7 +22,7 @@ from cns.suite import SuiteRun
 
 from .textsafe import clean
 
-__all__ = ["Measured", "measure"]
+__all__ = ["Measured", "measure", "describe_suite"]
 
 _CHECKS = {"ghost": "Ghost Tools was not run", "swizzle": "SWIZZLE's proofs were not run",
            "suite": "the target's own suite was not run"}
@@ -42,6 +42,32 @@ class Measured:
     def complete(self) -> bool:
         """True when every check ran and the suite result can be quoted."""
         return not self.not_run
+
+
+def describe_suite(suite: SuiteRun) -> str:
+    """What one suite run came to, in words and with no counts.
+
+    A count of passed tests is a snapshot: it is stale at the next new test, and a README that states one fails the
+    repositories that forbid a hard-coded count. What does not drift is kept: green or not, and whether anything failed,
+    errored, was skipped or was expected to fail.
+    """
+    if suite.green:
+        parts = ["green", "nothing failed or errored"]
+    else:
+        parts = ["not green"]
+        if suite.failed:
+            parts.append("some tests failed")
+        if suite.errors:
+            parts.append("some tests errored")
+        if not suite.passed:
+            parts.append("no test passed")
+        if suite.exit_code not in (None, 0):
+            parts.append("pytest exited with a non-zero status")
+    if suite.skipped or suite.xfailed:
+        parts.append("some tests were skipped or expected to fail")
+    if suite.xpassed:
+        parts.append("some tests expected to fail passed")
+    return "; ".join(parts)
 
 
 def _names(raw: Any) -> list[str]:

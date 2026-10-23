@@ -243,7 +243,8 @@ def judge(claim: TestClaim, suite: Optional[SuiteRun]) -> tuple[bool, str]:
 
     Skipped tests are not failures: "30/30 passing" over 28 passed and 2 skipped agrees, with the skips named,
     unless the README says nothing is skipped. The sentence never repeats the README's number next to the word
-    "tests", so Ghost Tools does not read the report as a new claim of its own.
+    "tests", so Ghost Tools does not read the report as a new claim of its own, and it states none of the measured counts:
+    a count is a snapshot that goes stale, and some repositories fail a README that carries one.
     """
     what = "that all tests pass" if claim.kind == "green" else f"a count of {claim.number}"
     if suite is None or not suite.ran:
@@ -263,9 +264,9 @@ def judge(claim: TestClaim, suite: Optional[SuiteRun]) -> tuple[bool, str]:
     else:
         agrees = claim.number in (seen, everything)
     verb = "agree" if agrees else "disagree"
-    measured = f"the measured suite has {seen} passing"
+    measured = f"the measured suite {'matches' if agrees else 'does not match'} it"
     if skipped:
-        measured += f" and {skipped} skipped"
+        measured += ", with some tests skipped or expected to fail"
     if suite.failed or suite.errors:
-        measured += f", {suite.failed} failed and {suite.errors} errors"
+        measured += ", and some tests failed or errored"
     return agrees, f"The README says {what}; {measured}. These {verb}."

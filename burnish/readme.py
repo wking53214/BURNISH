@@ -115,7 +115,7 @@ def _claims_versus_reality(critic: CriticReport, complete: bool = True) -> str:
     if not critic.readme_test_claims:
         lines.append("- No test-count claims found in the README.")
     if critic.readme_unchecked:
-        lines.append(f"- Not checked: {critic.readme_unchecked} other test count(s) in the README are about a file, "
+        lines.append("- Not checked: other test counts in the README are about a file, "
                      "a table row or a named subject, not this suite.")
     return f"{chr(10).join(lines)}\n\nCritic: **{_plain(_verdict(critic, complete))}**"
 
@@ -150,6 +150,23 @@ def _inert(text: str) -> str:
     return _MARKER_WORDS.sub(lambda m: _DEFUSED[m.group(0).lower()], text)
 
 
+#: The forms in which a drift note repeats something that moves with the target: the pin it found, how many files import a module.
+_MOVING = ((re.compile(r"at commit [0-9a-f]{7}(?: \((?:recorded as [^)]*|no tag recorded)\))?"), "at a commit"),
+           (re.compile(r"at tag v\d+\.\d+\.\d+"), "at a release tag"),
+           (re.compile(r"imported in \d+ file\(s\)"), "imported in the code"))
+
+
+def _steady(text: str) -> str:
+    """`text` with the pin, the version and the file counts a drift note quotes taken out.
+
+    The note says the README disagrees with pyproject.toml; pyproject.toml is where the real pin is, and a pin written into
+    the README is wrong the day it moves. The same notes on the command line keep the detail: it is live there.
+    """
+    for pattern, plain in _MOVING:
+        text = pattern.sub(plain, text)
+    return text
+
+
 def _plain(text: str) -> str:
     """Generated text never carries an em or en dash; the author's own prose is never passed through here."""
     return text.replace(" \u2014 ", ": ").replace("\u2014", "-").replace("\u2013", "-")
@@ -172,7 +189,7 @@ def finalize_readme(existing: str, narrative: Narrative, critic: CriticReport,
     """
     suite_line = (measured or {}).get("WHAT WORKS", "")
     body = "\n".join(part for part in (suite_line, _claims_versus_reality(critic, complete)) if part)
-    block = wrap(_inert(_plain(f"{body}{_tail(commentary)}")))
+    block = wrap(_inert(_steady(_plain(f"{body}{_tail(commentary)}"))))
     if not existing.strip():
         return _inert(compile_readme(narrative, critic).rstrip("\n")) + "\n\n" + block
     found = find_block(existing)

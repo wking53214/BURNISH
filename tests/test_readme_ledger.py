@@ -124,7 +124,7 @@ def test_no_test_is_expected_to_fail_and_skip_markers_are_only_the_conditional_o
         if path.name == Path(__file__).name:
             continue
         source = path.read_text(encoding="utf-8")
-        assert "xfail" not in source, path.name
+        assert not re.search(r"pytest\.mark\.xfail|pytest\.xfail\(|xfail_strict", source), path.name
         assert not re.search(r"pytest\.mark\.skip\(|pytest\.skip\(", source), path.name
         if "skipif" in source:
             assert path.name == "test_cli_delivery.py", path.name
