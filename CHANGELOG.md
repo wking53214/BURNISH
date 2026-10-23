@@ -12,6 +12,48 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.12] - 2026-10-23
+
+### Changed
+- The generated README section states no number that goes stale. It said how many tests passed, failed, errored and were skipped
+  ("Warden ran the target's suite at the end of the loop: 1374 passed, ..."), how many findings Ghost still reported and of
+  which kinds, how many change cycles ran, the measured counts inside the sentence that says a README's own count disagrees,
+  and, inside a drift note, the pin commit, the pin tag and how many files import a module. It now says whether the suite was
+  green or not green (and whether something failed, errored, was skipped or was expected to fail), which kinds of finding Ghost
+  still reports, which checks never ran, and that a README count does not match the measured suite. A README critic gap whose
+  reason holds a number (lines, bytes, code blocks) is written with its rule and plain reason and without the number. The
+  command line keeps every detail it had: they are live there.
+- Why: running the whole circuit over the circuit's own repositories on 2026-10-22 and 2026-10-23 showed that SWIZZLE and JUDGE
+  each have a test that fails on a pass count in their README. The finishing change broke their suites, Warden put it back, and
+  the finisher ended `FINISH_REJECTED` for both. The four repositories that were accepted kept a count that goes stale.
+- Warden and CNS pins are unchanged.
+
+### Added
+- `tests/test_block_has_no_snapshots.py`: renders the section for representative facts and fails on a suite count, a Ghost or
+  cycle count, a pin, a version or any other standalone number except the README author's own claimed count; and checks four
+  cases against the union of the patterns that the README tests of ghost_tools, SWIZZLE, ASSAY, DRAFTER, JUDGE, WARDEN and
+  WATCHER_MCU fail on (copied as constants, each naming its source test), with a control that the patterns fail on the old line.
+  It was written first and failed before the fix.
+
+### Existing tests edited
+All because they asserted the exact text this release removes (the measured counts, the Ghost count) or relied on the pass count
+changing the section. Nothing else about them changed.
+- `tests/test_critic.py`: `test_a_green_suite_is_quoted_from_the_facts` (says green, no count),
+  `test_the_critic_checks_a_readme_test_count_against_the_measured_suite` (the disagreement sentence).
+- `tests/test_finisher.py`: `test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`,
+  `test_the_review_section_quotes_the_measured_suite` (green, no count), `test_ghost_findings_are_summarised_not_listed` (kinds, no
+  count).
+- `tests/test_second_red_team.py`: `test_skipped_tests_are_not_a_disagreement_unless_the_readme_says_none_are_skipped` (skips
+  noted, not counted); `test_a_mixed_ending_readme_with_a_block_keeps_every_line_ending_when_the_block_changes` and
+  `test_a_block_that_ends_the_file_without_a_final_newline_stays_that_way` (they changed the pass count to make the section change;
+  they now make the suite fail, which still changes it).
+- `tests/test_stable_and_careful.py`: `test_the_generated_section_is_replaced_only_between_its_markers` (same change of input),
+  `test_a_readme_that_claims_more_tests_than_were_measured_is_told_so_and_left_as_written`,
+  `test_an_unsupported_readme_is_not_converted_and_no_markdown_one_appears`, `test_through_warden_a_second_finish_proposes_nothing`
+  (the disagreement sentence).
+- `tests/test_readme_ledger.py` (added in 0.3.11): the check that no test is expected to fail matched the text `xfail` inside the
+  field name `xfailed`; it now looks for the pytest marker or call, which is what the README sentence it guards is about.
+
 ## [0.3.11] - 2026-10-22
 
 ### Changed
@@ -265,6 +307,7 @@ the true head by the commit that last wrote it.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/fc9599d2c01fc21aa77626cb8a4f2b2b0b0f77a8...fc9599d2c01fc21aa77626cb8a4f2b2b0b0f77a8
+[0.3.12]: https://github.com/wking53214/Burnish/compare/fc9599d2c01fc21aa77626cb8a4f2b2b0b0f77a8...439c4f54ced319512b44ceff5e8a09b650c06ed5
 [0.3.11]: https://github.com/wking53214/Burnish/compare/cd09fb49567f9fcf053999233c6ad64da9c6ebe0...801ef9b2897cf35dec94a0c17387a13ad4beccc1
 [0.3.10]: https://github.com/wking53214/Burnish/compare/61823a9423a7193e726f5d792f0af50429576474...42d6130df7b8f157e05f0de5dc3c9d9663f2d9aa
 [0.3.9]: https://github.com/wking53214/Burnish/compare/9e37d33dd64239ab0702dd23a85afe1add3f4597...815cc0353236f3def816a4ada9434299c1a402e8

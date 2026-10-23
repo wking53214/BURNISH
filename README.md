@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.3.11, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.3.12, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -226,14 +226,17 @@ section you headed "Claims vs reality".
 
 Inside that section it says what Warden measured, what was not measured, and
 where a number you wrote does not match (for example "The README says a count of
-999; the measured suite has 5 passing. These disagree."). It judges only claims
+999; the measured suite does not match it. These disagree."). It writes no number of
+its own that goes stale: no count of passed tests, no count of Ghost findings or change cycles, no pin and no
+version. It says whether the suite was green, which kinds of finding Ghost still reports and which checks never ran, so a
+repository whose own tests forbid a hard-coded count in its README can keep the section. It judges only claims
 about this project's own suite ("all tests pass", "30/30 passing", a bare
 full-coverage figure). It does not judge a change ("added 5 tests"), a history ("before the
 fix, 10 tests failed"), another thing's count (a version, a file, a table row, a
 named subject) or a denial ("we make no claim of full coverage"). Counts it skips
 because they belong to something else are only counted, never quoted, so Ghost
 Tools does not read the report as a new claim. Skipped tests are not failures: a
-claim of 30 passing over 28 passed and 2 skipped agrees, with the skips named,
+claim of 30 passing over 28 passed and 2 skipped agrees, with the skips noted,
 unless the README says nothing is skipped. It reports; it never rewrites your
 sentences. Run it again on its own result and it proposes nothing. A
 reStructuredText or plain-text README is not changed at all; Burnish only says
@@ -284,6 +287,7 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 - **Burnish imports Warden's shapes and no other role.** `tests/test_independence.py::test_no_module_imports_another_role` and `tests/test_independence.py::test_no_burnish_module_counts_tests`.
 - **The pins and the CI toolchains are checked.** Warden is a full commit, CNS is a release tag, each pin comment names the release installed (`tests/test_release_hygiene.py::test_every_git_dependency_is_a_full_commit`, `tests/test_release_hygiene.py::test_the_release_in_each_pin_comment_is_the_release_installed`). The Rust release and the g++ and cmake majors are asserted before the build (`tests/test_release_hygiene.py::test_the_rust_job_installs_the_pinned_toolchain_and_asserts_it_before_linting`, `tests/test_release_hygiene.py::test_the_cpp_job_prints_and_asserts_the_compiler_and_cmake_versions_before_building`).
 - **The two other language exemplars build.** The `rust` job runs `cargo fmt --check`, `cargo clippy --locked --all-targets -- -D warnings` and `cargo test --locked`. The `cpp23` job builds with GCC 13 and `-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror`, then runs `ctest`. All three exemplars read the same `exemplars/vectors.txt`.
+- **The generated section states no number that goes stale.** `tests/test_block_has_no_snapshots.py::test_the_section_carries_no_number_that_drifts_with_the_target` renders it for a green and a red suite and finds no count, pin or version in it. `tests/test_block_has_no_snapshots.py::test_the_section_matches_nothing_a_sibling_repository_forbids_in_a_readme` checks four representative cases against the patterns that the README tests of ghost_tools, SWIZZLE, ASSAY, DRAFTER, JUDGE, WARDEN and WATCHER_MCU fail on. The patterns are copies, with the source test named beside each.
 - **This README is held to its own rules.** `tests/test_readme_ledger.py` fails if a required section is missing, if a marketing word comes back, if a test this README names does not exist, or if a version or date in the ledger below disagrees with `CHANGELOG.md`.
 
 ## What does not work, or is not proven
@@ -305,12 +309,18 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 - **A README that ends inside an unclosed code block is left alone,** so it gets no generated section (`tests/test_stable_and_careful.py::test_a_readme_that_ends_inside_a_code_fence_is_left_alone`).
 - **A `README.rst`, `README.txt` or `README` with no extension is not changed.** Burnish says so in its notes and reports a count mismatch there, but writes no section (`tests/test_stable_and_careful.py::test_an_unsupported_readme_is_not_converted_and_no_markdown_one_appears`).
 - **The protected-file list is a copy of Warden's.** A change in Warden's guard needs a change in `burnish/files.py`. The test that compares the two runs against the installed Warden, so it catches drift when the Warden pin moves (`tests/test_second_red_team.py::test_burnish_agrees_with_warden_about_what_is_protected`), not between pin moves.
+- **The patterns that guard the generated section are copies.** They were read from the other repositories' README tests on 2026-10-23. If one of those tests changes, `tests/test_block_has_no_snapshots.py` does not notice; a person has to copy the new pattern.
+- **A README that Burnish compiles from nothing still states a module count and the package version.** A repository with no README gets one built from its tree once ("Python modules in this tree" and the version), and then it belongs to the author. Those two figures go stale, and no test holds the compiled README to the sibling patterns. The generated section at the end of any README is held; the compiled body is not.
+- **The README critic's size details are not in the section.** A gap whose reason holds a number (for example how many lines a README has) is written with its rule and plain reason and without the number, so a reader of the section does not see how long the README was. The command line still prints the number.
 - **The exact cmake release is not pinned.** The `cpp23` job asserts the cmake major version only, because the runner's cmake changed between runs. Pinning the release would need a pip-installed cmake.
 - **A broken stderr is out of scope.** If the one-line message about an undelivered report cannot be written either, the exit code is all there is. No test holds this.
 
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.3.12** (2026-10-23)
+- *The generated section wrote numbers that go stale, and two sibling repositories fail on exactly that.* The section carried the suite's counts (passed, failed, skipped and the rest), how many findings Ghost still reported, how many change cycles ran, the measured counts inside the disagreement sentence, a pin commit inside a drift note and the size of the README going into the finish. SWIZZLE and JUDGE each have a test that fails on a pass count in their README, so the finishing change broke their suites, Warden put it back, and the finisher could never finish either repository (`FINISH_REJECTED`). The four repositories that were accepted kept a number that is wrong at the next new test. Found by running the whole circuit over the circuit's own repositories on 2026-10-22 and 2026-10-23, not by any test here. Fixed in 0.3.12: the section says green or not green, which kinds of finding remain and which checks never ran, and states no count, pin or version. Guard: `tests/test_block_has_no_snapshots.py::test_the_section_carries_no_number_that_drifts_with_the_target` and `tests/test_block_has_no_snapshots.py::test_the_section_matches_nothing_a_sibling_repository_forbids_in_a_readme`. The guard was first written as a failing test, before the fix.
 
 **0.3.11** (2026-10-22)
 - *The README stated things that were not true.* It listed "the tidy still reaches test files" as a known defect when the finisher never proposes a test file; it said nothing is `IMPLEMENTED` unless Burnish enforces it when three criteria are `IMPLEMENTED` with Warden as owner; it said no tests are skipped when some carry conditional skip markers; and it said the rules were cut to headings in one edit in Warden, which could not be verified. Found while checking every line of the old README against the tests and the code for this rewrite. Guard: `tests/test_readme_ledger.py`, which holds the sections, the named tests, the ledger dates, the check and tier counts and the skip markers to the tree. A sentence it does not name is still only as good as the author's check.
