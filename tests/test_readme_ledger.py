@@ -137,3 +137,38 @@ def test_the_worded_test_count_gap_is_still_open():
     assert "about a thousand tests pass" in section("## Known defects (open)")
     assert [d.kind for d in check_test_claims("999 tests pass.")] == ["tests"]
     assert [d.kind for d in check_test_claims("ninety tests pass.")] == ["tests"]   # closed in 0.3.13
+
+
+# What the circuit's self-hosting record says about this repository. Source: docs/evidence/SELFHOSTING_2026-10-23.md in the CNS
+# repository (branch claude/horsemen-production-status-5wsndb until it is merged): the BURNISH rows of the first table and of
+# "Re-run after BURNISH 0.3.12". The numbers are copied here so the README cannot change them unnoticed.
+SELFHOST_EVIDENCE = "docs/evidence/SELFHOSTING_2026-10-23.md"
+SELFHOST_RUNS = (("cd17eec", "0.3.11"), ("c23ed87", "0.3.12"))   # (commit, Burnish version) of the two ACCEPT runs
+SELFHOST_DECLINED_GAPS = 7
+SELFHOST_GHOST_STANDING = 38
+SELFHOST_DECLINED_CHECKS = ("mutate", "kernel", "structure", "tests", "project", "secrets", "correlate")
+
+
+def test_the_self_hosting_paragraph_cites_the_record_and_holds_its_numbers():
+    paragraph = " ".join(section("## Self-hosting").split())
+    assert SELFHOST_EVIDENCE in paragraph and "claude/horsemen-production-status-5wsndb" in paragraph
+    assert "https://github.com/wking53214/CNS" in paragraph
+    for commit, version in SELFHOST_RUNS:
+        assert f"`{commit}` ({version})" in paragraph
+    assert f"{SELFHOST_DECLINED_GAPS} declined-check gaps" in paragraph and f"{SELFHOST_GHOST_STANDING} Ghost findings" in paragraph
+    assert f"carries {SELFHOST_DECLINED_GAPS} gaps" in paragraph
+    assert all(f"`{name}`" in paragraph for name in SELFHOST_DECLINED_CHECKS)
+    numbers = set(re.findall(r"(?<![\\w./+-])\\d+(?![\\w./+-])", paragraph))
+    assert numbers <= {str(SELFHOST_DECLINED_GAPS), str(SELFHOST_GHOST_STANDING)}, numbers
+
+
+def test_the_self_hosting_paragraph_says_what_the_record_does_not_mean_and_claims_no_fresh_run():
+    paragraph = " ".join(section("## Self-hosting").split())
+    assert "What the record does not mean" in paragraph and "no secrets, no weak tests" in paragraph
+    assert "does not cover this commit" in paragraph
+    assert "No fresh run" not in paragraph and "has not been established" not in paragraph
+    assert "FINISH_REJECTED" in paragraph and "0.3.12" in paragraph
+
+
+def test_the_readme_states_the_ghost_findings_that_still_stand_with_the_recorded_number():
+    assert f"The circuit run recorded {SELFHOST_GHOST_STANDING} at the start and {SELFHOST_GHOST_STANDING} at the end" in README
