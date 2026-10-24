@@ -33,7 +33,7 @@ name = "demo"
 version = "0.0.1"
 description = "demo"
 dependencies = [
-    "warden @ git+https://github.com/example/Warden.git@b57b81e1c98333c43d422666c89a8fcf3ae6eaca",  # Warden 0.13.9, not tagged
+    "warden @ git+https://github.com/example/Warden.git@9ecd1124e6c1b1c4ad7daed37b17f9009662dd9d",  # Warden 0.13.10, not tagged
     "cns @ git+https://github.com/example/CNS.git@v2.0.0",
 ]
 """
