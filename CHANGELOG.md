@@ -12,6 +12,41 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.13] - 2026-10-24
+
+Found by the round-6 independent audit of the final release set (2026-10-23 and 2026-10-24). Each item was reproduced first.
+
+### Changed
+- Step 1: Warden is re-pinned from `b57b81e1c98333c43d422666c89a8fcf3ae6eaca` (0.13.9) to the full commit
+  `9ecd1124e6c1b1c4ad7daed37b17f9009662dd9d` (Warden 0.13.10, not tagged). The `Warden.git` spelling and the CNS tag `@v2.0.0`
+  are unchanged. The drift-test fixtures use the new commit and version.
+- Step 2: `burnish/drift.py` reads `[project.optional-dependencies]`, PEP 735 `[dependency-groups]` and Poetry's groups. A pin or
+  dependency that only an extra backs is no longer a contradiction: `claims_held_by_extras` reports it, the critic lists it as
+  supported and says it holds for the optional dependency only, and `readme-critic` does not fail on it. A module imported only
+  inside a function, behind a `try` that expects the import to fail, or under `TYPE_CHECKING` is optional. `burnish critic` exits 0
+  on SWIZZLE 3f35dad and ghost_tools 5a9154d, where it exited 1 on both (the newer SWIZZLE 6853c92 and ghost_tools 3df51b3 were
+  checked too). The same note found through two sentences is reported once.
+- Step 3: a test count written with a comma, dot, space, apostrophe, underscore or non-breaking space between groups of three
+  digits, with a k ("1k", "1.4K"), or as a number word from two to 999 is read. "1 374 tests pass" had been read as 374.
+- Step 4: the critic's heading is "Claims critic: <target>"; `main()` leaves `sys.stdout` as it found it and the new `run()` is
+  the process entry point (`[project.scripts]` and `python -m burnish.cli`); `check` reports a file nested too deeply to parse
+  instead of crashing and `finish` says "is nested too deeply to tidy safely"; the README says links to directories are not followed.
+- Step 5: the README's self-hosting paragraph cites the CNS repository's `docs/evidence/SELFHOSTING_2026-10-23.md` and what it
+  recorded for Burnish (two runs, each ACCEPT, 7 declined-check gaps, 38 Ghost findings standing, none new), what that does not
+  mean, and the SWIZZLE and JUDGE first-run failure that Burnish 0.3.12 fixed. It also says Ghost still reports findings here.
+- Step 6: version 0.3.13, this entry and the README ledger.
+
+### Added
+- `tests/test_drift_extras.py`, `tests/test_count_forms.py`, `tests/test_small_fixes.py`, and three tests in
+  `tests/test_readme_ledger.py` that hold the self-hosting numbers (copied as constants naming the evidence file).
+
+### Existing tests edited
+- Step 3: `tests/test_readme_ledger.py::test_the_worded_test_count_gap_is_still_open` held "ninety tests pass" as an open gap;
+  it now holds "about a thousand tests pass" and asserts "ninety tests pass" is read.
+- Step 4: `tests/test_cli_fail_closed.py::test_critic_still_reads_a_trivial_readme_beside_code` asserted the heading
+  "# Poetry critic"; it asserts "# Claims critic".
+- Step 1: `tests/test_drift.py` and `tests/test_block_has_no_snapshots.py`, the Warden commit and release strings only.
+
 ## [0.3.12] - 2026-10-23
 
 ### Changed
@@ -307,6 +342,7 @@ changing the section. Nothing else about them changed.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/2a96c353a5e99de55a99cf6a81d182e7b9afcd78...2a96c353a5e99de55a99cf6a81d182e7b9afcd78
+[0.3.13]: https://github.com/wking53214/Burnish/compare/2a96c353a5e99de55a99cf6a81d182e7b9afcd78...e9477b85612b48f453be07046d0dd7e63afa86a0
 [0.3.12]: https://github.com/wking53214/Burnish/compare/fc9599d2c01fc21aa77626cb8a4f2b2b0b0f77a8...439c4f54ced319512b44ceff5e8a09b650c06ed5
 [0.3.11]: https://github.com/wking53214/Burnish/compare/cd09fb49567f9fcf053999233c6ad64da9c6ebe0...801ef9b2897cf35dec94a0c17387a13ad4beccc1
 [0.3.10]: https://github.com/wking53214/Burnish/compare/61823a9423a7193e726f5d792f0af50429576474...42d6130df7b8f157e05f0de5dc3c9d9663f2d9aa
