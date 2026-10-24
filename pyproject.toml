@@ -36,7 +36,7 @@ dependencies = [
 Homepage = "https://github.com/wking53214/Burnish"
 
 [project.scripts]
-burnish = "burnish.cli:main"
+burnish = "burnish.cli:run"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff~=0.17", "mypy~=2.4"]

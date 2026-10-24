@@ -74,6 +74,9 @@ def check_source(source: str, path: str, *, is_test: bool = False) -> list[Findi
     except SyntaxError as error:
         return [Finding("PY-PARSE", path, error.lineno or 1,
                         f"could not be parsed ({error.msg}); no other check can speak for this file")]
+    except (RecursionError, MemoryError):   # an expression nested deeper than the parser's stack
+        return [Finding("PY-PARSE", path, 1,
+                        "could not be parsed (nested too deeply for the parser); no other check can speak for this file")]
     found: list[Finding] = []
     found.extend(_handlers(tree, path))
     found.extend(_imports(tree, path))

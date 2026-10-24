@@ -64,7 +64,7 @@ class CriticReport:
     def as_markdown(self) -> str:
         """The report as a markdown document."""
         lines = [
-            f"# Poetry critic — {self.target}",
+            f"# Claims critic: {self.target}",
             "",
             self.verdict,
             "",

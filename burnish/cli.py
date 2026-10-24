@@ -107,7 +107,16 @@ class _Stdout(io.StringIO):
                 self.failure = error
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def run(argv: Optional[Sequence[str]] = None) -> int:
+    """Run one command as the process's own entry point (the console script and `python -m burnish.cli`).
+
+    Like `main`, but a standard output that failed is replaced by None before returning, so the flush the interpreter does at
+    exit does not fail a second time (exit status 120). `main` leaves the stream as it found it, for a caller in the same process.
+    """
+    return main(argv, _as_process=True)
+
+
+def main(argv: Optional[Sequence[str]] = None, *, _as_process: bool = False) -> int:
     """Run one command and return its exit code (see EXIT_CODES)."""
     parser = _parser()
     out = _Stdout(sys.stdout)
@@ -115,7 +124,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         with contextlib.redirect_stdout(out):   # --version and --help print too, then exit
             args = parser.parse_args(argv)
     except SystemExit as stop:
-        raise SystemExit(_settle(out, "burnish", stop.code if isinstance(stop.code, int) else EXIT_OK)) from None
+        raise SystemExit(_settle(out, "burnish", stop.code if isinstance(stop.code, int) else EXIT_OK, _as_process)) from None
     handlers = {
         "check": _check, "critic": _critic, "readme-critic": _readme_critic, "inspect": _inspect,
         "readme": _readme, "finish": _finish, "cns": _cns, "criteria": _criteria, "languages": _languages,
@@ -135,18 +144,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             raise
         print(f"burnish {args.command}: cannot read {error.filename or 'a file'}: {error.strerror or error}", file=sys.stderr)
         code = EXIT_CANNOT_RUN
-    code = _settle(out, f"burnish {args.command}", code)
+    code = _settle(out, f"burnish {args.command}", code, _as_process)
     log.info("exit code %d: %s", code, EXIT_CODES[code])
     return code
 
 
-def _settle(out: _Stdout, who: str, code: int) -> int:
-    """Flush the report and say so on stderr if it did not arrive; an earned 0 becomes 3, any other code is kept."""
+def _settle(out: _Stdout, who: str, code: int, as_process: bool = False) -> int:
+    """Flush the report and say so on stderr if it did not arrive; an earned 0 becomes 3, any other code is kept.
+
+    Only the process's own entry point (`run`) replaces a dead standard output with None; a caller in the same process
+    (a test, a library) gets its stream back exactly as it was.
+    """
     out.flush()
     error = out.failure
     if error is None:
         return code
-    sys.stdout = cast(TextIO, None)   # the stream is unusable; None keeps the flush at exit from failing again
+    if as_process:
+        sys.stdout = cast(TextIO, None)   # the stream is unusable; None keeps the flush at exit from failing again
     if isinstance(error, BrokenPipeError):
         message = "the reader of standard output went away (broken pipe), so the output is cut short"
     else:
@@ -334,4 +348,4 @@ def _languages(_: argparse.Namespace) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run())
