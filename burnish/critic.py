@@ -22,7 +22,7 @@ from cns.epistemic import EpistemicState
 from cns.seat import Facts
 
 from .claims import absolutes, judge, test_claims, unchecked_mentions
-from .drift import Drift, check_test_claims, check_tree_claims
+from .drift import Drift, check_test_claims, check_tree_claims, claims_held_by_extras
 from .measured import Measured, describe_suite, measure
 from .narrative import Narrative, inspect_tree
 from .textsafe import clean
@@ -219,6 +219,10 @@ def _check_against_the_tree(nar: Narrative, facts: Facts | None, collected: int 
             notes.claims.append(Claim(text=drift.claim, location="README", epistemic=EpistemicState.ASSUMED, supported=False,
                                       note=drift.problem, agreement=drift.verdict, label=f"README claim ({drift.kind})"))
         notes.unsupported.append(drift.problem)
+    for held in claims_held_by_extras(Path(nar.root), nar.readme_text):
+        notes.claims.append(Claim(text=held.claim, location="README", epistemic=EpistemicState.VERIFIED, supported=True,
+                                  note=held.problem, agreement="holds for an optional dependency only",
+                                  label=f"README claim ({held.kind})"))
 
 
 def _check_historical_as_current(nar: Narrative, notes: _Notes) -> None:
