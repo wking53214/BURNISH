@@ -41,7 +41,18 @@ __all__ = ["TestClaim", "prose", "test_claims", "unchecked_mentions", "absolutes
 
 #: What inline code becomes in the prose: its words are gone, but the claim next to it is still known to be about it.
 _CODE = "\u2039code\u203a"
-_NUMBER = r"(\d{1,3}(?:,\d{3})+|\d+)"
+_UNITS = "two|three|four|five|six|seven|eight|nine"
+_TEENS = "ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen"
+_TENS = "twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety"
+_BELOW_100 = rf"(?:(?:{_TENS})(?:[-\s](?:one|{_UNITS}))?|{_TEENS}|{_UNITS})"
+#: Number words up to 999 ("twelve", "twenty-one", "two hundred and five"). Not "one" or "zero": they are too common in prose.
+#: Not after "thousand", "million" or "hundred", so "one thousand three hundred and seventy four" is missed whole, never read as 74.
+_AFTER_A_LARGER_WORD = r"(?<!thousand\s)(?<!million\s)(?<!hundred\s)(?<!hundred\sand\s)(?<!thousand\sand\s)"
+_WORDS = (rf"{_AFTER_A_LARGER_WORD}(?:(?:one|a|{_UNITS})\s+hundred(?:\s+(?:and\s+)?(?:one|{_BELOW_100}))?|{_BELOW_100})")
+#: A count as people write it: digits (a comma, dot, space, apostrophe, underscore or non-breaking space between groups of
+#: three), a number of thousands ("1k", "1.4k"), or a number word.
+_SEPARATORS = "[,.\u00a0\u202f\u2009' _]"
+_NUMBER = (rf"(\d+(?:\.\d+)?[kK]\b|\d{{1,3}}(?:{_SEPARATORS}\d{{3}})+(?!\d)|\d+|{_WORDS})")
 _PASSING = r"(?:pass|passed|passing|passes|green)"
 _STANDALONE = r"(?<![\w.,/\-])"
 _RATIO = re.compile(rf"{_STANDALONE}{_NUMBER}\s*/\s*{_NUMBER}\s+(?:tests?\s+)?{_PASSING}\b", re.I)
@@ -61,7 +72,7 @@ _NO_SKIPS = re.compile(r"\b(?:no|zero|without|never|0|none|nothing)\s+(?:tests?\
 # What makes a number-and-"tests" something other than a claim about the suite as it is now.
 _DELTA = re.compile(r"\b(?:gained|gains|gain|added|adds|add|grew|grown|grows|growing|plus|minus|removed|removes|"
                     r"dropped|drops|another|extra|net|more|fewer)\b\s*(?:by\s+)?$", re.I)
-_TRANSITION = re.compile(r"(?:\bfrom\s+\d+\s+to\s+|\b\d+\s*(?:->|-->|→)\s*)$", re.I)
+_TRANSITION = re.compile(rf"(?:\bfrom\s+(?:\d[\d,. _]*|{_WORDS})\s+to\s+|\b\d+\s*(?:->|-->|→)\s*)$", re.I)
 _QUOTATION = re.compile(r"[\"'“‘]\s*$")
 _ATTRIBUTION = re.compile(r"\b(?:claimed|reported|said)\s*$", re.I)
 _HISTORY = re.compile(r"\b(?:before|previously|formerly|used\s+to|once|originally|initially|earlier|prior\s+to|until|"
@@ -111,8 +122,37 @@ def prose(readme_text: str) -> str:
     return re.sub(r"`[^`\n]*`", _CODE, "\n".join(lines))
 
 
+_WORD_VALUES = {word: value for value, word in enumerate(
+    ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen",
+     "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"))}
+_WORD_VALUES.update({word: 20 + 10 * step for step, word in enumerate(
+    ("twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"))})
+
+
+def _words_to_int(raw: str) -> int:
+    """"twenty-one" is 21, "two hundred and five" is 205, "a hundred" is 100."""
+    total = 0
+    pieces = re.split(r"[-\s]+", raw.lower())
+    for index, piece in enumerate(pieces):
+        if piece == "and":
+            continue
+        if piece == "hundred":
+            total = (total or 1) * 100
+        elif piece == "a":
+            total = 1
+        else:
+            total += _WORD_VALUES[piece]
+        del index
+    return total
+
+
 def _int(raw: str) -> int:
-    return int(raw.replace(",", ""))
+    """The number a count was written as: "1,374", "1.374", "1 374", "1k", "twelve"."""
+    if raw[-1] in "kK" and raw[0].isdigit():
+        return round(float(raw[:-1]) * 1000)
+    if raw[0].isdigit():
+        return int(re.sub(r"\D", "", raw))
+    return _words_to_int(raw)
 
 
 def _sentence(text: str, start: int) -> str:

@@ -133,6 +133,7 @@ def test_no_test_is_expected_to_fail_and_skip_markers_are_only_the_conditional_o
 
 def test_the_worded_test_count_gap_is_still_open():
     """The README lists this under Known defects. When the gap is closed, delete this test and that README line together."""
-    assert check_test_claims("ninety tests pass.") == []
-    assert "ninety tests pass" in section("## Known defects (open)")
+    assert check_test_claims("about a thousand tests pass.") == []
+    assert "about a thousand tests pass" in section("## Known defects (open)")
     assert [d.kind for d in check_test_claims("999 tests pass.")] == ["tests"]
+    assert [d.kind for d in check_test_claims("ninety tests pass.")] == ["tests"]   # closed in 0.3.13
