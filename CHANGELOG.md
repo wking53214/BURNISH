@@ -12,6 +12,15 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.14] - 2026-10-29, not tagged
+
+### Changed
+- Step R1: the README says, in What this is and in Ceilings code cannot fix, that the owner released Burnish from the Horsemen
+  circuit on 2026-10-29. Released means removed from the circuit and nothing else: no code, test, history or CI was changed.
+  Burnish still works on its own (`burnish check`, `critic` and `readme-critic`). Warden 0.15.0 lets a pinned manifest leave
+  Burnish out; until the pins move, the circuit still installs it. Burnish is free to be reborn elsewhere, as intent only.
+- Version 0.3.14 and this entry. No pin changed.
+
 ## [0.3.13] - 2026-10-24
 
 Found by the round-6 independent audit of the final release set (2026-10-23 and 2026-10-24). Each item was reproduced first.
@@ -341,7 +350,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/118785b14f9b01a64d3d92fef63eb06efa5062d7...118785b14f9b01a64d3d92fef63eb06efa5062d7
+[Unreleased]: https://github.com/wking53214/Burnish/compare/09b5a787393ee5c9dd27e1545aa0bb38faf924ff...09b5a787393ee5c9dd27e1545aa0bb38faf924ff
+[0.3.14]: https://github.com/wking53214/Burnish/compare/118785b14f9b01a64d3d92fef63eb06efa5062d7...09b5a787393ee5c9dd27e1545aa0bb38faf924ff
 [0.3.13]: https://github.com/wking53214/Burnish/compare/2a96c353a5e99de55a99cf6a81d182e7b9afcd78...e9477b85612b48f453be07046d0dd7e63afa86a0
 [0.3.12]: https://github.com/wking53214/Burnish/compare/fc9599d2c01fc21aa77626cb8a4f2b2b0b0f77a8...439c4f54ced319512b44ceff5e8a09b650c06ed5
 [0.3.11]: https://github.com/wking53214/Burnish/compare/cd09fb49567f9fcf053999233c6ad64da9c6ebe0...801ef9b2897cf35dec94a0c17387a13ad4beccc1
