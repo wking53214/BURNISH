@@ -16,6 +16,8 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 Burnish is a written set of rules for what makes Python, Rust and C++23 code and a README better, plus the tools that measure a tree against the rules a program can judge: eight Python checks, a README critic with a rule list, and a critic that compares what a README says with what the tree contains. It is also the finisher in the Warden loop: it runs once, after the loop has converged, and proposes a whitespace tidy and one generated section in the README. It never writes a file itself; it returns a proposal, and [Warden](https://github.com/wking53214/Warden) applies it or puts everything back.
 
+**Status: released from the circuit (2026-10-29).** Burnish was the finisher seat in the Horsemen circuit, and the owner has released it from the circuit. Released means removed from the circuit and nothing else: the code, the tests, the history and the CI are intact, and Burnish still works on its own as described below. The reason, with the evidence: across the thirteen self-hosting runs of 2026-10-22 and 2026-10-23, the sections the finisher generated were the only change the circuit kept, and the two FINISH_REJECTED results the finisher's change caused (SWIZZLE and JUDGE, first run) were caused by that text. The record is in the CNS repository under `docs/evidence/selfhosting-records-2026-10-23/`. What remains usable on its own: `burnish check`, `burnish critic` and `burnish readme-critic` run standalone on any tree. In the circuit, Warden 0.15.0 lets a pinned manifest leave Burnish out; until the pins move, the circuit still installs it. Burnish is free to be reborn elsewhere; that is the owner's intent, not a plan or a promise.
+
 ## Why it exists
 
 On 2026-10-08 the critic, the narrative reader and the README compiler were removed from Warden's package (Warden commit `81cd431`, when Warden was still called Elegant), so that Warden would only govern change and the opinion about what better code is would live in its own repository. This repository started the same day under the name Streamline. The opinion could then be judged, improved and applied to itself.
@@ -397,6 +399,7 @@ What the record does not mean: an `ACCEPT` here carries 7 gaps, the Ghost checks
 - The repository is young. Its history starts on 2026-10-08.
 - It has one human maintainer, and most commits were written with an AI assistant (the commit trailers say so).
 - It has no known outside users.
+- The owner released it from the Horsemen circuit on 2026-10-29 (see the status note under What this is). Nothing in it was removed, and it keeps working on its own.
 - Releases are tagged by the owner, not by the code. Check the repository's tags and releases on GitHub for what exists.
 
 ## Architecture
