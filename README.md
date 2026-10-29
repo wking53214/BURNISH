@@ -46,7 +46,7 @@ ruff check .
 mypy
 ```
 
-CNS has a migration note. The pin moved from `v1.9.0` to `v2.0.0` in Burnish 0.3.11. Burnish imports `cns.seat`, `cns.suite`, `cns.epistemic` and `cns.defect`, and its suite passes against the installed 2.0.0 with no change to Burnish's source code.
+CNS has a migration note. The pin moved from `v1.9.0` to `v2.0.0` in Burnish 0.3.11. Burnish imports `cns.seat`, `cns.suite`, `cns.epistemic` and `cns.defect`, and its suite passes against the installed 2.0.0 with no change to Burnish's source code. The pin then moved from `v2.0.0` to `v2.1.0` in Burnish 0.3.15, together with the Warden pin, again with no change to Burnish's source code.
 
 ### Bumping the Warden pin
 
@@ -56,7 +56,7 @@ Warden's `main` cannot break it without anyone noticing. To move to a newer Ward
 1. Pick the Warden commit you want, and note the release it belongs to.
 2. Put the full 40-character commit after the `@` in the `warden @ git+...` line of `pyproject.toml`, and the release it
    corresponds to in the comment on that line. The CNS line is different: it is pinned by its release tag
-   (`@v2.0.0`), the spelling every repository in the circuit uses, with the commit the tag peels to in the comment.
+   (`@v2.1.0`), the spelling every repository in the circuit uses, with the commit the tag peels to in the comment.
 3. Run `pip install -e ".[dev]"` and `pytest`. The tests check that Warden is pinned to a full commit, that CNS is
    pinned by tag, and that this package's `requires_contract` matches the installed Warden's `CONTRACT`.
 4. Open a pull request. CI runs the same checks.
