@@ -64,7 +64,7 @@ def test_tests_named_by_function_alone_in_the_ledger_exist():
 
 def test_every_version_and_date_in_the_ledger_is_a_changelog_heading():
     ledger = section(LEDGER_HEADING)
-    released = dict(re.findall(r"^## \[(\d+\.\d+\.\d+)\] - (\d{4}-\d{2}-\d{2})$", CHANGELOG, re.M))
+    released = dict(re.findall(r"^## \[(\d+\.\d+\.\d+)\] - (\d{4}-\d{2}-\d{2})(?:, not tagged)?$", CHANGELOG, re.M))
     cited = re.findall(r"^\*\*(\d+\.\d+\.\d+)\*\* \((\d{4}-\d{2}-\d{2})", ledger, re.M)
     assert cited, "the ledger cites no version"
     for version, date in cited:

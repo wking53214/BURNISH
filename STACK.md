@@ -2,7 +2,7 @@
 
 **ASSURANCE (not the live decision path).**
 
-The finisher. Runs once, after the loop converges: tidies the code and keeps the README's generated facts section current. Returns a proposal; Warden applies it under the same gate.
+A finisher that Warden can seat with `--finisher`; it is released from the circuit (see below), so no circuit run seats it unless asked. When seated it runs once, after the loop converges: tidies the code and keeps the README's generated facts section current. Returns a proposal; Warden applies it under the same gate.
 
 ## The circuit
 

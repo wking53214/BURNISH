@@ -12,6 +12,18 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.19] - 2026-10-30, not tagged
+
+### Fixed
+
+- `burnish check` read every `.py` file with `errors="replace"`, so a file with a literal 0xff byte (which Python cannot compile) was repaired in memory and reported as "0 finding(s)", exit 0, while `burnish finish` on the same file said "not valid UTF-8". The file is now read strictly: an undecodable file is a `PY-PARSE` finding that says so, and `check` exits as it does for any finding (as the README already promised). `finish` is unchanged. Tests: `tests/test_undecodable_file.py`.
+
+### Changed
+
+- The Warden pin moves from 0.16.3 (`cb45681ea80f845fb8f23bb091bda7f587c6a547`) to 0.16.4 (`57f7bb7b12314f0ba30697cff9a846c749e3d606`). The CI tested set is not moved.
+- README and `STACK.md`: the finisher is not described as running in the loop (Burnish is released from the circuit and Warden seats it only with `--finisher`); the Drafter is optional since the claim seat; the install-from-main line says main is 0.3.10 until the owner fast-forwards it; two `# type: ignore` remain, not one; the ledger gains one line each for 0.3.14 to 0.3.18 (pin moves).
+- Version 0.3.19 (`burnish/__init__.py`, `pyproject.toml`, README).
+
 ## [0.3.18] - 2026-10-30, not tagged
 
 ### Changed
@@ -398,7 +410,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/1b2ae39f63974331338d08e1c8d767fd9c81f661...1b2ae39f63974331338d08e1c8d767fd9c81f661
+[Unreleased]: https://github.com/wking53214/Burnish/compare/3d190985eded48d8e75ea8d62c1ccd0b8fc8feab...3d190985eded48d8e75ea8d62c1ccd0b8fc8feab
+[0.3.19]: https://github.com/wking53214/Burnish/compare/e0070738dd918d7ddc0427ace385a81c3e7ee57e...3d190985eded48d8e75ea8d62c1ccd0b8fc8feab
 [0.3.18]: https://github.com/wking53214/Burnish/compare/ad22ca1af36c41fa99093061317c987f9990d1a5...1b2ae39f63974331338d08e1c8d767fd9c81f661
 [0.3.17]: https://github.com/wking53214/Burnish/compare/ea107c72a7e54bcbfc73e7ebe0f7680ac951db00...ad22ca1af36c41fa99093061317c987f9990d1a5
 [0.3.16]: https://github.com/wking53214/Burnish/compare/ce243bb3c93309dbdc82d016224d77c9b121821d...ea107c72a7e54bcbfc73e7ebe0f7680ac951db00

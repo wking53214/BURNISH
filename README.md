@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.3.18, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.3.19, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -25,7 +25,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.3.10 until the owner fast-forwards it; this branch is 0.3.19, so use a checkout of it for the current code
 ```
 
 This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
@@ -217,7 +217,7 @@ is written without `--authorize`:
 warden tagteam path/to/repo --drafter drafter.seat:Drafter --finisher burnish.finisher:Burnish --ghost-root ../ghost_tools --swizzle-root ../SWIZZLE
 ```
 
-That command needs the Drafter installed and checkouts of Ghost Tools and SWIZZLE beside the target, and it is a sketch of the shape: the flags exist in the pinned Warden's `warden tagteam --help`, but no test in this repository runs this exact command. Run with `--finisher burnish.finisher:Burnish` and no Drafter, Warden only observes and ends `INCONCLUSIVE` (exit 6) with nothing proposed; that was seen once by hand on 2026-10-22 and no test holds it.
+That command needs a change to govern (a Drafter installed, or the claim seat with `--claim-commit` or `--claim-diff`, which made the Drafter optional) and checkouts of Ghost Tools and SWIZZLE beside the target, and it is a sketch of the shape: the flags exist in the pinned Warden's `warden tagteam --help`, but no test in this repository runs this exact command. Run with `--finisher burnish.finisher:Burnish` and no Drafter, Warden only observes and ends `INCONCLUSIVE` (exit 6) with nothing proposed; that was seen once by hand on 2026-10-22 and no test holds it.
 
 ### What the finisher does to a README
 
@@ -308,7 +308,7 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 - **Only Linux has been run.** CI uses `ubuntu-24.04` and `ubuntu-latest`. Nothing here has been run on macOS or Windows. Some tests in `tests/test_cli_delivery.py` carry conditional skip markers (a system without POSIX pipes, a machine without `/dev/full`); on the CI runners and in the runs for this release none was skipped. No test uses `xfail`.
 - **Ghost Tools still reports findings on this repository.** The circuit run recorded 38 at the start and 38 at the end, none new, at 0.3.11 and again at 0.3.12 (see Self-hosting). They have not been worked off, and the Judge accepts because none is new. Their kinds are not listed here; run Ghost Tools to see them.
 - **"Optional" is decided by where an import sits, not by how it is used.** A module imported inside a function counts as optional even if that function always runs, so a README that says "no runtime dependencies" can be backed by a hard dependency hidden in a function. Only an import at the top of a module counts as needed to load it.
-- **Burnish alone does not govern a change.** It needs Warden, a human grant, a Drafter and the other instruments. Through the real Warden, only the three tests named above exercise the finisher. The recorded runs of the whole loop with Burnish in its seat (Warden's `docs/REGISTRY.json`, rows 3 to 5, dated 2026-10-14, Warden 0.11.0 and 0.11.1) used scratch repositories and fresh clones of the circuit's own repositories, and nothing from them was committed. No real outside repository has been transformed by the loop with Burnish in its seat.
+- **Burnish alone does not govern a change.** It needs Warden, a human grant, something that proposes the change (the claim seat or a Drafter) and the other instruments. Through the real Warden, only the three tests named above exercise the finisher. The recorded runs of the whole loop with Burnish in its seat (Warden's `docs/REGISTRY.json`, rows 3 to 5, dated 2026-10-14, Warden 0.11.0 and 0.11.1) used scratch repositories and fresh clones of the circuit's own repositories, and nothing from them was committed. No real outside repository has been transformed by the loop with Burnish in its seat.
 - **The top README tier is Burnish's own standard.** The minimum and strong tiers come from the sources listed in `docs/README_STANDARD.md`. The over-the-top tier is a synthesis the standard says it sets for itself, not a rule any source states. The critic reads one README and the files it links to; it does not fetch URLs and cannot tell whether prose is clear.
 - **The critics find claims by phrasing.** Details are under Known defects.
 - **Burnish's section still quotes unbacked status phrases.** When a README makes an unbacked status claim, the generated section repeats the words with a note that no measurement backs them (`tests/test_stable_and_careful.py::test_a_readme_that_claims_more_tests_than_were_measured_is_told_so_and_left_as_written`). On 2026-10-14 a Ghost detector once read that quote as a new claim and the run was rejected (see the ledger, 0.2.0). That was fixed on Ghost's side. Whether the current Ghost reads the quote again is not tested here.
@@ -331,6 +331,25 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.3.19** (2026-10-30)
+- *`burnish check` called a file Python cannot compile clean.* `checks.py` read files with `errors="replace"`, so a `.py` file with a literal 0xff byte was repaired in memory and `burnish check` reported "0 finding(s)" with exit 0, while `burnish finish` on the same file said "not valid UTF-8". Found by the round-8 audit. The file is read strictly now: it is a finding that says so, and `check` exits as it does for any finding; `finish` is unchanged. Guard: `tests/test_undecodable_file.py::test_an_undecodable_python_file_is_a_finding_that_says_why`.
+- *Text that described the old loop.* The README and `STACK.md` still said the Drafter is needed and that the finisher runs in the loop; they now say the Drafter is optional, Burnish is released from the circuit and Warden seats it only with `--finisher`. No test.
+
+**0.3.18** (2026-10-30)
+- The Warden pin moved from `df212db` to `cb45681`. No Burnish code changed.
+
+**0.3.17** (2026-10-30)
+- The Warden pin moved from `fade3ca` to `df212db`. No Burnish code changed.
+
+**0.3.16** (2026-10-30)
+- The CNS pin moved from `v2.1.0` to `v2.2.0` and the Warden pin from `fe9c8b3` to `fade3ca`. No Burnish code changed.
+
+**0.3.15** (2026-10-29)
+- The CNS pin moved from `v2.0.0` to `v2.1.0` and the Warden pin from `68f2a95` to `fe9c8b3`. No Burnish code changed.
+
+**0.3.14** (2026-10-29)
+- The README says the owner released Burnish from the circuit on 2026-10-29. No code, test, history or CI changed.
 
 **0.3.13** (2026-10-24)
 Found by the round-6 independent audit of the final release set on 2026-10-23 and 2026-10-24; each item was reproduced before it was changed, on throwaway clones of SWIZZLE 3f35dad and ghost_tools 5a9154d (and also checked on the newer SWIZZLE 6853c92 and ghost_tools 3df51b3).
@@ -375,7 +394,7 @@ Found by the round-6 independent audit of the final release set on 2026-10-23 an
 **0.3.0** (2026-10-17)
 - *Commands said "0 finding(s)" for a path they could not read.* A missing path, a non-folder, a folder with nothing to read or an unreadable file exited 0. They now exit 2. Guard: `tests/test_cli_fail_closed.py`.
 - *A README could state a pin, a dependency list or a test count the tree contradicted, and nothing checked it.* The claims critic (`burnish/drift.py`) was added. Guard: `tests/test_drift.py`.
-- *`mypy` and `ruff` found errors* (typing gaps in the package and tests, one unused import) and neither was a gate. Both are fixed and both run in CI. One narrow, commented `# type: ignore[arg-type]` remains in a test that passes a bare string on purpose. Guard: the `ruff check .` and `mypy` steps in the `python` job; no other test.
+- *`mypy` and `ruff` found errors* (typing gaps in the package and tests, one unused import) and neither was a gate. Both are fixed and both run in CI. Two narrow, commented `# type: ignore[arg-type]` remain, in `tests/test_stable_and_careful.py` (a test that passes a bare string on purpose) and `tests/test_cli_fail_closed.py` (a wrapper that forwards its arguments unchanged). Guard: the `ruff check .` and `mypy` steps in the `python` job; no other test.
 - *A closed output pipe was reported as "cannot read a file".* Fixed in 0.3.0 for that message; the wider pipe problem was still open and was fixed in 0.3.10. No separate test.
 
 **0.2.0** (2026-10-08 in the CHANGELOG; the fixes below landed up to 2026-10-14)
@@ -462,7 +481,7 @@ a synthesis, and the standard says so. This README is held to it.
 **Does it give a beauty score?** No. A number hides which rule failed. Every
 report is a list of named rules.
 
-**Can it fix my code?** Not by itself. Fixing is the Drafter's job, inside the loop. Burnish runs once, after the loop, and proposes a tidy and the final README. Warden, with a human grant and a green suite, decides. Today the tidy removes trailing whitespace and nothing else.
+**Can it fix my code?** Not by itself. Proposing a fix is a Drafter's job (Warden seats one with `--drafter`; it is optional since the claim seat, and it is released from the circuit like Burnish). Burnish, when Warden seats it with `--finisher`, runs once after the loop and proposes a tidy and the final README. Warden, with a human grant and a green suite, decides. Today the tidy removes trailing whitespace and nothing else.
 
 **Why does it check Python but not Rust or C++?** Because only Python has a
 checker. Rust and C++23 have written criteria and a working exemplar, and the
@@ -471,7 +490,7 @@ language's own tools enforce the exemplar in CI. `burnish languages` says so.
 **Why is the critic so harsh?** Because a critic that praises is a brochure. The
 README critic is allowed, and required, to say a README is not good.
 
-**What does it not own?** Writing to a repository, the test gate, the SWIZZLE proof gate and the audit file are Warden's, behind a human grant. Forensic detection of long functions, dead code and duplicates, and counting tests, are ghost_tools'. Proposing fixes inside the loop is the Drafter's. Burnish also does not judge whether prose is clear or an image is good, fetch URLs, tell a dead external link, or score anything.
+**What does it not own?** Writing to a repository, the test gate, the SWIZZLE proof gate and the audit file are Warden's, behind a human grant. Forensic detection of long functions, dead code and duplicates, and counting tests, are ghost_tools'. Proposing fixes is a Drafter's, which is optional (any actor's change can enter through Warden's claim seat). Burnish also does not judge whether prose is clear or an image is good, fetch URLs, tell a dead external link, or score anything.
 
 ## Alternatives
 
