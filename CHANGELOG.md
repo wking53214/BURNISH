@@ -12,6 +12,20 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.18] - 2026-10-30, not tagged
+
+### Changed
+
+- The Warden pin moves from 0.16.2 (`df212db32c230a00cf4100038637be873262a816`) to 0.16.3 (`cb45681ea80f845fb8f23bb091bda7f587c6a547`). No Burnish code changed.
+- `STACK.md` says the circuit is five repositories (ASSAY, ghost_tools, SWIZZLE, Warden, Judge), that any actor's real change enters through Warden's claim seat, that DRAFTER, BURNISH and WATCHER_MCU are released from the circuit, that a bare `--stack` still requires all six checkouts, and that every run declines eight Ghost checks (the count is eight because ghost_tools 1.10.11 lists the ledger as declined under `--no-ledger`, not because Warden declined a new check).
+- The README status paragraph said "Warden 0.15.0 lets a pinned manifest leave Burnish out; until the pins move, the circuit still
+  installs it." That is stale. It now says the circuit's manifest omits Burnish, that the explicit `--finisher burnish.finisher:Burnish`
+  flow with a bare `--stack` still works and still needs all six checkouts, and that only a pinned manifest that omits Burnish, with a
+  folder that lacks it, runs without it. The two places that present the finisher flow as supported are labelled the standalone, explicit
+  flow. Roadmap item 4 (run the loop with Drafter and Burnish seated on a real repository) is marked superseded by the release. The
+  self-hosting counts ("7 declined-check gaps", "does not cover Warden 0.13.10") are labelled dated records.
+- Version 0.3.18 (`burnish/__init__.py`, `pyproject.toml`, README status line) and this entry.
+
 ## [0.3.17] - 2026-10-30, not tagged
 
 ### Changed
@@ -384,7 +398,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/ad22ca1af36c41fa99093061317c987f9990d1a5...ad22ca1af36c41fa99093061317c987f9990d1a5
+[Unreleased]: https://github.com/wking53214/Burnish/compare/1b2ae39f63974331338d08e1c8d767fd9c81f661...1b2ae39f63974331338d08e1c8d767fd9c81f661
+[0.3.18]: https://github.com/wking53214/Burnish/compare/ad22ca1af36c41fa99093061317c987f9990d1a5...1b2ae39f63974331338d08e1c8d767fd9c81f661
 [0.3.17]: https://github.com/wking53214/Burnish/compare/ea107c72a7e54bcbfc73e7ebe0f7680ac951db00...ad22ca1af36c41fa99093061317c987f9990d1a5
 [0.3.16]: https://github.com/wking53214/Burnish/compare/ce243bb3c93309dbdc82d016224d77c9b121821d...ea107c72a7e54bcbfc73e7ebe0f7680ac951db00
 [0.3.15]: https://github.com/wking53214/Burnish/compare/09b5a787393ee5c9dd27e1545aa0bb38faf924ff...ce243bb3c93309dbdc82d016224d77c9b121821d
