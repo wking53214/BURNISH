@@ -25,4 +25,4 @@ WHAT IT MUST NEVER DO
     Report a language as checked when it is only written down.
 """
 
-__version__ = "0.3.16"
+__version__ = "0.3.17"

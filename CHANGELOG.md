@@ -12,6 +12,15 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.17] - 2026-10-30, not tagged
+
+### Changed
+- Stage 3 wave 2 step 1: the Warden pin moves from 0.16.1 (`fade3ca5ee6435393d0588782929ff8de72f988f`) to 0.16.2
+  (`df212db32c230a00cf4100038637be873262a816`), which refuses a `--stack` folder that holds a seat the pinned manifest omits
+  even when `--claim-commit`, `--claim-diff`, `--drafter` or `--finisher` supplies the seat. No Burnish code changed and no
+  test was edited.
+- Stage 3 wave 2 step 2: version 0.3.17 and this entry.
+
 ## [0.3.16] - 2026-10-30, not tagged
 
 ### Changed
@@ -375,7 +384,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/ea107c72a7e54bcbfc73e7ebe0f7680ac951db00...ea107c72a7e54bcbfc73e7ebe0f7680ac951db00
+[Unreleased]: https://github.com/wking53214/Burnish/compare/ad22ca1af36c41fa99093061317c987f9990d1a5...ad22ca1af36c41fa99093061317c987f9990d1a5
+[0.3.17]: https://github.com/wking53214/Burnish/compare/ea107c72a7e54bcbfc73e7ebe0f7680ac951db00...ad22ca1af36c41fa99093061317c987f9990d1a5
 [0.3.16]: https://github.com/wking53214/Burnish/compare/ce243bb3c93309dbdc82d016224d77c9b121821d...ea107c72a7e54bcbfc73e7ebe0f7680ac951db00
 [0.3.15]: https://github.com/wking53214/Burnish/compare/09b5a787393ee5c9dd27e1545aa0bb38faf924ff...ce243bb3c93309dbdc82d016224d77c9b121821d
 [0.3.14]: https://github.com/wking53214/Burnish/compare/118785b14f9b01a64d3d92fef63eb06efa5062d7...09b5a787393ee5c9dd27e1545aa0bb38faf924ff
