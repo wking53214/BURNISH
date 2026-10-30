@@ -12,6 +12,21 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.16] - 2026-10-30, not tagged
+
+### Changed
+- Pin22 step 1: the CNS pin is the tag `v2.2.0` (`cns @ git+https://github.com/wking53214/CNS.git@v2.2.0`, comment
+  `v2.2.0 = ce6bd05578a7a3e3cafa0cfa1e9a2cca8a5f171f`, a lightweight tag), from `v2.1.0`. The `cns` package at v2.2.0
+  equals v2.1.0 except its version string. The Warden pin moves from 0.15.1 (`fe9c8b35778de680d04b2a57775ac6a6831f4799`)
+  to 0.16.1 (`fade3ca5ee6435393d0588782929ff8de72f988f`). No Burnish code changed. Pre-existing test edited under the
+  exact-behaviour rule, asserting the old pin text and nothing else changed:
+  `tests/test_readme_ledger.py::test_the_readme_names_the_cns_pin_the_dependency_line_has`.
+- Pin22 step 2: version 0.3.16 and this entry.
+- Runs that seat this Burnish under Warden carried eight declined checks (`mutate`, `kernel`, `structure`, `tests`,
+  `project`, `secrets`, `correlate`, `ledger`), not seven, once ghost_tools 1.10.11 listed the ledger as declined under
+  `--no-ledger`. Burnish states no such count in its text and its code is unchanged. The README paragraph on the
+  2026-10-22 and 2026-10-23 circuit run keeps what that run recorded.
+
 ## [0.3.15] - 2026-10-29, not tagged
 
 ### Changed
@@ -360,7 +375,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/ce243bb3c93309dbdc82d016224d77c9b121821d...ce243bb3c93309dbdc82d016224d77c9b121821d
+[Unreleased]: https://github.com/wking53214/Burnish/compare/ea107c72a7e54bcbfc73e7ebe0f7680ac951db00...ea107c72a7e54bcbfc73e7ebe0f7680ac951db00
+[0.3.16]: https://github.com/wking53214/Burnish/compare/ce243bb3c93309dbdc82d016224d77c9b121821d...ea107c72a7e54bcbfc73e7ebe0f7680ac951db00
 [0.3.15]: https://github.com/wking53214/Burnish/compare/09b5a787393ee5c9dd27e1545aa0bb38faf924ff...ce243bb3c93309dbdc82d016224d77c9b121821d
 [0.3.14]: https://github.com/wking53214/Burnish/compare/118785b14f9b01a64d3d92fef63eb06efa5062d7...09b5a787393ee5c9dd27e1545aa0bb38faf924ff
 [0.3.13]: https://github.com/wking53214/Burnish/compare/2a96c353a5e99de55a99cf6a81d182e7b9afcd78...e9477b85612b48f453be07046d0dd7e63afa86a0
