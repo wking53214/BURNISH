@@ -15,7 +15,7 @@ version = "0.1.0"
 description = "demo"
 dependencies = [
     "warden @ git+https://github.com/example/Warden.git@{SHA}",  # Warden 0.13.10, not tagged
-    "cns @ git+https://github.com/example/CNS.git@v2.0.0",
+    "cns @ git+https://github.com/example/CNS.git@v2.3.0",
 ]
 """
 IMPORTS_BOTH = '"""demo."""\n\nimport json\n\nimport cns\nimport warden\n\nfrom . import sibling\n'
