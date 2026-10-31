@@ -56,7 +56,7 @@ Warden's `main` cannot break it without anyone noticing. To move to a newer Ward
 1. Pick the Warden commit you want, and note the release it belongs to.
 2. Put the full 40-character commit after the `@` in the `warden @ git+...` line of `pyproject.toml`, and the release it
    corresponds to in the comment on that line. The CNS line is different: it is pinned by its release tag
-   (`@v2.2.0`), the spelling every repository in the circuit uses, with the commit the tag is in the comment.
+   (`@v2.3.0`), the spelling every repository in the circuit uses, with the commit the tag is in the comment.
 3. Run `pip install -e ".[dev]"` and `pytest`. The tests check that Warden is pinned to a full commit, that CNS is
    pinned by tag, and that this package's `requires_contract` matches the installed Warden's `CONTRACT`.
 4. Open a pull request. CI runs the same checks.
@@ -344,6 +344,7 @@ Newest first. Each entry says what was wrong, how it was found when that is know
 
 **0.3.16** (2026-10-30)
 - The CNS pin moved from `v2.1.0` to `v2.2.0` and the Warden pin from `fe9c8b3` to `fade3ca`. No Burnish code changed.
+- 2026-10-31: the CNS pin moved from `v2.2.0` to `v2.3.0` and the Warden pin to the commit named in `pyproject.toml`, so the circuit installs one CNS release. No Burnish code changed.
 
 **0.3.15** (2026-10-29)
 - The CNS pin moved from `v2.0.0` to `v2.1.0` and the Warden pin from `68f2a95` to `fe9c8b3`. No Burnish code changed.

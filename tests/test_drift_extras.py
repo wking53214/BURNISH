@@ -14,7 +14,7 @@ from burnish import cli
 from burnish.critic import PoetryCritic
 from burnish.drift import check_tree_claims, claims_held_by_extras
 
-PIN = "cns @ git+https://github.com/example/CNS.git@v2.0.0"
+PIN = "cns @ git+https://github.com/example/CNS.git@v2.3.0"
 
 #: Like SWIZZLE: no runtime dependencies, the CNS pin only in the `cns` extra, pytest and ruff in a dev extra and a group.
 EXTRAS = f"""[project]

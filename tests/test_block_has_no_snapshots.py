@@ -34,7 +34,7 @@ version = "0.0.1"
 description = "demo"
 dependencies = [
     "warden @ git+https://github.com/example/Warden.git@9ecd1124e6c1b1c4ad7daed37b17f9009662dd9d",  # Warden 0.13.10, not tagged
-    "cns @ git+https://github.com/example/CNS.git@v2.0.0",
+    "cns @ git+https://github.com/example/CNS.git@v2.3.0",
 ]
 """
 SOURCE = '"""demo."""\n\nimport cns\nimport warden\n\nVALUE = 1\n'
