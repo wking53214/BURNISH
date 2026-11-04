@@ -12,6 +12,14 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.20] - 2026-11-04, not tagged
+
+### Changed
+
+- The Warden pin moves from 0.16.4 (`1a263fbefd164dff40b7064ab5381cda281694f2`) to 0.16.5 (`84cb89bbab94f09b32cb27ffd2c2ca21308d6cb4`), which refuses a pinned stack manifest that omits any of the five circuit members, WARDEN included. No Burnish code changed. The CI tested set and the CNS pin (`v2.3.0`) are not moved.
+- README: the install line no longer says `main` is 0.3.10 (it was merged at 0.3.19).
+- Version 0.3.20 (`burnish/__init__.py`, `pyproject.toml`, README).
+
 ## [0.3.19] - 2026-10-30, not tagged
 
 ### Fixed
@@ -410,7 +418,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/3d190985eded48d8e75ea8d62c1ccd0b8fc8feab...3d190985eded48d8e75ea8d62c1ccd0b8fc8feab
+[Unreleased]: https://github.com/wking53214/Burnish/compare/7c7e5501cc804f2f33fcacdf9a3d5af6ec4cebbe...7c7e5501cc804f2f33fcacdf9a3d5af6ec4cebbe
+[0.3.20]: https://github.com/wking53214/Burnish/compare/182b42df5e709f5de9521ce1aa907aaf35a71b44...7c7e5501cc804f2f33fcacdf9a3d5af6ec4cebbe
 [0.3.19]: https://github.com/wking53214/Burnish/compare/e0070738dd918d7ddc0427ace385a81c3e7ee57e...3d190985eded48d8e75ea8d62c1ccd0b8fc8feab
 [0.3.18]: https://github.com/wking53214/Burnish/compare/ad22ca1af36c41fa99093061317c987f9990d1a5...1b2ae39f63974331338d08e1c8d767fd9c81f661
 [0.3.17]: https://github.com/wking53214/Burnish/compare/ea107c72a7e54bcbfc73e7ebe0f7680ac951db00...ad22ca1af36c41fa99093061317c987f9990d1a5
