@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.3.19, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.3.20, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -25,7 +25,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.3.10 until the owner fast-forwards it; this branch is 0.3.19, so use a checkout of it for the current code
+pip install git+https://github.com/wking53214/Burnish.git   # installs main; this branch is 0.3.20, so use a checkout of it for the current code until the owner merges it
 ```
 
 This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
@@ -331,6 +331,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.3.20** (2026-11-04)
+- The Warden pin moved to the Warden that refuses a pinned stack manifest which does not name all five circuit members, WARDEN included. No Burnish code changed.
 
 **0.3.19** (2026-10-30)
 - *`burnish check` called a file Python cannot compile clean.* `checks.py` read files with `errors="replace"`, so a `.py` file with a literal 0xff byte was repaired in memory and `burnish check` reported "0 finding(s)" with exit 0, while `burnish finish` on the same file said "not valid UTF-8". Found by the round-8 audit. The file is read strictly now: it is a finding that says so, and `check` exits as it does for any finding; `finish` is unchanged. Guard: `tests/test_undecodable_file.py::test_an_undecodable_python_file_is_a_finding_that_says_why`.
