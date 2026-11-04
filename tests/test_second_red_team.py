@@ -288,11 +288,11 @@ def test_a_mixed_ending_readme_with_a_block_keeps_every_line_ending_when_the_blo
     settled = (tmp_path / "README.md").read_bytes()
     after = settled + b"\nWritten later.\r\n\n"
     (tmp_path / "README.md").write_bytes(after)
-    changed = Facts(suite=SuiteRun(ran=True, passed=6), remaining=(), cycles=1)
+    changed = Facts(suite=SuiteRun(ran=True, passed=6, failed=1, exit_code=1), remaining=(), cycles=1)
     new = _finish(tmp_path, "documentation", changed)[0].edits[0].new.encode("utf-8")
     start = after.index(BEGIN.encode())
     assert new.startswith(after[:start]) and new.endswith(b"\nWritten later.\r\n\n")
-    assert b"6 passed" in new
+    assert b"not green" in new
 
 
 def test_a_block_that_ends_the_file_without_a_final_newline_stays_that_way(tmp_path: Path):
@@ -300,9 +300,9 @@ def test_a_block_that_ends_the_file_without_a_final_newline_stays_that_way(tmp_p
     settled = _finish(tmp_path, "documentation")[0].edits[0].new
     bare = settled.rstrip("\n")
     (tmp_path / "README.md").write_bytes(bare.encode("utf-8"))
-    changed = Facts(suite=SuiteRun(ran=True, passed=6), remaining=(), cycles=1)
+    changed = Facts(suite=SuiteRun(ran=True, passed=6, failed=1, exit_code=1), remaining=(), cycles=1)
     new = _finish(tmp_path, "documentation", changed)[0].edits[0].new
-    assert new.endswith(END) and "6 passed" in new
+    assert new.endswith(END) and "not green" in new
     (tmp_path / "README.md").write_bytes(new.encode("utf-8"))
     assert _finish(tmp_path, "documentation", changed)[0] is None
 
@@ -349,7 +349,7 @@ def test_skipped_tests_are_not_a_disagreement_unless_the_readme_says_none_are_sk
     suite = SuiteRun(ran=True, passed=28, skipped=2)
     ratio = claims.test_claims("# demo\n\n30/30 passing.\n")[0]
     agrees, sentence = judge(ratio, suite)
-    assert agrees and "2 skipped" in sentence
+    assert agrees and "some tests skipped or expected to fail" in sentence and "2" not in sentence
     strict = claims.test_claims("# demo\n\n30/30 passing, with no skips.\n")[0]
     assert strict.no_skips and not judge(strict, suite)[0]
     assert not judge(claims.test_claims("# demo\n\n31/31 passing.\n")[0], suite)[0]

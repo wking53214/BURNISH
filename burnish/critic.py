@@ -22,8 +22,8 @@ from cns.epistemic import EpistemicState
 from cns.seat import Facts
 
 from .claims import absolutes, judge, test_claims, unchecked_mentions
-from .drift import Drift, check_test_claims, check_tree_claims
-from .measured import Measured, measure
+from .drift import Drift, check_test_claims, check_tree_claims, claims_held_by_extras
+from .measured import Measured, describe_suite, measure
 from .narrative import Narrative, inspect_tree
 from .textsafe import clean
 
@@ -64,7 +64,7 @@ class CriticReport:
     def as_markdown(self) -> str:
         """The report as a markdown document."""
         lines = [
-            f"# Poetry critic — {self.target}",
+            f"# Claims critic: {self.target}",
             "",
             self.verdict,
             "",
@@ -173,14 +173,13 @@ def _speak_about_measurements(measured: Measured | None, notes: _Notes) -> None:
         notes.unfinished.append(f"The suite result is unmeasured ({why}), so nothing here is "
                                 "backed by an executed test.")
     elif suite.green:
-        notes.beautiful.append(f"Warden ran the target's suite at the end of the loop: {suite.describe()}.")
+        notes.beautiful.append(f"Warden ran the target's suite at the end of the loop: {describe_suite(suite)}.")
     else:
-        notes.ugly.append(f"The target's suite is not green: {suite.describe()}.")
+        notes.ugly.append(f"The target's suite did not pass at the end of the loop: {describe_suite(suite)}.")
         notes.unsupported.append("a suite that is not green")
     for defect in measured.remaining:
         notes.ugly.append(f"Ghost still reports {clean(defect.identity)}: {clean(defect.summary)}")
-    notes.unknown.append(f"The loop ran {measured.cycles} change cycle(s); "
-                         "finished means no proposals were left, not that Ghost is silent.")
+    notes.unknown.append("Finished means the loop had no proposals left, not that Ghost is silent.")
 
 
 def _check_readme_claims(nar: Narrative, measured: Measured | None, notes: _Notes) -> int:
@@ -220,6 +219,10 @@ def _check_against_the_tree(nar: Narrative, facts: Facts | None, collected: int 
             notes.claims.append(Claim(text=drift.claim, location="README", epistemic=EpistemicState.ASSUMED, supported=False,
                                       note=drift.problem, agreement=drift.verdict, label=f"README claim ({drift.kind})"))
         notes.unsupported.append(drift.problem)
+    for held in claims_held_by_extras(Path(nar.root), nar.readme_text):
+        notes.claims.append(Claim(text=held.claim, location="README", epistemic=EpistemicState.VERIFIED, supported=True,
+                                  note=held.problem, agreement="holds for an optional dependency only",
+                                  label=f"README claim ({held.kind})"))
 
 
 def _check_historical_as_current(nar: Narrative, notes: _Notes) -> None:

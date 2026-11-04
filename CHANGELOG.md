@@ -12,6 +12,190 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.19] - 2026-10-30, not tagged
+
+### Fixed
+
+- `burnish check` read every `.py` file with `errors="replace"`, so a file with a literal 0xff byte (which Python cannot compile) was repaired in memory and reported as "0 finding(s)", exit 0, while `burnish finish` on the same file said "not valid UTF-8". The file is now read strictly: an undecodable file is a `PY-PARSE` finding that says so, and `check` exits as it does for any finding (as the README already promised). `finish` is unchanged. Tests: `tests/test_undecodable_file.py`.
+
+### Changed
+
+- The Warden pin moves from 0.16.3 (`cb45681ea80f845fb8f23bb091bda7f587c6a547`) to 0.16.4 (`57f7bb7b12314f0ba30697cff9a846c749e3d606`). The CI tested set is not moved.
+- README and `STACK.md`: the finisher is not described as running in the loop (Burnish is released from the circuit and Warden seats it only with `--finisher`); the Drafter is optional since the claim seat; the install-from-main line says main is 0.3.10 until the owner fast-forwards it; two `# type: ignore` remain, not one; the ledger gains one line each for 0.3.14 to 0.3.18 (pin moves).
+- Version 0.3.19 (`burnish/__init__.py`, `pyproject.toml`, README).
+
+## [0.3.18] - 2026-10-30, not tagged
+
+### Changed
+
+- The Warden pin moves from 0.16.2 (`df212db32c230a00cf4100038637be873262a816`) to 0.16.3 (`cb45681ea80f845fb8f23bb091bda7f587c6a547`). No Burnish code changed.
+- `STACK.md` says the circuit is five repositories (ASSAY, ghost_tools, SWIZZLE, Warden, Judge), that any actor's real change enters through Warden's claim seat, that DRAFTER, BURNISH and WATCHER_MCU are released from the circuit, that a bare `--stack` still requires all six checkouts, and that every run declines eight Ghost checks (the count is eight because ghost_tools 1.10.11 lists the ledger as declined under `--no-ledger`, not because Warden declined a new check).
+- The README status paragraph said "Warden 0.15.0 lets a pinned manifest leave Burnish out; until the pins move, the circuit still
+  installs it." That is stale. It now says the circuit's manifest omits Burnish, that the explicit `--finisher burnish.finisher:Burnish`
+  flow with a bare `--stack` still works and still needs all six checkouts, and that only a pinned manifest that omits Burnish, with a
+  folder that lacks it, runs without it. The two places that present the finisher flow as supported are labelled the standalone, explicit
+  flow. Roadmap item 4 (run the loop with Drafter and Burnish seated on a real repository) is marked superseded by the release. The
+  self-hosting counts ("7 declined-check gaps", "does not cover Warden 0.13.10") are labelled dated records.
+- Version 0.3.18 (`burnish/__init__.py`, `pyproject.toml`, README status line) and this entry.
+
+## [0.3.17] - 2026-10-30, not tagged
+
+### Changed
+- Stage 3 wave 2 step 1: the Warden pin moves from 0.16.1 (`fade3ca5ee6435393d0588782929ff8de72f988f`) to 0.16.2
+  (`df212db32c230a00cf4100038637be873262a816`), which refuses a `--stack` folder that holds a seat the pinned manifest omits
+  even when `--claim-commit`, `--claim-diff`, `--drafter` or `--finisher` supplies the seat. No Burnish code changed and no
+  test was edited.
+- Stage 3 wave 2 step 2: version 0.3.17 and this entry.
+
+## [0.3.16] - 2026-10-30, not tagged
+
+### Changed
+- Pin22 step 1: the CNS pin is the tag `v2.2.0` (`cns @ git+https://github.com/wking53214/CNS.git@v2.2.0`, comment
+  `v2.2.0 = ce6bd05578a7a3e3cafa0cfa1e9a2cca8a5f171f`, a lightweight tag), from `v2.1.0`. The `cns` package at v2.2.0
+  equals v2.1.0 except its version string. The Warden pin moves from 0.15.1 (`fe9c8b35778de680d04b2a57775ac6a6831f4799`)
+  to 0.16.1 (`fade3ca5ee6435393d0588782929ff8de72f988f`). No Burnish code changed. Pre-existing test edited under the
+  exact-behaviour rule, asserting the old pin text and nothing else changed:
+  `tests/test_readme_ledger.py::test_the_readme_names_the_cns_pin_the_dependency_line_has`.
+- Pin22 step 2: version 0.3.16 and this entry.
+- Runs that seat this Burnish under Warden carried eight declined checks (`mutate`, `kernel`, `structure`, `tests`,
+  `project`, `secrets`, `correlate`, `ledger`), not seven, once ghost_tools 1.10.11 listed the ledger as declined under
+  `--no-ledger`. Burnish states no such count in its text and its code is unchanged. The README paragraph on the
+  2026-10-22 and 2026-10-23 circuit run keeps what that run recorded.
+
+## [0.3.15] - 2026-10-29, not tagged
+
+### Changed
+- Pin21 step 1: the CNS pin is the tag `v2.1.0` (`cns @ git+https://github.com/wking53214/CNS.git@v2.1.0`, comment
+  `v2.1.0 = fde931ffa89aebec95647742256ad53033bd3d02`), from `v2.0.0`, and the Warden pin moves from 0.14.0
+  (`68f2a955f486a8ebb230c4395c88f7e99ee47c48`) to 0.15.1 (`fe9c8b35778de680d04b2a57775ac6a6831f4799`). No Burnish code
+  changed. Pre-existing test edited under the exact-behaviour rule, asserting the old pin text and nothing else changed:
+  `tests/test_readme_ledger.py::test_the_readme_names_the_cns_pin_the_dependency_line_has`.
+- Pin21 step 2: version 0.3.15 and this entry.
+
+## [0.3.14] - 2026-10-29, not tagged
+
+### Changed
+- Step R1: the README says, in What this is and in Ceilings code cannot fix, that the owner released Burnish from the Horsemen
+  circuit on 2026-10-29. Released means removed from the circuit and nothing else: no code, test, history or CI was changed.
+  Burnish still works on its own (`burnish check`, `critic` and `readme-critic`). Warden 0.15.0 lets a pinned manifest leave
+  Burnish out; until the pins move, the circuit still installs it. Burnish is free to be reborn elsewhere, as intent only.
+- Version 0.3.14 and this entry. No pin changed.
+
+## [0.3.13] - 2026-10-24
+
+Found by the round-6 independent audit of the final release set (2026-10-23 and 2026-10-24). Each item was reproduced first.
+
+### Changed
+- Step 1: Warden is re-pinned from `b57b81e1c98333c43d422666c89a8fcf3ae6eaca` (0.13.9) to the full commit
+  `9ecd1124e6c1b1c4ad7daed37b17f9009662dd9d` (Warden 0.13.10, not tagged). The `Warden.git` spelling and the CNS tag `@v2.0.0`
+  are unchanged. The drift-test fixtures use the new commit and version.
+- Step 2: `burnish/drift.py` reads `[project.optional-dependencies]`, PEP 735 `[dependency-groups]` and Poetry's groups. A pin or
+  dependency that only an extra backs is no longer a contradiction: `claims_held_by_extras` reports it, the critic lists it as
+  supported and says it holds for the optional dependency only, and `readme-critic` does not fail on it. A module imported only
+  inside a function, behind a `try` that expects the import to fail, or under `TYPE_CHECKING` is optional. `burnish critic` exits 0
+  on SWIZZLE 3f35dad and ghost_tools 5a9154d, where it exited 1 on both (the newer SWIZZLE 6853c92 and ghost_tools 3df51b3 were
+  checked too). The same note found through two sentences is reported once.
+- Step 3: a test count written with a comma, dot, space, apostrophe, underscore or non-breaking space between groups of three
+  digits, with a k ("1k", "1.4K"), or as a number word from two to 999 is read. "1 374 tests pass" had been read as 374.
+- Step 4: the critic's heading is "Claims critic: <target>"; `main()` leaves `sys.stdout` as it found it and the new `run()` is
+  the process entry point (`[project.scripts]` and `python -m burnish.cli`); `check` reports a file nested too deeply to parse
+  instead of crashing and `finish` says "is nested too deeply to tidy safely"; the README says links to directories are not followed.
+- Step 5: the README's self-hosting paragraph cites the CNS repository's `docs/evidence/SELFHOSTING_2026-10-23.md` and what it
+  recorded for Burnish (two runs, each ACCEPT, 7 declined-check gaps, 38 Ghost findings standing, none new), what that does not
+  mean, and the SWIZZLE and JUDGE first-run failure that Burnish 0.3.12 fixed. It also says Ghost still reports findings here.
+- Step 6: version 0.3.13, this entry and the README ledger.
+
+### Added
+- `tests/test_drift_extras.py`, `tests/test_count_forms.py`, `tests/test_small_fixes.py`, and three tests in
+  `tests/test_readme_ledger.py` that hold the self-hosting numbers (copied as constants naming the evidence file).
+
+### Existing tests edited
+- Step 3: `tests/test_readme_ledger.py::test_the_worded_test_count_gap_is_still_open` held "ninety tests pass" as an open gap;
+  it now holds "about a thousand tests pass" and asserts "ninety tests pass" is read.
+- Step 4: `tests/test_cli_fail_closed.py::test_critic_still_reads_a_trivial_readme_beside_code` asserted the heading
+  "# Poetry critic"; it asserts "# Claims critic".
+- Step 1: `tests/test_drift.py` and `tests/test_block_has_no_snapshots.py`, the Warden commit and release strings only.
+
+## [0.3.12] - 2026-10-23
+
+### Changed
+- The generated README section states no number that goes stale. It said how many tests passed, failed, errored and were skipped
+  ("Warden ran the target's suite at the end of the loop: 1374 passed, ..."), how many findings Ghost still reported and of
+  which kinds, how many change cycles ran, the measured counts inside the sentence that says a README's own count disagrees,
+  and, inside a drift note, the pin commit, the pin tag and how many files import a module. It now says whether the suite was
+  green or not green (and whether something failed, errored, was skipped or was expected to fail), which kinds of finding Ghost
+  still reports, which checks never ran, and that a README count does not match the measured suite. A README critic gap whose
+  reason holds a number (lines, bytes, code blocks) is written with its rule and plain reason and without the number. The
+  command line keeps every detail it had: they are live there.
+- Why: running the whole circuit over the circuit's own repositories on 2026-10-22 and 2026-10-23 showed that SWIZZLE and JUDGE
+  each have a test that fails on a pass count in their README. The finishing change broke their suites, Warden put it back, and
+  the finisher ended `FINISH_REJECTED` for both. The four repositories that were accepted kept a count that goes stale.
+- Warden and CNS pins are unchanged.
+
+### Added
+- `tests/test_block_has_no_snapshots.py`: renders the section for representative facts and fails on a suite count, a Ghost or
+  cycle count, a pin, a version or any other standalone number except the README author's own claimed count; and checks four
+  cases against the union of the patterns that the README tests of ghost_tools, SWIZZLE, ASSAY, DRAFTER, JUDGE, WARDEN and
+  WATCHER_MCU fail on (copied as constants, each naming its source test), with a control that the patterns fail on the old line.
+  It was written first and failed before the fix.
+
+### Existing tests edited
+All because they asserted the exact text this release removes (the measured counts, the Ghost count) or relied on the pass count
+changing the section. Nothing else about them changed.
+- `tests/test_critic.py`: `test_a_green_suite_is_quoted_from_the_facts` (says green, no count),
+  `test_the_critic_checks_a_readme_test_count_against_the_measured_suite` (the disagreement sentence).
+- `tests/test_finisher.py`: `test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_words`,
+  `test_the_review_section_quotes_the_measured_suite` (green, no count), `test_ghost_findings_are_summarised_not_listed` (kinds, no
+  count).
+- `tests/test_second_red_team.py`: `test_skipped_tests_are_not_a_disagreement_unless_the_readme_says_none_are_skipped` (skips
+  noted, not counted); `test_a_mixed_ending_readme_with_a_block_keeps_every_line_ending_when_the_block_changes` and
+  `test_a_block_that_ends_the_file_without_a_final_newline_stays_that_way` (they changed the pass count to make the section change;
+  they now make the suite fail, which still changes it).
+- `tests/test_stable_and_careful.py`: `test_the_generated_section_is_replaced_only_between_its_markers` (same change of input),
+  `test_a_readme_that_claims_more_tests_than_were_measured_is_told_so_and_left_as_written`,
+  `test_an_unsupported_readme_is_not_converted_and_no_markdown_one_appears`, `test_through_warden_a_second_finish_proposes_nothing`
+  (the disagreement sentence).
+- `tests/test_readme_ledger.py` (added in 0.3.11): the check that no test is expected to fail matched the text `xfail` inside the
+  field name `xfailed`; it now looks for the pytest marker or call, which is what the README sentence it guards is about.
+
+## [0.3.11] - 2026-10-22
+
+### Changed
+- CNS is re-pinned from the tag `v1.9.0` to the tag `v2.0.0`, spelled
+  `cns @ git+https://github.com/wking53214/CNS.git@v2.0.0` with the comment
+  `# v2.0.0 = b13e5d2f9e0e4291725f82794b89117c3d840ac1` (the annotated tag peels to that commit). In a fresh environment on
+  3.11, 3.12 and 3.13 the installed `cns` records the requested revision `v2.0.0` and that commit, and the suite passes against
+  it with no change to Burnish's source. Burnish imports `cns.seat`, `cns.suite`, `cns.epistemic` and `cns.defect`, and not
+  `cns.stack`.
+- Warden is re-pinned from `380894f0304ef40587dd29efd41b4ceccf94a5d3` (0.13.8) to the full commit
+  `b57b81e1c98333c43d422666c89a8fcf3ae6eaca` (Warden 0.13.9, not tagged). The `Warden.git` spelling is unchanged. Burnish pins
+  no other circuit repository, so nothing else moved. `pip install -e ".[dev]"` resolves and `pip check` is clean on all three
+  Pythons.
+- The README is rewritten around what works (each line names a test, a CI job or a command), what does not work or is not
+  proven, the open defects, the ledger of what broke and how it was fixed, self-hosting, and the limits of one young
+  repository. The content that was already true was kept.
+
+### Fixed
+- The README listed "the tidy still reaches test files" as a known defect. It is false: the finisher never proposes a test file,
+  and `tests/test_second_red_team.py::test_a_protected_file_is_never_proposed_even_for_whitespace` holds that. The line is gone.
+- The README said nothing is called `IMPLEMENTED` unless Burnish enforces it. The criteria `R5`, `R7` and `R9` are `IMPLEMENTED`
+  with Warden as their owner; the sentence now says what the tests check.
+- The README said no tests are skipped. Some tests in `tests/test_cli_delivery.py` carry conditional skip markers; none was
+  skipped in the CI runs or the release runs. The README now says that.
+- The README said the rules were cut to headings in one edit in Warden. That could not be verified and is replaced by Warden's
+  commit `81cd431`, whose message supports it.
+
+### Added
+- `tests/test_readme_ledger.py`: the required README sections exist and are in order, no marketing word or dash comes back,
+  every test the README names exists, the ledger's versions and dates are CHANGELOG headings, the named CI jobs exist, the eight
+  Python checks and three README tiers equal the code, the Rust release equals the toolchain file, `STACK.md` does not call CNS
+  private, and the worded test-count gap the README lists as open is still open.
+
+### Existing tests edited
+- `tests/test_drift.py`: the CNS tag in the fixture pyproject and in the README sentence it asserts (`v1.9.0` to `v2.0.0`, step
+  1), and the Warden commit and release strings (`380894f` and 0.13.8 to `b57b81e` and 0.13.9, step 2). Nothing else about the
+  tests changed.
+
 ## [0.3.10] - 2026-10-22
 
 ### Changed
@@ -226,7 +410,16 @@ the true head by the commit that last wrote it.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/cd09fb49567f9fcf053999233c6ad64da9c6ebe0...cd09fb49567f9fcf053999233c6ad64da9c6ebe0
+[Unreleased]: https://github.com/wking53214/Burnish/compare/3d190985eded48d8e75ea8d62c1ccd0b8fc8feab...3d190985eded48d8e75ea8d62c1ccd0b8fc8feab
+[0.3.19]: https://github.com/wking53214/Burnish/compare/e0070738dd918d7ddc0427ace385a81c3e7ee57e...3d190985eded48d8e75ea8d62c1ccd0b8fc8feab
+[0.3.18]: https://github.com/wking53214/Burnish/compare/ad22ca1af36c41fa99093061317c987f9990d1a5...1b2ae39f63974331338d08e1c8d767fd9c81f661
+[0.3.17]: https://github.com/wking53214/Burnish/compare/ea107c72a7e54bcbfc73e7ebe0f7680ac951db00...ad22ca1af36c41fa99093061317c987f9990d1a5
+[0.3.16]: https://github.com/wking53214/Burnish/compare/ce243bb3c93309dbdc82d016224d77c9b121821d...ea107c72a7e54bcbfc73e7ebe0f7680ac951db00
+[0.3.15]: https://github.com/wking53214/Burnish/compare/09b5a787393ee5c9dd27e1545aa0bb38faf924ff...ce243bb3c93309dbdc82d016224d77c9b121821d
+[0.3.14]: https://github.com/wking53214/Burnish/compare/118785b14f9b01a64d3d92fef63eb06efa5062d7...09b5a787393ee5c9dd27e1545aa0bb38faf924ff
+[0.3.13]: https://github.com/wking53214/Burnish/compare/2a96c353a5e99de55a99cf6a81d182e7b9afcd78...e9477b85612b48f453be07046d0dd7e63afa86a0
+[0.3.12]: https://github.com/wking53214/Burnish/compare/fc9599d2c01fc21aa77626cb8a4f2b2b0b0f77a8...439c4f54ced319512b44ceff5e8a09b650c06ed5
+[0.3.11]: https://github.com/wking53214/Burnish/compare/cd09fb49567f9fcf053999233c6ad64da9c6ebe0...801ef9b2897cf35dec94a0c17387a13ad4beccc1
 [0.3.10]: https://github.com/wking53214/Burnish/compare/61823a9423a7193e726f5d792f0af50429576474...42d6130df7b8f157e05f0de5dc3c9d9663f2d9aa
 [0.3.9]: https://github.com/wking53214/Burnish/compare/9e37d33dd64239ab0702dd23a85afe1add3f4597...815cc0353236f3def816a4ada9434299c1a402e8
 [0.3.8]: https://github.com/wking53214/Burnish/compare/befc4291b07c48a18a5bdfddec803144b58f9043...2f1d3eb8dab98050966e33c842e843c6ec70c4b1

@@ -66,7 +66,7 @@ def test_through_warden_the_code_is_tidied_and_the_readme_keeps_the_authors_word
     assert (tmp_path / "pkg" / "__init__.py").read_text(encoding="utf-8").endswith("VALUE = 1\n")
     readme = (tmp_path / "README.md").read_text(encoding="utf-8")
     assert "My hand-written intro." in readme
-    assert "## Measured facts (generated)" in readme and "1 passed" in readme
+    assert "## Measured facts (generated)" in readme and "green" in readme and "1 passed" not in readme
 
 
 def test_nothing_to_finish_means_no_proposal(tmp_path: Path):
@@ -133,7 +133,7 @@ def test_no_template_filler_is_written_into_an_existing_readme(tmp_path: Path):
 def test_the_review_section_quotes_the_measured_suite(tmp_path: Path):
     final = _final(tmp_path)
     review = final.split("## Measured facts (generated)", 1)[1]
-    assert "2 passed" in review
+    assert "green" in review and "2 passed" not in review
 
 
 def test_generated_text_has_no_em_or_en_dash_and_the_authors_text_is_left_alone(tmp_path: Path):
@@ -153,7 +153,7 @@ def test_ghost_findings_are_summarised_not_listed(tmp_path: Path):
     proposal = Burnish(scope="code").finish(tmp_path, "base", facts)
     assert proposal is not None
     final = next(e for e in proposal.edits if e.path == "README.md").new
-    assert "still reports 9 finding(s) (intra_function_duplicate_block 9)" in final
+    assert "still reports findings of these kinds: intra_function_duplicate_block." in final and "9 finding" not in final
     assert "repeat number 3" not in final
 
 

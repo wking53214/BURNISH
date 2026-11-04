@@ -64,10 +64,10 @@ def test_the_generated_section_is_replaced_only_between_its_markers(tmp_path: Pa
     assert text.count(BEGIN) == 1 and text.count(END) == 1 and HEADING in text
     footer = text + "\n## After\n\nWritten later by the author.\n"
     (tmp_path / "README.md").write_text(footer, encoding="utf-8")
-    changed = Facts(suite=SuiteRun(ran=True, passed=6), remaining=(), cycles=1)
+    changed = Facts(suite=SuiteRun(ran=True, passed=6, failed=1, exit_code=1), remaining=(), cycles=1)
     new = _readme_edit(_finish(tmp_path, changed)[0]).new
     assert new.startswith("# demo\n\nIntro.\n") and new.endswith("## After\n\nWritten later by the author.\n")
-    assert "6 passed" in new and "5 passed" not in new
+    assert "not green" in new and "green; nothing failed or errored" not in new
 
 
 def test_damaged_markers_are_not_edited(tmp_path: Path):
@@ -155,7 +155,7 @@ def test_a_readme_that_claims_more_tests_than_were_measured_is_told_so_and_left_
     _tree(tmp_path, BRAG)
     new = _readme_edit(_finish(tmp_path)[0]).new
     assert new.startswith(BRAG)
-    assert "The README says a count of 999; the measured suite has 5 passing. These disagree." in new
+    assert "The README says a count of 999; the measured suite does not match it. These disagree." in new
     assert "claim not backed by any measurement in this run" in new
     assert "fully verified" in new.lower() and "production ready" in new.lower()
     assert "consistent" not in new and "No numeric claims were extracted" not in new
@@ -195,7 +195,7 @@ def test_an_unsupported_readme_is_not_converted_and_no_markdown_one_appears(tmp_
     assert proposal is None or [e.path for e in proposal.edits] == []
     assert sorted(p.name for p in tmp_path.iterdir() if p.name.lower().startswith("readme")) == [name]
     assert any("not supported" in note for note in seat.notes)
-    assert any("a count of 999" in note and "5 passing" in note for note in seat.notes)
+    assert any("a count of 999" in note and "does not match" in note for note in seat.notes)
 
 
 def test_a_lowercase_readme_is_edited_in_place(tmp_path: Path):
@@ -355,4 +355,4 @@ def test_through_warden_a_second_finish_proposes_nothing(tmp_path: Path):
     settled = (tmp_path / "README.md").read_bytes()
     second = TagTeam(drafter=Idle(), finisher=Burnish(scope="code")).run(tmp_path, findings=[], authorization=auth)
     assert not second.finished and (tmp_path / "README.md").read_bytes() == settled
-    assert b"The README says a count of 999; the measured suite has 1 passing." in settled
+    assert b"The README says a count of 999; the measured suite does not match it." in settled

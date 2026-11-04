@@ -115,7 +115,7 @@ def test_critic_still_reads_a_trivial_readme_beside_code(tmp_path: Path, capsys:
     (tmp_path / "README.md").write_text("# hi\n", encoding="utf-8")
     (tmp_path / "one.py").write_text(GOOD_PYTHON, encoding="utf-8")
     code, out, _ = _run(capsys, "critic", str(tmp_path))
-    assert code in (0, 1) and out.startswith("# Poetry critic")
+    assert code in (0, 1) and out.startswith("# Claims critic")
 
 
 @pytest.mark.parametrize("command", ["critic", "readme", "inspect", "cns", "finish"])

@@ -62,7 +62,14 @@ def check_tree(root: Path) -> list[Finding]:
         if path.is_symlink() and not path.exists():
             # Name the true reason (the link leads nowhere) instead of whatever error a read of it would raise.
             raise OSError(errno.ENOENT, "broken symbolic link (its target cannot be reached)", str(path))
-        source = path.read_text(encoding="utf-8", errors="replace")
+        try:
+            source = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError as error:
+            # Python cannot compile this file, so no check can speak for it: say so instead of repairing it in memory.
+            findings.append(Finding("PY-PARSE", relative, 1,
+                                    f"is not valid UTF-8 (byte 0x{error.object[error.start]:02x} at offset {error.start}); "
+                                    "no other check can speak for this file"))
+            continue
         findings.extend(check_source(source, relative, is_test=_is_test_file(relative)))
     return sorted(findings, key=lambda f: (f.path, f.line, f.check))
 
@@ -74,6 +81,9 @@ def check_source(source: str, path: str, *, is_test: bool = False) -> list[Findi
     except SyntaxError as error:
         return [Finding("PY-PARSE", path, error.lineno or 1,
                         f"could not be parsed ({error.msg}); no other check can speak for this file")]
+    except (RecursionError, MemoryError):   # an expression nested deeper than the parser's stack
+        return [Finding("PY-PARSE", path, 1,
+                        "could not be parsed (nested too deeply for the parser); no other check can speak for this file")]
     found: list[Finding] = []
     found.extend(_handlers(tree, path))
     found.extend(_imports(tree, path))

@@ -41,6 +41,8 @@ from .files import dominant_ending, is_protected, looks_generated, python_files,
 
 _BOM = "\ufeff"
 _UNPARSEABLE = (SyntaxError, ValueError, RecursionError, MemoryError, tokenize.TokenError)
+#: The file parses, or nearly, but an expression nests deeper than Python can compare, so the guard cannot vouch for a tidy.
+_NESTED = "is nested too deeply to tidy safely"
 
 
 def tidy_source(source: str) -> Optional[str]:
@@ -58,8 +60,8 @@ def _tidy(source: str) -> tuple[Optional[str], str]:
     try:
         inside_strings = _lines_ending_inside_a_string("\n".join(lines))
         before = ast.dump(ast.parse(source))
-    except _UNPARSEABLE + (IndentationError,):
-        return None, "does not parse"
+    except _UNPARSEABLE + (IndentationError,) as error:
+        return None, _NESTED if isinstance(error, (RecursionError, MemoryError)) else "does not parse"
     kept = [line if number in inside_strings else line.rstrip(" \t") for number, line in enumerate(lines, start=1)]
     while kept and not kept[-1].strip():
         kept.pop()
@@ -71,8 +73,8 @@ def _tidy(source: str) -> tuple[Optional[str], str]:
         return None, ""
     try:
         unchanged = before == ast.dump(ast.parse(tidied))
-    except _UNPARSEABLE:
-        return None, "would not parse after tidying"
+    except _UNPARSEABLE as error:
+        return None, _NESTED if isinstance(error, (RecursionError, MemoryError)) else "would not parse after tidying"
     return (tidied, "") if unchanged else (None, "tidying would change the syntax tree")
 
 

@@ -53,6 +53,7 @@ from __future__ import annotations
 
 import dataclasses
 import os
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -64,10 +65,10 @@ from .beautify import tidy_edits
 from .critic import CriticReport, PoetryCritic
 from .files import broken_readme_links, find_readme, looks_generated, read_strict, readme_is_markdown
 from .marked import HEADING, find_block, has_heading, unclosed_fence
-from .measured import Measured, measure
+from .measured import Measured, describe_suite, measure
 from .narrative import Narrative, analysis_text, inspect_tree
 from .readme import compile_readme, finalize_readme
-from .readme_critic import ReadmeCritic, ReadmeReport
+from .readme_critic import Gap, ReadmeCritic, ReadmeReport
 from .textsafe import clean
 
 __all__ = ["Burnish"]
@@ -252,8 +253,17 @@ def _commentary(report: CriticReport, readme: ReadmeReport, measured: Measured) 
     lines += [f"- Unsupported: {clean(item, 300)}" for item in report.unsupported]
     lines += [f"- Unknown: {clean(item, 300)}" for item in report.unknown]
     lines += ["" if lines else "", "README critic, on the README as it stood going into the finish:", ""]
-    lines += [f"- {clean(gap.render(), 400)}" for gap in (*readme.failures, *readme.gaps)] or ["- no failures or gaps"]
+    lines += [f"- {clean(_gap_line(gap), 400)}" for gap in (*readme.failures, *readme.gaps)] or ["- no failures or gaps"]
     return "\n".join(lines)
+
+
+_STANDALONE_NUMBER = re.compile(r"(?<![\w./+-])\d[\d,]*(?![\w./+-])")
+
+
+def _gap_line(gap: Gap) -> str:
+    """A README gap as a line. A detail that holds a number (lines, bytes, blocks) is the size of the README going into
+    the finish, a snapshot that is stale as soon as the README changes, so the rule and its plain reason stand without it."""
+    return f"[{gap.rule.id}] {gap.rule.blunt}" if _STANDALONE_NUMBER.search(gap.detail) else gap.render()
 
 
 def _not_measured(measured: Measured) -> list[str]:
@@ -265,16 +275,11 @@ def _not_measured(measured: Measured) -> list[str]:
 
 
 def _ghost_summary(measured: Measured) -> list[str]:
-    """One line for what Ghost still reports, by kind. The findings themselves stay in Ghost's report."""
-    kinds: dict[str, int] = {}
-    for defect in measured.remaining:
-        name = clean(defect.detector or "unclassified", 60)
-        kinds[name] = kinds.get(name, 0) + 1
+    """One line for what Ghost still reports, by kind and with no counts. The findings themselves stay in Ghost's report."""
+    kinds = sorted({clean(defect.detector or "unclassified", 60) for defect in measured.remaining})
     if not kinds:
         return []
-    ordered = sorted(kinds.items(), key=lambda item: (-item[1], item[0]))
-    by_kind = ", ".join(f"{name} {count}" for name, count in ordered)
-    return [f"- Ghost Tools still reports {len(measured.remaining)} finding(s) ({by_kind}). "
+    return [f"- Ghost Tools still reports findings of these kinds: {', '.join(kinds)}. "
             "Converged means no fixes were left to propose, not that Ghost is silent."]
 
 
@@ -283,4 +288,4 @@ def _suite_line(measured: Measured) -> dict[str, str]:
     suite = measured.suite
     if suite is None:
         return {}
-    return {"WHAT WORKS": f"- Warden ran the target's suite at the end of the loop: {clean(suite.describe(), 300)}."}
+    return {"WHAT WORKS": f"- Warden ran the target's suite at the end of the loop: {describe_suite(suite)}."}

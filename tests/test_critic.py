@@ -27,7 +27,8 @@ def test_a_green_suite_is_quoted_from_the_facts(tmp_path: Path):
     _pkg(tmp_path, "# demo\n")
     facts = Facts(suite=SuiteRun(ran=True, passed=7), remaining=(), cycles=2)
     report = PoetryCritic().critique(tmp_path, facts=facts)
-    assert any("7 passed" in item for item in report.what_is_beautiful)
+    assert any("Warden ran the target's suite" in item and "green" in item and "7" not in item
+               for item in report.what_is_beautiful)
 
 
 def test_a_red_suite_is_not_good_enough(tmp_path: Path):
@@ -56,6 +57,6 @@ def test_the_critic_checks_a_readme_test_count_against_the_measured_suite(tmp_pa
     assert "counts no tests" in unmeasured.unsupported[0]
     wrong = PoetryCritic().critique(tmp_path, facts=Facts(suite=SuiteRun(ran=True, passed=5), remaining=(), cycles=1))
     assert not wrong.good_enough
-    assert "The README says a count of 16; the measured suite has 5 passing. These disagree." in wrong.unsupported[0]
+    assert "The README says a count of 16; the measured suite does not match it. These disagree." in wrong.unsupported[0]
     right = PoetryCritic().critique(tmp_path, facts=Facts(suite=SuiteRun(ran=True, passed=16), remaining=(), cycles=1))
     assert right.good_enough and right.claims[0].supported
