@@ -33,3 +33,11 @@ def test_a_retired_repository_that_mentions_cns_needs_no_adapter(tmp_path: Path)
     assert a.recommendation is CnsRecommendation.NO_ACTION
     assert "retired" in a.reason and "super_gate" in a.reason
     assert a.cns_modified == "NO"
+
+
+def test_a_tree_that_mentions_cns_but_imports_nothing_says_unknown_for_its_native_representation(tmp_path: Path):
+    (tmp_path / "README.md").write_text("This project will use cns.gate one day.\n", encoding="utf-8")
+    (tmp_path / "x.py").write_text("print('hi')\n", encoding="utf-8")
+    a = analyse(tmp_path)
+    assert a.recommendation is not CnsRecommendation.NO_ACTION, "the tree must count as mentioning CNS for this test"
+    assert a.native_representation == "UNKNOWN"
