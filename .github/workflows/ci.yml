@@ -63,7 +63,9 @@ jobs:
       CMAKE_MAJOR: "3"
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-      - run: sudo apt-get update && sudo apt-get install -y "g++-${GXX_MAJOR}" cmake
+      # The ubuntu-24.04 image already ships g++-13 and cmake. Installing is a fallback only, because an apt failure on the
+      # runner (exit 100, 2026-11-11) broke this job without any change here; the next step still asserts both versions.
+      - run: command -v "g++-${GXX_MAJOR}" && command -v cmake || (sudo apt-get update && sudo apt-get install -y "g++-${GXX_MAJOR}" cmake)
       - name: The compiler and cmake are the versions this job is written for
         run: |
           "g++-${GXX_MAJOR}" --version | head -n 1
