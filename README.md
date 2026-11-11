@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.3.22, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.3.23, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -25,7 +25,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main; this branch is 0.3.22, so use a checkout of it for the current code until the owner merges it
+pip install git+https://github.com/wking53214/Burnish.git   # installs main; this branch is 0.3.23, so use a checkout of it for the current code until the owner merges it
 ```
 
 This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
@@ -56,7 +56,7 @@ Warden's `main` cannot break it without anyone noticing. To move to a newer Ward
 1. Pick the Warden commit you want, and note the release it belongs to.
 2. Put the full 40-character commit after the `@` in the `warden @ git+...` line of `pyproject.toml`, and the release it
    corresponds to in the comment on that line. The CNS line is different: it is pinned by its release tag
-   (`@v2.3.0`), the spelling every repository in the circuit uses, with the commit the tag is in the comment.
+   (`@v3.0.0`), the spelling every repository in the circuit uses, with the commit the tag is in the comment.
 3. Run `pip install -e ".[dev]"` and `pytest`. The tests check that Warden is pinned to a full commit, that CNS is
    pinned by tag, and that this package's `requires_contract` matches the installed Warden's `CONTRACT`.
 4. Open a pull request. CI runs the same checks.
@@ -332,6 +332,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
 
+**0.3.23** (2026-11-11)
+- The CNS pin moved from `v2.3.0` to `v3.0.0` (`31cb6f568219ef62cf3748701c895aa086abf1b8`), so the circuit installs one CNS release, and the Warden pin moved with it to the Warden that requires `v3.0.0`. No Burnish code changed.
+
 **0.3.22** (2026-11-11)
 - The Warden pin moved to the Warden that ignores `git replace` refs in every git call it makes. No Burnish code changed.
 
@@ -353,7 +356,7 @@ Newest first. Each entry says what was wrong, how it was found when that is know
 
 **0.3.16** (2026-10-30)
 - The CNS pin moved from `v2.1.0` to `v2.2.0` and the Warden pin from `fe9c8b3` to `fade3ca`. No Burnish code changed.
-- 2026-10-31: the CNS pin moved from `v2.2.0` to `v2.3.0` and the Warden pin to the commit named in `pyproject.toml`, so the circuit installs one CNS release. No Burnish code changed.
+- 2026-10-31: the CNS pin moved from `v2.2.0` to `v2.3.0` and the Warden pin to the commit named in `pyproject.toml`, so the circuit installs one CNS release, and the Warden pin moved with it to the Warden that requires `v3.0.0`. No Burnish code changed.
 
 **0.3.15** (2026-10-29)
 - The CNS pin moved from `v2.0.0` to `v2.1.0` and the Warden pin from `68f2a95` to `fe9c8b3`. No Burnish code changed.

@@ -12,6 +12,13 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.23] - 2026-11-11, not tagged
+
+### Changed
+
+- The CNS pin moves from `v2.3.0` (`41592fb7b6735abe140f745353c09ba3eed8e7a2`) to `v3.0.0` (`31cb6f568219ef62cf3748701c895aa086abf1b8`), spelled `cns @ git+https://github.com/wking53214/CNS.git@v3.0.0`. The Warden pin moves from `4869ca3ccb5433cf6bb448e20e43042aadcf389c` to `986f1d6ab1e103888a8b8a1c07706d4321dbc9c8`, the head of Warden's `main` after its CNS `v3.0.0` pin move (Warden 0.16.6 at both), because pip cannot install Warden at the older commit, which requires CNS `v2.3.0`, together with CNS `v3.0.0`. No Burnish code changed.
+- Version 0.3.23 (`burnish/__init__.py`, `pyproject.toml`, README).
+
 ## [0.3.22] - 2026-11-11, not tagged
 
 ### Changed
@@ -432,7 +439,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/7746906fe81825e8115904ca3b782abadf52b8c2...7746906fe81825e8115904ca3b782abadf52b8c2
+[Unreleased]: https://github.com/wking53214/Burnish/compare/2c51f6819b2979ff5c40dd257b6f2a30fed0c70f...2c51f6819b2979ff5c40dd257b6f2a30fed0c70f
+[0.3.23]: https://github.com/wking53214/Burnish/compare/7746906fe81825e8115904ca3b782abadf52b8c2...2c51f6819b2979ff5c40dd257b6f2a30fed0c70f
 [0.3.22]: https://github.com/wking53214/Burnish/compare/fda97a67671c9eddff07b0da603b6beb0ab05656...7746906fe81825e8115904ca3b782abadf52b8c2
 [0.3.21]: https://github.com/wking53214/Burnish/compare/a01caaa833fa7e9b2f879bf34dd85cbdcd1e14c7...fda97a67671c9eddff07b0da603b6beb0ab05656
 [0.3.20]: https://github.com/wking53214/Burnish/compare/182b42df5e709f5de9521ce1aa907aaf35a71b44...7c7e5501cc804f2f33fcacdf9a3d5af6ec4cebbe
