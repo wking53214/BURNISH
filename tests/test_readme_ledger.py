@@ -108,9 +108,9 @@ def test_the_rust_release_the_readme_names_is_the_toolchain_file_release():
 
 def test_the_readme_names_the_cns_pin_the_dependency_line_has():
     cns = next(dep for dep in PYPROJECT["project"]["dependencies"] if dep.startswith("cns @"))
-    assert cns.endswith("@v3.0.0")
-    assert "from `v1.9.0` to `v2.0.0`" in README and "(`@v3.0.0`)" in README
-    assert "31cb6f568219ef62cf3748701c895aa086abf1b8" in (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    assert cns.endswith("@v4.0.0")
+    assert "from `v1.9.0` to `v2.0.0`" in README and "(`@v4.0.0`)" in README
+    assert "eabe6c72d71557b6327b80b42b0afab572acce80" in (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
 
 def test_the_stack_doc_does_not_call_the_public_cns_repository_private():
