@@ -12,6 +12,12 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.24] - 2026-11-11, not tagged
+
+### Changed
+
+- The Warden pin moves from `986f1d6ab1e103888a8b8a1c07706d4321dbc9c8` to `db210f94018575220ddebbd8e3139f4272d75ae0`, the head of Warden's `main` after its ghost_tools pin move (Warden 0.16.6 at both), because the CNS `stack` job needs every repository to name the same Warden commit. No Burnish code changed. Version 0.3.24 (`burnish/__init__.py`, `pyproject.toml`, README).
+
 ## [0.3.23] - 2026-11-11, not tagged
 
 ### Changed
@@ -439,7 +445,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/2c51f6819b2979ff5c40dd257b6f2a30fed0c70f...2c51f6819b2979ff5c40dd257b6f2a30fed0c70f
+[Unreleased]: https://github.com/wking53214/Burnish/compare/c3b709618ee194cf50179e45456519ad740fe525...c3b709618ee194cf50179e45456519ad740fe525
+[0.3.24]: https://github.com/wking53214/Burnish/compare/2c51f6819b2979ff5c40dd257b6f2a30fed0c70f...c3b709618ee194cf50179e45456519ad740fe525
 [0.3.23]: https://github.com/wking53214/Burnish/compare/7746906fe81825e8115904ca3b782abadf52b8c2...2c51f6819b2979ff5c40dd257b6f2a30fed0c70f
 [0.3.22]: https://github.com/wking53214/Burnish/compare/fda97a67671c9eddff07b0da603b6beb0ab05656...7746906fe81825e8115904ca3b782abadf52b8c2
 [0.3.21]: https://github.com/wking53214/Burnish/compare/a01caaa833fa7e9b2f879bf34dd85cbdcd1e14c7...fda97a67671c9eddff07b0da603b6beb0ab05656
