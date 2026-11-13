@@ -12,6 +12,12 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.26] - 2026-11-13, not tagged
+
+### Changed
+
+- The Warden pin moves from `0f84759675bb6f31329fd2302113aab6c5d87382` (Warden 0.16.6) to `0339c09a69497be2d2fc34d71872c8c8616c6668` (Warden 1.0.0, the commit `v1.0.0` is tagged on), in `pyproject.toml`. No Burnish code changed. The suite passes against it (663 passed). CNS stays at `v4.0.0`.
+
 ## [0.3.25] - 2026-11-12, not tagged
 
 ### Changed
@@ -452,6 +458,7 @@ changing the section. Nothing else about them changed.
   Python, Rust and C++23 that read one file of test vectors.
 
 [Unreleased]: https://github.com/wking53214/Burnish/compare/e75689fba46f1c43e68904eeb814acc6ad279f74...e75689fba46f1c43e68904eeb814acc6ad279f74
+[0.3.26]: https://github.com/wking53214/Burnish/compare/e75689fba46f1c43e68904eeb814acc6ad279f74...1d043e10f15a1ffab6ca3d6d443b0513a01b23cc
 [0.3.25]: https://github.com/wking53214/Burnish/compare/c3b709618ee194cf50179e45456519ad740fe525...e75689fba46f1c43e68904eeb814acc6ad279f74
 [0.3.24]: https://github.com/wking53214/Burnish/compare/2c51f6819b2979ff5c40dd257b6f2a30fed0c70f...c3b709618ee194cf50179e45456519ad740fe525
 [0.3.23]: https://github.com/wking53214/Burnish/compare/7746906fe81825e8115904ca3b782abadf52b8c2...2c51f6819b2979ff5c40dd257b6f2a30fed0c70f
