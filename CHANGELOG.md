@@ -12,6 +12,10 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+### Changed
+
+- The Warden pin moves from `0f84759675bb6f31329fd2302113aab6c5d87382` (Warden 0.16.6) to `0339c09a69497be2d2fc34d71872c8c8616c6668` (Warden 1.0.0, the commit `v1.0.0` is tagged on), in `pyproject.toml`. No Burnish code changed. The suite passes against it (663 passed). CNS stays at `v4.0.0`.
+
 ## [0.3.25] - 2026-11-12, not tagged
 
 ### Changed

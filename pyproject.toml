@@ -28,7 +28,7 @@ classifiers = [
 # one spelling every repository in the circuit uses, because pip treats a tag URL and a commit URL as different sources.
 # To bump: see "Bumping the Warden pin" in README.md.
 dependencies = [
-    "warden @ git+https://github.com/wking53214/Warden.git@0f84759675bb6f31329fd2302113aab6c5d87382",  # Warden 0.16.6, not tagged
+    "warden @ git+https://github.com/wking53214/Warden.git@0339c09a69497be2d2fc34d71872c8c8616c6668",  # Warden 1.0.0
     "cns @ git+https://github.com/wking53214/CNS.git@v4.0.0",  # v4.0.0 = eabe6c72d71557b6327b80b42b0afab572acce80
 ]
 
