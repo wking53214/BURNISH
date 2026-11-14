@@ -12,6 +12,12 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.27] - 2026-11-14, not tagged
+
+### Changed
+
+- The Warden pin moves from `0339c09a69497be2d2fc34d71872c8c8616c6668` (Warden 1.0.0) to `3ed76136a8ad8c8a78ea8aaec4c5350026073f97` (Warden 1.0.0, the head of Warden's `main` after its ghost_tools pin move; only pin text in Warden changed), in `pyproject.toml`. No Burnish code changed. Reason: `seat_pins` in the CNS `stack` job reports that the seats pin Warden at a different commit from the install file, and pip cannot install two commits of warden together. The version is bumped because the release-hygiene test requires an entry for the version and an empty Unreleased section.
+
 ## [0.3.26] - 2026-11-13, not tagged
 
 ### Changed
@@ -457,7 +463,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/e75689fba46f1c43e68904eeb814acc6ad279f74...e75689fba46f1c43e68904eeb814acc6ad279f74
+[Unreleased]: https://github.com/wking53214/Burnish/compare/1d043e10f15a1ffab6ca3d6d443b0513a01b23cc...1d043e10f15a1ffab6ca3d6d443b0513a01b23cc
+[0.3.27]: https://github.com/wking53214/Burnish/compare/1d043e10f15a1ffab6ca3d6d443b0513a01b23cc...d7eaa51f66b4407358611a573e017c604abce38f
 [0.3.26]: https://github.com/wking53214/Burnish/compare/e75689fba46f1c43e68904eeb814acc6ad279f74...1d043e10f15a1ffab6ca3d6d443b0513a01b23cc
 [0.3.25]: https://github.com/wking53214/Burnish/compare/c3b709618ee194cf50179e45456519ad740fe525...e75689fba46f1c43e68904eeb814acc6ad279f74
 [0.3.24]: https://github.com/wking53214/Burnish/compare/2c51f6819b2979ff5c40dd257b6f2a30fed0c70f...c3b709618ee194cf50179e45456519ad740fe525

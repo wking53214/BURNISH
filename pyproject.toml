@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "burnish"
-version = "0.3.26"
+version = "0.3.27"
 description = "What makes code beautiful, written down, checked, and applied to itself"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,7 +28,7 @@ classifiers = [
 # one spelling every repository in the circuit uses, because pip treats a tag URL and a commit URL as different sources.
 # To bump: see "Bumping the Warden pin" in README.md.
 dependencies = [
-    "warden @ git+https://github.com/wking53214/Warden.git@0339c09a69497be2d2fc34d71872c8c8616c6668",  # Warden 1.0.0
+    "warden @ git+https://github.com/wking53214/Warden.git@3ed76136a8ad8c8a78ea8aaec4c5350026073f97",  # Warden 1.0.0
     "cns @ git+https://github.com/wking53214/CNS.git@v4.0.0",  # v4.0.0 = eabe6c72d71557b6327b80b42b0afab572acce80
 ]
 
