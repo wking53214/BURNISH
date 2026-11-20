@@ -140,7 +140,7 @@ def test_the_worded_test_count_gap_is_still_open():
 
 
 # What the circuit's self-hosting record says about this repository. Source: docs/evidence/SELFHOSTING_2026-10-23.md in the CNS
-# repository (branch claude/horsemen-production-status-5wsndb until it is merged): the BURNISH rows of the first table and of
+# repository (on CNS main): the BURNISH rows of the first table and of
 # "Re-run after BURNISH 0.3.12". The numbers are copied here so the README cannot change them unnoticed.
 SELFHOST_EVIDENCE = "docs/evidence/SELFHOSTING_2026-10-23.md"
 SELFHOST_RUNS = (("cd17eec", "0.3.11"), ("c23ed87", "0.3.12"))   # (commit, Burnish version) of the two ACCEPT runs
