@@ -151,7 +151,7 @@ SELFHOST_DECLINED_CHECKS = ("mutate", "kernel", "structure", "tests", "project",
 
 def test_the_self_hosting_paragraph_cites_the_record_and_holds_its_numbers():
     paragraph = " ".join(section("## Self-hosting").split())
-    assert SELFHOST_EVIDENCE in paragraph and "claude/horsemen-production-status-5wsndb" in paragraph
+    assert SELFHOST_EVIDENCE in paragraph and "on CNS `main`" in paragraph
     assert "https://github.com/wking53214/CNS" in paragraph
     for commit, version in SELFHOST_RUNS:
         assert f"`{commit}` ({version})" in paragraph
