@@ -23,6 +23,11 @@ the true head by the commit that last wrote it.
 - A `pyproject.toml` that is present but is not valid TOML or not UTF-8 is no longer treated as absent. The claims critic
   reports each kind of pin or dependency claim as `unchecked` and unsupported, lists the problem under UNKNOWN, and
   `burnish inspect` gives it as `metadata_problem`; the compiled README draft says the version may be wrong.
+- An import inside a function no longer counts as optional (reverses that half of the 0.3.13 rule). A function may run on
+  every use, so an undeclared module imported inside one leaves a claim that nothing else is needed `unconfirmed` and
+  unsupported. It is not called a contradiction. Imports behind a `try` that expects them to fail, or under
+  `TYPE_CHECKING`, stay optional; a module declared in an extra or named in the README is still fine. A README that makes
+  such a claim over such an import now ends `burnish critic` and `burnish readme-critic` with exit 1.
 
 ### Changed (recorded late)
 

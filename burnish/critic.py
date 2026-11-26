@@ -219,7 +219,7 @@ def _check_against_the_tree(nar: Narrative, facts: Facts | None, collected: int 
         drifts += check_test_claims(nar.readme_text, collected)
     for drift in drifts:
         if drift.verdict != "unverifiable":   # an unverifiable count already has its "unmeasured" row from the claim reader
-            state = EpistemicState.UNKNOWN if drift.verdict == "unchecked" else EpistemicState.ASSUMED
+            state = EpistemicState.UNKNOWN if drift.verdict in ("unchecked", "unconfirmed") else EpistemicState.ASSUMED
             notes.claims.append(Claim(text=drift.claim, location="README", epistemic=state, supported=False,
                                       note=drift.problem, agreement=drift.verdict, label=f"README claim ({drift.kind})"))
         notes.unsupported.append(drift.problem)

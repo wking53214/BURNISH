@@ -88,8 +88,44 @@ def test_a_module_declared_nowhere_and_imported_at_the_top_is_still_a_contradict
     assert "requests (imported in 1 file(s), not declared)" in drift.problem
 
 
-def test_modules_imported_only_inside_a_function_or_a_guarded_try_are_optional(tmp_path: Path):
+def test_a_module_imported_behind_a_guarded_try_is_optional(tmp_path: Path):
+    guarded = '"""demo."""\n\ntry:\n    import pydantic\nexcept ImportError:\n    pydantic = None\n'
+    _tree(tmp_path, "# demo\n\nThere are no runtime dependencies.\n", EXTRAS, guarded)
+    assert check_tree_claims(tmp_path) == []
+
+
+def test_an_undeclared_module_imported_inside_a_function_leaves_the_claim_unconfirmed(tmp_path: Path):
+    """0.3.28: a function may run on every use, so an import inside one does not back "no runtime dependencies".
+
+    The guarded `pydantic` beside it stays optional; only `warden`, which pyproject.toml does not declare, is named.
+    """
     _tree(tmp_path, "# demo\n\nThere are no runtime dependencies.\n", EXTRAS, LAZY_IMPORTS)
+    (drift,) = check_tree_claims(tmp_path)
+    assert drift.kind == "dependencies" and drift.verdict == "unconfirmed"
+    assert "warden (imported inside a function in 1 file(s), not declared)" in drift.problem
+    assert "pydantic" not in drift.problem and "not confirmed" in drift.problem
+    report = PoetryCritic().critique(tmp_path)
+    assert not report.good_enough
+    (row,) = [c for c in report.claims if c.label == "README claim (dependencies)"]
+    assert row.agreement == "unconfirmed" and not row.supported
+
+
+def test_a_module_imported_inside_a_function_and_declared_in_an_extra_does_not_unsettle_the_claim(tmp_path: Path):
+    source = '"""demo."""\n\n\ndef ask():\n    """Ask."""\n    import anthropic\n    return anthropic\n'
+    _tree(tmp_path, "# demo\n\nThere are no runtime dependencies.\n", EXTRAS, source)
+    assert check_tree_claims(tmp_path) == []
+
+
+def test_a_module_imported_inside_a_function_and_named_in_the_readme_is_not_unconfirmed(tmp_path: Path):
+    source = '"""demo."""\n\n\ndef get():\n    """Get."""\n    import requests\n    return requests\n'
+    _tree(tmp_path, "# demo\n\nThere are no other dependencies than requests.\n", EXTRAS, source)
+    assert check_tree_claims(tmp_path) == []
+
+
+def test_a_guard_inside_a_function_still_makes_the_import_optional(tmp_path: Path):
+    source = ('"""demo."""\n\n\ndef fast():\n    """Fast."""\n    try:\n        import orjson\n    except ImportError:\n'
+              '        return None\n    return orjson\n')
+    _tree(tmp_path, "# demo\n\nThere are no runtime dependencies.\n", EXTRAS, source)
     assert check_tree_claims(tmp_path) == []
 
 
