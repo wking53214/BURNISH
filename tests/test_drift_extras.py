@@ -95,7 +95,7 @@ def test_a_module_imported_behind_a_guarded_try_is_optional(tmp_path: Path):
 
 
 def test_an_undeclared_module_imported_inside_a_function_leaves_the_claim_unconfirmed(tmp_path: Path):
-    """0.3.28: a function may run on every use, so an import inside one does not back "no runtime dependencies".
+    """0.3.29: a function may run on every use, so an import inside one does not back "no runtime dependencies".
 
     The guarded `pydantic` beside it stays optional; only `warden`, which pyproject.toml does not declare, is named.
     """
