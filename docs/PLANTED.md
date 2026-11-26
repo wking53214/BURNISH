@@ -49,9 +49,9 @@ The test checks that this table matches the key.
 | Group | Repositories | Catches | Misses | False alarms |
 |---|---|---|---|---|
 | catch | 10 | 12 | 0 | 0 |
-| trap | 12 | 0 | 0 | 0 |
+| trap | 13 | 0 | 0 | 0 |
 | hard | 12 | 15 | 1 | 0 |
-| total | 34 | 27 | 1 | 0 |
+| total | 35 | 27 | 1 | 0 |
 
 ## History
 
@@ -65,6 +65,8 @@ The test checks that this table matches the key.
   next to the phrases it now reads as claims, history after a colon, an old quoted motto, and one package's count.
 - **0.5.4:** one hard repository added from the first outside run (`docs/VALIDATION.md`): "100% test coverage", an
   absolute with a word inside it, which the critic misses. Recorded as a miss.
+- **0.5.5:** one trap added: a promotional README with an install line and no admitted limits. The brochure rule no
+  longer makes the critic FAIL (the owner's choice), and the trap holds that it raises no flag.
 
 A score here does not mean the critic reads every README right. Every sentence in the collection was written by this
 project, and the two newest traps were written after the reader was changed.
