@@ -29,7 +29,7 @@ from dataclasses import dataclass
 from typing import Iterator
 
 __all__ = ["BEGIN", "END", "HEADING", "Block", "find_block", "without_block", "outside_fences",
-           "has_heading", "wrap", "unclosed_fence", "ends_inside_comment"]
+           "prose_lines", "line_number", "source_line_map", "has_heading", "wrap", "unclosed_fence", "ends_inside_comment"]
 
 BEGIN = "<!-- burnish:begin claims-vs-reality -->"
 END = "<!-- burnish:end -->"
@@ -177,6 +177,51 @@ def without_block(text: str) -> str:
     if not before:
         return after
     return before + ("\n\n" + after if after.strip() else "\n")
+
+
+_BREAK = re.compile(r"\r\n|\n|\r")
+
+
+def line_number(text: str, offset: int) -> int:
+    """The line `offset` falls on in `text`, counting from 1 (CRLF, LF and CR each end a line)."""
+    return len(_BREAK.findall(text, 0, offset)) + 1
+
+
+def source_line_map(text: str) -> list[int]:
+    """For each line of `without_block(text)`, the number of the line in `text` it came from.
+
+    The blank line `without_block` puts where the block was is given the begin marker's line.
+    """
+    kept = without_block(text)
+    count = len(_BREAK.findall(kept)) + 1
+    block = find_block(text)
+    if not block.found:
+        return list(range(1, count + 1))
+    before = text[:block.start].rstrip("\r\n\t ")
+    rest = text[block.end:]
+    first_after = line_number(text, block.end + len(rest) - len(rest.lstrip("\r\n")))
+    if not before:
+        return [first_after + k for k in range(count)]
+    known = line_number(text, len(before))
+    origin = list(range(1, known + 1)) + [line_number(text, block.start)]
+    origin += [first_after + k for k in range(count - len(origin))]
+    return origin[:count]
+
+
+def prose_lines(text: str) -> list[tuple[int, str]]:
+    """(number of the line in `text`, the line) for each line `outside_fences(without_block(text))` keeps.
+
+    It is what lets a finding found in the prose name the line of the README it came from.
+    """
+    kept = without_block(text)
+    origin = source_line_map(text)
+    out: list[tuple[int, str]] = []
+    number, last = 1, 0
+    for offset, line in outside_fences(kept):
+        number += len(_BREAK.findall(kept, last, offset))
+        last = offset
+        out.append((origin[min(number, len(origin)) - 1], line))
+    return out
 
 
 def has_heading(text: str, pattern: str) -> bool:

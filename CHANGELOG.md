@@ -12,6 +12,24 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-25, not tagged
+
+### Added
+
+- Every row of the `burnish critic` report carries its provenance (`Claim.provenance`, a `burnish.provenance.Provenance`)
+  and the report prints it under the row: the claim and the file and line that state it, the evidence as files and lines
+  (or what was handed in, for a suite result or a `--collected` count), the method, whether the evidence is direct,
+  inferred or none, what was not inspected, and the reason for the verdict. Line numbers are the file's own, after any
+  generated section and with CRLF line ends. `Claim.kind` says what was checked.
+- A Python file that does not parse, a `pyproject.toml` that cannot be read, a suite that is not green, a brochure README
+  and a living README on a retired tree are now rows of the report too, each with the line it rests on. The outcome and
+  exit code do not change. The generated README section and the finisher's notes leave these rows out, as before.
+
+### Changed
+
+- In the printed report a row with provenance no longer repeats its note after a dash on the first line; the note is the
+  `Reason:` line under it.
+
 ## [0.4.0] - 2026-11-25, not tagged
 
 The minor version moves because exit codes change, which can break a script that reads them.
@@ -505,7 +523,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/265af439334870b9b91d45e7da2996dfe5b386e2...265af439334870b9b91d45e7da2996dfe5b386e2
+[Unreleased]: https://github.com/wking53214/Burnish/compare/6bfb0ba951272740333e2dedb118acaa53a13534...6bfb0ba951272740333e2dedb118acaa53a13534
+[0.4.1]: https://github.com/wking53214/Burnish/compare/30b1056e7075ef7cd59eb2911ec92becdf69f43e...6bfb0ba951272740333e2dedb118acaa53a13534
 [0.4.0]: https://github.com/wking53214/Burnish/compare/22783b5e2bfa834a6be55f6483865b969cac25e8...265af439334870b9b91d45e7da2996dfe5b386e2
 [0.3.29]: https://github.com/wking53214/Burnish/compare/5ca7e2c44ce9dab0058ca94a36ca2b9f2c57c1a3...206c1141ab01907c9d1d577ae8a06bb8a0a60f32
 [0.3.28]: https://github.com/wking53214/Burnish/compare/71a7fba13e5f9f4883148644246fca179a28a476...c44c7ac17c9a76318e86d0eddd588d5987438d7b

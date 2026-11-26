@@ -34,10 +34,10 @@ from typing import Iterator, Optional
 
 from cns.suite import SuiteRun
 
-from .marked import outside_fences, without_block
+from .marked import prose_lines
 from .textsafe import clean
 
-__all__ = ["TestClaim", "prose", "test_claims", "unchecked_mentions", "absolutes", "judge"]
+__all__ = ["TestClaim", "prose", "test_claims", "unchecked_mentions", "absolutes", "absolutes_at", "judge"]
 
 #: What inline code becomes in the prose: its words are gone, but the claim next to it is still known to be about it.
 _CODE = "\u2039code\u203a"
@@ -113,13 +113,25 @@ class TestClaim:
     at_least: bool = False
     total: Optional[int] = None
     no_skips: bool = False   # the sentence says nothing was skipped
+    #: The line of the README text it was read from, counting from 1 (0 when not known).
+    line: int = 0
 
 
 def prose(readme_text: str) -> str:
     """The README as plain prose: Burnish's own block, code (fenced, indented, inline) and HTML comments removed."""
-    kept = without_block(readme_text)
-    lines = [line for _, line in outside_fences(kept)]
-    return re.sub(r"`[^`\n]*`", _CODE, "\n".join(lines))
+    return _prose_and_lines(readme_text)[0]
+
+
+def _prose_and_lines(readme_text: str) -> tuple[str, list[int]]:
+    """The prose, and for each of its lines the number of the README line it came from."""
+    kept = prose_lines(readme_text)
+    return re.sub(r"`[^`\n]*`", _CODE, "\n".join(line for _, line in kept)), [number for number, _ in kept]
+
+
+def _line_at(text: str, lines: list[int], offset: int) -> int:
+    """The README line that `offset` in the prose `text` came from, or 0."""
+    index = text.count("\n", 0, offset)
+    return lines[index] if index < len(lines) else 0
 
 
 _WORD_VALUES = {word: value for value, word in enumerate(
@@ -224,7 +236,7 @@ def _candidates(text: str) -> Iterator[tuple[int, int, TestClaim, re.Match[str]]
 
 def _read(readme_text: str) -> tuple[list[TestClaim], int]:
     """The claims about this suite, in order of appearance, and how many other mentions were not judged."""
-    text = prose(readme_text)
+    text, lines = _prose_and_lines(readme_text)
     found: dict[int, tuple[int, TestClaim]] = {}
     unchecked: set[int] = set()
     for start, end, claim, _ in _candidates(text):
@@ -234,12 +246,13 @@ def _read(readme_text: str) -> tuple[list[TestClaim], int]:
             unchecked.add(start)
             continue
         sentence = _sentence(text, start) + text[start:end] + _sentence_after(text, end)
-        claim = TestClaim(claim.text, claim.number, claim.kind, claim.at_least, claim.total,
-                          bool(_NO_SKIPS.search(sentence)))
         key = claim.number if claim.kind != "green" else -1
         earlier = found.get(key)
+        first = min(start, earlier[0]) if earlier else start
+        claim = TestClaim(claim.text, claim.number, claim.kind, claim.at_least, claim.total,
+                          bool(_NO_SKIPS.search(sentence)), _line_at(text, lines, start))
         if earlier is None or (claim.kind == "passing" and earlier[1].kind == "count"):
-            found[key] = (min(start, earlier[0]) if earlier else start, claim)
+            found[key] = (first, claim)
     return [claim for _, claim in sorted(found.values(), key=lambda item: item[0])], len(unchecked)
 
 
@@ -262,8 +275,13 @@ def absolutes(readme_text: str) -> list[str]:
     A denial ("not production ready", "we make no claim of 100% coverage"), a goal ("the target is 100%
     coverage") and a scoped figure ("100% coverage of the parser") are not claims of the whole being so.
     """
-    text = prose(readme_text)
-    out: list[str] = []
+    return [phrase for phrase, _ in absolutes_at(readme_text)]
+
+
+def absolutes_at(readme_text: str) -> list[tuple[str, int]]:
+    """The same absolute claims as `absolutes`, each with the README line it is on (0 when not known)."""
+    text, lines = _prose_and_lines(readme_text)
+    out: list[tuple[str, int]] = []
     for phrase in _ABSOLUTES:
         pattern = re.compile(r"\b" + r"[\s-]+".join(map(re.escape, phrase.split())) + r"\b", re.I)
         for match in pattern.finditer(text):
@@ -273,7 +291,7 @@ def absolutes(readme_text: str) -> list[str]:
                 continue
             if phrase.startswith("100%") and _SCOPED_COVERAGE.match(text[match.end():]):
                 continue
-            out.append(clean(match.group(0), 60))
+            out.append((clean(match.group(0), 60), _line_at(text, lines, match.start())))
             break
     return out
 
