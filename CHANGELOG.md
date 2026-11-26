@@ -12,6 +12,25 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-11-26, not tagged
+
+### Added
+
+- `docs/VALIDATION.md`: the first outside validation (items 32, 33 and 35 of the remediation plan). Burnish 0.5.3 was run
+  blind on five popular Python libraries (typing_extensions, idna, urllib3, charset_normalizer, requests), chosen by a rule
+  written before any run from the PyPI top-downloads list. Their outputs, commits and the selection walk are in
+  `docs/validation/2026-11-26/`. The review is by an AI model and is marked as such; item 33's human review is still open.
+- `tests/test_validation_records.py`: every record `docs/VALIDATION.md` links exists, and each run has its three outputs
+  and names each repository's commit.
+- `tests/planted/hard-12-coverage-with-a-word-inside.txt`: "100% test coverage", missed in the outside run, recorded as a
+  miss.
+
+### Changed
+
+- README Known defects: four found by the outside run (the brochure rule behind every FAIL, the missed absolute, PY-DOC on
+  `@overload` stubs, PY-NAME on names fixed by another standard). No code changed.
+- `docs/REMEDIATION_PLAN_v2.md`: items 32 and 35 done, 33 has its first, AI, review.
+
 ## [0.5.3] - 2026-11-26, not tagged
 
 ### Fixed
@@ -620,7 +639,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/83b2ae6beac4c89d1d363da4a26d35296a47eb8f...83b2ae6beac4c89d1d363da4a26d35296a47eb8f
+[Unreleased]: https://github.com/wking53214/Burnish/compare/a7b0cdc107cb2e53ea0e95ddb89f22f2ebe123a2...a7b0cdc107cb2e53ea0e95ddb89f22f2ebe123a2
+[0.5.4]: https://github.com/wking53214/Burnish/compare/3f289c84e2e84632ab525ca8e4f232e1509b6d92...a7b0cdc107cb2e53ea0e95ddb89f22f2ebe123a2
 [0.5.3]: https://github.com/wking53214/Burnish/compare/472e18c26059d0fe3efe3c92cf3015cd2d0810d0...83b2ae6beac4c89d1d363da4a26d35296a47eb8f
 [0.5.2]: https://github.com/wking53214/Burnish/compare/e2f567b971913cff0b764bcdc52b8ec74f10122b...05cf80f9d4fa424528a2a20c3154230475f5eec9
 [0.5.1]: https://github.com/wking53214/Burnish/compare/0066cceae67373bc7c0a59228f5f8c1e2154bf49...22101aeace88938f0f857e6c0553b0887fde0d28

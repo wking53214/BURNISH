@@ -1,0 +1,54 @@
+$ burnish check <psf/requests at 3c7baaa05ab4>
+exit 1
+
+docs/_themes/flask_theme_support.py:1: PY-DOC: the module has no docstring
+docs/_themes/flask_theme_support.py:7: PY-DOC: public class `FlaskyStyle` has no docstring
+docs/conf.py:1: PY-DOC: the module has no docstring
+setup.py:1: PY-DOC: the module has no docstring
+src/requests/__init__.py:60: PY-DOC: public function `check_compatibility` has no docstring
+src/requests/__init__.py:146: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/requests/__version__.py:1: PY-DOC: the module has no docstring
+src/requests/_types.py:28: PY-DOC: public class `SupportsRead` has no docstring
+src/requests/_types.py:29: PY-DOC: public function `read` has no docstring
+src/requests/_types.py:38: PY-DOC: public class `SupportsItems` has no docstring
+src/requests/_types.py:39: PY-DOC: public function `items` has no docstring
+src/requests/adapters.py:66: PY-NAME: function `SOCKSProxyManager` is not lowercase_with_underscores
+src/requests/auth.py:147: PY-DOC: public function `init_per_thread_state` has no docstring
+src/requests/auth.py:210: PY-NAME: function `KD` is not lowercase_with_underscores
+src/requests/compat.py:43: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/requests/cookies.py:60: PY-DOC: public function `get_full_url` has no docstring
+src/requests/cookies.py:95: PY-DOC: public function `add_unredirected_header` has no docstring
+src/requests/cookies.py:131: PY-DOC: public function `getheaders` has no docstring
+src/requests/cookies.py:241: PY-RET: `set` has a bare `return` beside returns with a value; write `return None` where None is meant (PEP 8)
+src/requests/cookies.py:382: PY-DOC: public function `set_cookie` has no docstring
+src/requests/cookies.py:564: PY-DOC: public function `cookiejar_from_dict` has no docstring
+src/requests/cookies.py:572: PY-DOC: public function `cookiejar_from_dict` has no docstring
+src/requests/help.py:126: PY-TYPE: `main` has no annotation for: return
+src/requests/models.py:108: PY-DOC: public class `RequestEncodingMixin` has no docstring
+src/requests/models.py:254: PY-DOC: public class `RequestHooksMixin` has no docstring
+src/requests/models.py:456: PY-DOC: public function `copy` has no docstring
+src/requests/models.py:907: PY-DOC: public function `iter_content` has no docstring
+src/requests/models.py:911: PY-DOC: public function `iter_content` has no docstring
+src/requests/models.py:980: PY-DOC: public function `iter_lines` has no docstring
+src/requests/models.py:987: PY-DOC: public function `iter_lines` has no docstring
+src/requests/models.py:1110: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/requests/packages.py:1: PY-DOC: the module has no docstring
+src/requests/sessions.py:127: PY-DOC: public class `SessionRedirectMixin` has no docstring
+src/requests/sessions.py:132: PY-DOC: public function `send` has no docstring
+src/requests/sessions.py:823: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/requests/structures.py:124: PY-DOC: public function `get` has no docstring
+src/requests/structures.py:127: PY-DOC: public function `get` has no docstring
+src/requests/utils.py:160: PY-DOC: public function `super_len` has no docstring
+src/requests/utils.py:178: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/requests/utils.py:264: PY-RET: `get_netrc_auth` has a bare `return` beside returns with a value; write `return None` where None is meant (PEP 8)
+src/requests/utils.py:279: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/requests/utils.py:371: PY-DOC: public function `to_key_val_list` has no docstring
+src/requests/utils.py:373: PY-DOC: public function `to_key_val_list` has no docstring
+src/requests/utils.py:614: PY-DOC: public function `iter_slices` has no docstring
+src/requests/utils.py:618: PY-DOC: public function `iter_slices` has no docstring
+tests/test_requests.py:2575: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+tests/test_requests.py:2596: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+tests/testserver/server.py:91: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+
+[stderr]
+burnish check: 48 finding(s) (PY-DOC 34, PY-NAME 2, PY-RET 2, PY-SWALLOW 9, PY-TYPE 1)

@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.3, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.4, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.3 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.4 (set 2026-11-26)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
@@ -357,6 +357,10 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 
 ## Known defects (open)
 
+- **On outside READMEs the critic's FAIL is usually the brochure rule.** In the first outside run (`docs/VALIDATION.md`) three of five popular libraries ended FAIL, each because the README has a pip install line or a brochure word and never says "does not", not because a claim was false. The reviewer disagreed with one of the three. The outcome does not say which kind of FAIL it is.
+- **The critic misses a coverage absolute with a word inside it.** It matches the five absolutes only as written, so "100% test coverage" is not read. Found in the outside run; planted as `tests/planted/hard-12-coverage-with-a-word-inside.txt` and held as a recorded miss by `tests/test_planted.py::test_the_critic_scores_as_the_key_records`.
+- **`check` asks for docstrings on `@overload` stubs.** A function marked `@overload` is a type signature with no body and by convention no docstring, and PY-DOC reports it anyway: 20 of the findings in the outside run. No test holds this yet.
+- **`check` asks for lower-case names a library cannot change.** Public names that must match another standard, such as the `typing` module's `TypedDict`, are reported by PY-NAME: all 17 PY-NAME findings in typing_extensions in the outside run. No test holds this yet.
 - **The test-count check misses wordy counts.** It reads digits (with a comma, dot, space, apostrophe or underscore between thousands), a number of thousands such as "1k", and number words from two to 999 ("twelve", "twenty-one", "two hundred"). It does not read "about a thousand tests pass", "a couple of hundred tests pass", "1.5 million tests pass" or a number worded above 999, and none of those is misread as a smaller count (`tests/test_count_forms.py::test_wordier_counts_are_still_missed_and_never_misread_as_a_smaller_number`). `tests/test_readme_ledger.py::test_the_worded_test_count_gap_is_still_open` holds this sentence to the code: it fails the day the gap closes, so this line must then be removed.
 - **Python files that start with a byte order mark are skipped, not tidied.** Warden's own syntax check cannot read them, so the file is left alone and a note says so (`tests/test_stable_and_careful.py::test_a_python_file_with_a_bom_is_left_alone`).
 - **A README that ends inside an unclosed code block is left alone,** so it gets no generated section (`tests/test_stable_and_careful.py::test_a_readme_that_ends_inside_a_code_fence_is_left_alone`).
@@ -371,6 +375,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.4** (2026-11-26)
+- *Nothing showed how Burnish does on repositories it was not built for.* Every test and run so far was on this project's own trees or its planted collection. Found by items 32, 33 and 35 of the remediation plan. Now `docs/VALIDATION.md` records a blind run on five popular Python libraries chosen by a rule written before any run, with every output and the commit of each repository in `docs/validation/2026-11-26/`, and a first review by an AI model; a person has not reviewed it yet. It found that every FAIL came from the brochure rule rather than a false claim, one missed absolute, and two patterns of wrong `check` findings, all listed under Known defects. Guard: `tests/test_validation_records.py::test_every_record_validation_md_links_exists`, `tests/test_validation_records.py::test_every_repository_in_a_run_has_its_three_outputs_and_its_commit_on_record` and, for the missed absolute, `tests/test_planted.py::test_the_critic_scores_as_the_key_records`.
 
 **0.5.3** (2026-11-26)
 - *The claims critic misread sentences in tables, after some lead-in words, and in quotation marks.* It missed a wrong count in a table cell; it read a claim after "not just ... but", "not small:", "No one disputes it:", "Without exception,", "If you clone it,", "As of today," or "was rewritten; it now has" as a denial, a wish or history; it did not know "depends on nothing" or "Dependencies: none" as saying a package needs nothing else; and it flagged a status phrase inside quotation marks and a count that belongs to one module. Found by the planted-defect collection (0.5.2), item 13 of the remediation plan. Now a table cell ends a count, those lead-ins no longer hide a claim, a colon or semicolon starts a new clause, "now" after a past word brings a sentence back to the present, a phrase in double quotation marks is a mention, "the parser module has" counts one module, and the two phrasings are read. Guard: `tests/test_planted.py::test_the_critic_scores_as_the_key_records`, which now expects no misses and no false alarms, and `tests/test_planted.py::test_docs_planted_states_the_scorecard_the_key_records`.

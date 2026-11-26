@@ -1,0 +1,282 @@
+$ burnish check <urllib3/urllib3 at 3db5970fcc56>
+exit 1
+
+docs/conf.py:1: PY-DOC: the module has no docstring
+dummyserver/app.py:1: PY-DOC: the module has no docstring
+dummyserver/app.py:107: PY-DOC: public function `chunked` has no docstring
+dummyserver/app.py:116: PY-DOC: public function `chunked_gzip` has no docstring
+dummyserver/app.py:128: PY-DOC: public function `keepalive` has no docstring
+dummyserver/app.py:174: PY-DOC: public function `headers` has no docstring
+dummyserver/app.py:190: PY-DOC: public function `multi_headers` has no docstring
+dummyserver/app.py:273: PY-DOC: public function `retry_after` has no docstring
+dummyserver/app.py:288: PY-DOC: public function `status` has no docstring
+dummyserver/app.py:321: PY-DOC: public function `apply_caching` has no docstring
+dummyserver/app.py:328: PY-DOC: public function `slow` has no docstring
+dummyserver/app.py:334: PY-DOC: public function `dripfeed` has no docstring
+dummyserver/app.py:350: PY-DOC: public function `bigfile` has no docstring
+dummyserver/app.py:358: PY-DOC: public function `mediumfile` has no docstring
+dummyserver/app.py:365: PY-DOC: public function `pyodide_upload` has no docstring
+dummyserver/app.py:452: PY-DOC: public function `pyodide` has no docstring
+dummyserver/app.py:481: PY-DOC: public function `wheel` has no docstring
+dummyserver/asgi_proxy.py:1: PY-DOC: the module has no docstring
+dummyserver/asgi_proxy.py:31: PY-DOC: public class `ProxyApp` has no docstring
+dummyserver/asgi_proxy.py:49: PY-DOC: public function `absolute_uri` has no docstring
+dummyserver/asgi_proxy.py:92: PY-DOC: public function `connect` has no docstring
+dummyserver/hypercornserver.py:1: PY-DOC: the module has no docstring
+dummyserver/hypercornserver.py:22: PY-DOC: public class `Config` has no docstring
+dummyserver/hypercornserver.py:23: PY-DOC: public function `create_sockets` has no docstring
+dummyserver/hypercornserver.py:111: PY-DOC: public function `run_hypercorn_in_thread` has no docstring
+dummyserver/hypercornserver.py:141: PY-DOC: public function `main` has no docstring
+dummyserver/socketserver.py:52: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+dummyserver/socketserver.py:73: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+dummyserver/socketserver.py:142: PY-DOC: public function `run` has no docstring
+dummyserver/socketserver.py:146: PY-TYPE: `ssl_options_to_context` has no annotation for: keyfile, certfile, server_side, cert_reqs, ca_certs, do_handshake_on_connect, suppress_ragged_eofs, ciphers, alpn_protocols
+dummyserver/socketserver.py:181: PY-DOC: public function `encrypt_key_pem` has no docstring
+dummyserver/testcase.py:1: PY-DOC: the module has no docstring
+dummyserver/testcase.py:28: PY-DOC: public function `consume_socket` has no docstring
+dummyserver/testcase.py:93: PY-DOC: public function `start_response_handler` has no docstring
+dummyserver/testcase.py:142: PY-DOC: public function `quit_server_thread` has no docstring
+dummyserver/testcase.py:153: PY-DOC: public function `teardown_class` has no docstring
+dummyserver/testcase.py:157: PY-DOC: public function `teardown_method` has no docstring
+dummyserver/testcase.py:161: PY-DOC: public function `assert_header_received` has no docstring
+dummyserver/testcase.py:181: PY-DOC: public class `IPV4SocketDummyServerTestCase` has no docstring
+dummyserver/testcase.py:203: PY-DOC: public class `HypercornDummyServerTestCase` has no docstring
+dummyserver/testcase.py:214: PY-DOC: public function `setup_class` has no docstring
+dummyserver/testcase.py:222: PY-DOC: public function `teardown_class` has no docstring
+dummyserver/testcase.py:226: PY-DOC: public class `HTTPSHypercornDummyServerTestCase` has no docstring
+dummyserver/testcase.py:251: PY-DOC: public function `setup_class` has no docstring
+dummyserver/testcase.py:273: PY-DOC: public function `teardown_class` has no docstring
+dummyserver/testcase.py:277: PY-DOC: public class `HypercornDummyProxyTestCase` has no docstring
+dummyserver/testcase.py:306: PY-DOC: public function `setup_class` has no docstring
+dummyserver/testcase.py:326: PY-DOC: public function `teardown_class` has no docstring
+dummyserver/testcase.py:331: PY-DOC: public class `IPv6HypercornDummyServerTestCase` has no docstring
+dummyserver/testcase.py:336: PY-DOC: public class `IPv6HypercornDummyProxyTestCase` has no docstring
+noxfile.py:1: PY-DOC: the module has no docstring
+noxfile.py:16: PY-DOC: public function `tests_impl` has no docstring
+noxfile.py:131: PY-DOC: public function `test` has no docstring
+noxfile.py:192: PY-DOC: public function `downstream_botocore` has no docstring
+noxfile.py:211: PY-DOC: public function `downstream_requests` has no docstring
+noxfile.py:237: PY-DOC: public function `lint` has no docstring
+noxfile.py:245: PY-DOC: public function `pyodideconsole` has no docstring
+noxfile.py:360: PY-DOC: public function `docs` has no docstring
+src/urllib3/__init__.py:31: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/_base_connection.py:1: PY-DOC: the module has no docstring
+src/urllib3/_base_connection.py:14: PY-DOC: public class `ProxyConfig` has no docstring
+src/urllib3/_collections.py:1: PY-DOC: the module has no docstring
+src/urllib3/_collections.py:43: PY-DOC: public function `ensure_can_construct_http_header_dict` has no docstring
+src/urllib3/_collections.py:142: PY-DOC: public function `clear` has no docstring
+src/urllib3/_collections.py:152: PY-DOC: public function `keys` has no docstring
+src/urllib3/_collections.py:301: PY-DOC: public function `discard` has no docstring
+src/urllib3/_collections.py:304: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/_collections.py:375: PY-DOC: public function `getlist` has no docstring
+src/urllib3/_collections.py:378: PY-DOC: public function `getlist` has no docstring
+src/urllib3/_collections.py:438: PY-DOC: public function `copy` has no docstring
+src/urllib3/_request_methods.py:1: PY-DOC: the module has no docstring
+src/urllib3/_request_methods.py:54: PY-DOC: public function `urlopen` has no docstring
+src/urllib3/connection.py:1: PY-DOC: the module has no docstring
+src/urllib3/connection.py:275: PY-DOC: public function `set_tunnel` has no docstring
+src/urllib3/connection.py:410: PY-DOC: public function `connect` has no docstring
+src/urllib3/connection.py:455: PY-DOC: public function `close` has no docstring
+src/urllib3/connection.py:517: PY-DOC: public function `request` has no docstring
+src/urllib3/connection.py:818: PY-DOC: public function `connect` has no docstring
+src/urllib3/connectionpool.py:1: PY-DOC: the module has no docstring
+src/urllib3/connectionpool.py:318: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/connectionpool.py:513: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/connectionpool.py:1225: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/contrib/emscripten/__init__.py:1: PY-DOC: the module has no docstring
+src/urllib3/contrib/emscripten/__init__.py:9: PY-DOC: public function `inject_into_urllib3` has no docstring
+src/urllib3/contrib/emscripten/connection.py:1: PY-DOC: the module has no docstring
+src/urllib3/contrib/emscripten/connection.py:25: PY-DOC: public class `EmscriptenHTTPConnection` has no docstring
+src/urllib3/contrib/emscripten/connection.py:85: PY-DOC: public function `request` has no docstring
+src/urllib3/contrib/emscripten/connection.py:129: PY-DOC: public function `getresponse` has no docstring
+src/urllib3/contrib/emscripten/connection.py:139: PY-DOC: public function `close` has no docstring
+src/urllib3/contrib/emscripten/connection.py:165: PY-DOC: public class `EmscriptenHTTPSConnection` has no docstring
+src/urllib3/contrib/emscripten/fetch.py:215: PY-NAME: function `onMsg` is not lowercase_with_underscores
+src/urllib3/contrib/emscripten/fetch.py:219: PY-NAME: function `onErr` is not lowercase_with_underscores
+src/urllib3/contrib/emscripten/fetch.py:449: PY-DOC: public function `send_streaming_request` has no docstring
+src/urllib3/contrib/emscripten/fetch.py:499: PY-DOC: public function `send_request` has no docstring
+src/urllib3/contrib/emscripten/fetch.py:714: PY-DOC: public function `streaming_ready` has no docstring
+src/urllib3/contrib/emscripten/fetch.py:721: PY-DOC: public function `wait_for_streaming_ready` has no docstring
+src/urllib3/contrib/emscripten/request.py:1: PY-DOC: the module has no docstring
+src/urllib3/contrib/emscripten/request.py:9: PY-DOC: public class `EmscriptenRequest` has no docstring
+src/urllib3/contrib/emscripten/request.py:18: PY-DOC: public function `set_header` has no docstring
+src/urllib3/contrib/emscripten/request.py:21: PY-DOC: public function `set_body` has no docstring
+src/urllib3/contrib/emscripten/response.py:1: PY-DOC: the module has no docstring
+src/urllib3/contrib/emscripten/response.py:23: PY-DOC: public class `EmscriptenResponse` has no docstring
+src/urllib3/contrib/emscripten/response.py:30: PY-DOC: public class `EmscriptenHttpResponseWrapper` has no docstring
+src/urllib3/contrib/emscripten/response.py:61: PY-DOC: public function `url` has no docstring
+src/urllib3/contrib/emscripten/response.py:73: PY-DOC: public function `retries` has no docstring
+src/urllib3/contrib/emscripten/response.py:140: PY-DOC: public function `read` has no docstring
+src/urllib3/contrib/emscripten/response.py:180: PY-DOC: public function `read_chunked` has no docstring
+src/urllib3/contrib/emscripten/response.py:192: PY-DOC: public function `release_conn` has no docstring
+src/urllib3/contrib/emscripten/response.py:199: PY-DOC: public function `drain_conn` has no docstring
+src/urllib3/contrib/emscripten/response.py:230: PY-DOC: public function `close` has no docstring
+src/urllib3/contrib/pyopenssl.py:310: PY-DOC: public function `recv` has no docstring
+src/urllib3/contrib/pyopenssl.py:335: PY-DOC: public function `recv_into` has no docstring
+src/urllib3/contrib/pyopenssl.py:372: PY-DOC: public function `sendall` has no docstring
+src/urllib3/contrib/pyopenssl.py:380: PY-DOC: public function `shutdown` has no docstring
+src/urllib3/contrib/pyopenssl.py:386: PY-DOC: public function `close` has no docstring
+src/urllib3/contrib/pyopenssl.py:395: PY-RET: `_real_close` has a bare `return` beside returns with a value; write `return None` where None is meant (PEP 8)
+src/urllib3/contrib/pyopenssl.py:398: PY-DOC: public function `getpeercert` has no docstring
+src/urllib3/contrib/pyopenssl.py:403: PY-DOC: public function `getpeercert` has no docstring
+src/urllib3/contrib/pyopenssl.py:405: PY-DOC: public function `getpeercert` has no docstring
+src/urllib3/contrib/pyopenssl.py:424: PY-DOC: public function `selected_alpn_protocol` has no docstring
+src/urllib3/contrib/pyopenssl.py:453: PY-DOC: public function `options` has no docstring
+src/urllib3/contrib/pyopenssl.py:462: PY-DOC: public function `verify_flags` has no docstring
+src/urllib3/contrib/pyopenssl.py:471: PY-DOC: public function `verify_mode` has no docstring
+src/urllib3/contrib/pyopenssl.py:474: PY-DOC: public function `set_default_verify_paths` has no docstring
+src/urllib3/contrib/pyopenssl.py:477: PY-DOC: public function `set_ciphers` has no docstring
+src/urllib3/contrib/pyopenssl.py:482: PY-DOC: public function `load_verify_locations` has no docstring
+src/urllib3/contrib/pyopenssl.py:499: PY-DOC: public function `load_cert_chain` has no docstring
+src/urllib3/contrib/pyopenssl.py:535: PY-DOC: public function `set_alpn_protocols` has no docstring
+src/urllib3/contrib/pyopenssl.py:539: PY-DOC: public function `wrap_socket` has no docstring
+src/urllib3/contrib/pyopenssl.py:582: PY-DOC: public function `minimum_version` has no docstring
+src/urllib3/contrib/pyopenssl.py:591: PY-DOC: public function `maximum_version` has no docstring
+src/urllib3/contrib/socks.py:75: PY-NAME: class `_TYPE_SOCKS_OPTIONS` is not CapWords
+src/urllib3/contrib/socks.py:161: PY-DOC: public class `SOCKSHTTPSConnection` has no docstring
+src/urllib3/contrib/socks.py:165: PY-DOC: public class `SOCKSHTTPConnectionPool` has no docstring
+src/urllib3/contrib/socks.py:169: PY-DOC: public class `SOCKSHTTPSConnectionPool` has no docstring
+src/urllib3/exceptions.py:1: PY-DOC: the module has no docstring
+src/urllib3/fields.py:1: PY-DOC: the module has no docstring
+src/urllib3/fields.py:68: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/filepost.py:1: PY-DOC: the module has no docstring
+src/urllib3/http2/__init__.py:1: PY-DOC: the module has no docstring
+src/urllib3/http2/__init__.py:15: PY-DOC: public function `inject_into_urllib3` has no docstring
+src/urllib3/http2/__init__.py:43: PY-DOC: public function `extract_from_urllib3` has no docstring
+src/urllib3/http2/connection.py:1: PY-DOC: the module has no docstring
+src/urllib3/http2/connection.py:85: PY-DOC: public class `HTTP2Connection` has no docstring
+src/urllib3/http2/connection.py:105: PY-DOC: public function `connect` has no docstring
+src/urllib3/http2/connection.py:144: PY-DOC: public function `putheader` has no docstring
+src/urllib3/http2/connection.py:157: PY-DOC: public function `endheaders` has no docstring
+src/urllib3/http2/connection.py:216: PY-DOC: public function `set_tunnel` has no docstring
+src/urllib3/http2/connection.py:227: PY-DOC: public function `getresponse` has no docstring
+src/urllib3/http2/connection.py:308: PY-DOC: public function `close` has no docstring
+src/urllib3/http2/connection.py:314: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/http2/connection.py:325: PY-DOC: public class `HTTP2Response` has no docstring
+src/urllib3/http2/probe.py:1: PY-DOC: the module has no docstring
+src/urllib3/poolmanager.py:1: PY-DOC: the module has no docstring
+src/urllib3/poolmanager.py:417: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/poolmanager.py:648: PY-DOC: public function `connection_from_host` has no docstring
+src/urllib3/response.py:1: PY-DOC: the module has no docstring
+src/urllib3/response.py:70: PY-DOC: public class `ContentDecoder` has no docstring
+src/urllib3/response.py:71: PY-DOC: public function `decompress` has no docstring
+src/urllib3/response.py:78: PY-DOC: public function `flush` has no docstring
+src/urllib3/response.py:82: PY-DOC: public class `DeflateDecoder` has no docstring
+src/urllib3/response.py:89: PY-DOC: public function `decompress` has no docstring
+src/urllib3/response.py:147: PY-DOC: public class `GzipDecoderState` has no docstring
+src/urllib3/response.py:153: PY-DOC: public class `GzipDecoder` has no docstring
+src/urllib3/response.py:159: PY-DOC: public function `decompress` has no docstring
+src/urllib3/response.py:221: PY-DOC: public function `flush` has no docstring
+src/urllib3/response.py:357: PY-DOC: public function `decompress` has no docstring
+src/urllib3/response.py:427: PY-DOC: public function `put` has no docstring
+src/urllib3/response.py:431: PY-DOC: public function `get` has no docstring
+src/urllib3/response.py:466: PY-DOC: public function `get_all` has no docstring
+src/urllib3/response.py:483: PY-DOC: public class `BaseHTTPResponse` has no docstring
+src/urllib3/response.py:577: PY-DOC: public function `url` has no docstring
+src/urllib3/response.py:589: PY-DOC: public function `retries` has no docstring
+src/urllib3/response.py:595: PY-DOC: public function `stream` has no docstring
+src/urllib3/response.py:600: PY-DOC: public function `read` has no docstring
+src/urllib3/response.py:608: PY-DOC: public function `read1` has no docstring
+src/urllib3/response.py:615: PY-DOC: public function `read_chunked` has no docstring
+src/urllib3/response.py:622: PY-DOC: public function `release_conn` has no docstring
+src/urllib3/response.py:625: PY-DOC: public function `drain_conn` has no docstring
+src/urllib3/response.py:628: PY-DOC: public function `shutdown` has no docstring
+src/urllib3/response.py:631: PY-DOC: public function `close` has no docstring
+src/urllib3/response.py:705: PY-DOC: public function `readinto` has no docstring
+src/urllib3/response.py:826: PY-DOC: public function `release_conn` has no docstring
+src/urllib3/response.py:842: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/response.py:1325: PY-DOC: public function `shutdown` has no docstring
+src/urllib3/response.py:1334: PY-DOC: public function `close` has no docstring
+src/urllib3/response.py:1359: PY-DOC: public function `fileno` has no docstring
+src/urllib3/response.py:1370: PY-DOC: public function `flush` has no docstring
+src/urllib3/response.py:1476: PY-RET: `read_chunked` has a bare `return` beside returns with a value; write `return None` where None is meant (PEP 8)
+src/urllib3/response.py:1536: PY-DOC: public function `url` has no docstring
+src/urllib3/util/__init__.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/connection.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/connection.py:129: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/util/proxy.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/request.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/request.py:28: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/util/request.py:38: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/util/request.py:44: PY-NAME: class `_TYPE_FAILEDTELL` is not CapWords
+src/urllib3/util/request.py:228: PY-DOC: public class `ChunksAndContentLength` has no docstring
+src/urllib3/util/response.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/response.py:21: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/util/response.py:27: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/util/response.py:34: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/urllib3/util/retry.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/retry.py:36: PY-DOC: public class `RequestHistory` has no docstring
+src/urllib3/util/retry.py:281: PY-DOC: public function `new` has no docstring
+src/urllib3/util/retry.py:346: PY-DOC: public function `parse_retry_after` has no docstring
+src/urllib3/util/retry.py:380: PY-DOC: public function `sleep_for_retry` has no docstring
+src/urllib3/util/ssl_.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/ssl_.py:47: PY-NAME: class `_TYPE_PEER_CERT_RET_DICT` is not CapWords
+src/urllib3/util/ssl_.py:332: PY-DOC: public function `ssl_wrap_socket` has no docstring
+src/urllib3/util/ssl_.py:350: PY-DOC: public function `ssl_wrap_socket` has no docstring
+src/urllib3/util/ssl_match_hostname.py:20: PY-DOC: public class `CertificateError` has no docstring
+src/urllib3/util/ssltransport.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/ssltransport.py:84: PY-DOC: public function `recv` has no docstring
+src/urllib3/util/ssltransport.py:89: PY-DOC: public function `recv_into` has no docstring
+src/urllib3/util/ssltransport.py:101: PY-DOC: public function `sendall` has no docstring
+src/urllib3/util/ssltransport.py:111: PY-DOC: public function `send` has no docstring
+src/urllib3/util/ssltransport.py:168: PY-DOC: public function `unwrap` has no docstring
+src/urllib3/util/ssltransport.py:171: PY-DOC: public function `close` has no docstring
+src/urllib3/util/ssltransport.py:175: PY-DOC: public function `getpeercert` has no docstring
+src/urllib3/util/ssltransport.py:180: PY-DOC: public function `getpeercert` has no docstring
+src/urllib3/util/ssltransport.py:200: PY-DOC: public function `settimeout` has no docstring
+src/urllib3/util/timeout.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/timeout.py:14: PY-NAME: class `_TYPE_DEFAULT` is not CapWords
+src/urllib3/util/url.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/util.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/util.py:7: PY-DOC: public function `to_bytes` has no docstring
+src/urllib3/util/util.py:19: PY-DOC: public function `to_str` has no docstring
+src/urllib3/util/util.py:31: PY-DOC: public function `reraise` has no docstring
+src/urllib3/util/wait.py:1: PY-DOC: the module has no docstring
+src/urllib3/util/wait.py:33: PY-DOC: public function `select_wait_for_socket` has no docstring
+src/urllib3/util/wait.py:57: PY-DOC: public function `poll_wait_for_socket` has no docstring
+src/urllib3/util/wait.py:95: PY-DOC: public function `wait_for_socket` has no docstring
+test/__init__.py:1: PY-DOC: the module has no docstring
+test/__init__.py:97: PY-DOC: public function `clear_warnings` has no docstring
+test/__init__.py:106: PY-DOC: public function `setUp` has no docstring
+test/__init__.py:106: PY-NAME: function `setUp` is not lowercase_with_underscores
+test/__init__.py:111: PY-NAME: function `notWindows` is not lowercase_with_underscores
+test/__init__.py:119: PY-NAME: function `onlyBrotli` is not lowercase_with_underscores
+test/__init__.py:125: PY-NAME: function `notBrotli` is not lowercase_with_underscores
+test/__init__.py:131: PY-NAME: function `onlyZstd` is not lowercase_with_underscores
+test/__init__.py:138: PY-NAME: function `notZstd` is not lowercase_with_underscores
+test/__init__.py:197: PY-NAME: function `resolvesLocalhostFQDN` is not lowercase_with_underscores
+test/__init__.py:205: PY-DOC: public function `withPyOpenSSL` has no docstring
+test/__init__.py:205: PY-NAME: function `withPyOpenSSL` is not lowercase_with_underscores
+test/__init__.py:229: PY-DOC: public class `LogRecorder` has no docstring
+test/__init__.py:239: PY-DOC: public function `install` has no docstring
+test/__init__.py:242: PY-DOC: public function `uninstall` has no docstring
+test/__init__.py:259: PY-DOC: public class `ImportBlockerLoader` has no docstring
+test/__init__.py:263: PY-DOC: public function `load_module` has no docstring
+test/__init__.py:266: PY-DOC: public function `exec_module` has no docstring
+test/__init__.py:281: PY-DOC: public function `find_module` has no docstring
+test/__init__.py:288: PY-DOC: public function `find_spec` has no docstring
+test/__init__.py:316: PY-DOC: public function `stash` has no docstring
+test/__init__.py:324: PY-DOC: public function `pop` has no docstring
+test/conftest.py:337: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/contrib/test_pyopenssl.py:13: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/contrib/test_pyopenssl.py:31: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/contrib/test_pyopenssl_dependencies.py:9: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/contrib/test_pyopenssl_dependencies.py:27: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/port_helpers.py:1: PY-DOC: the module has no docstring
+test/port_helpers.py:107: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/test_connectionpool.py:603: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/test_wait.py:77: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/test_wait.py:117: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/tz_stub.py:1: PY-DOC: the module has no docstring
+test/with_dummyserver/__init__.py:1: PY-DOC: the module has no docstring
+test/with_dummyserver/test_proxy_poolmanager.py:1125: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/with_dummyserver/test_socketlevel.py:190: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/with_dummyserver/test_socketlevel.py:215: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/with_dummyserver/test_socketlevel.py:397: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/with_dummyserver/test_socketlevel.py:1085: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/with_dummyserver/test_socketlevel.py:1118: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/with_dummyserver/test_socketlevel.py:1813: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+test/with_dummyserver/test_socketlevel.py:1825: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+
+[stderr]
+burnish check: 276 finding(s) (PY-DOC 225, PY-NAME 14, PY-RET 2, PY-SWALLOW 34, PY-TYPE 1)
