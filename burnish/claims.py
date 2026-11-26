@@ -334,7 +334,10 @@ def absolutes_at(readme_text: str) -> list[tuple[str, int]]:
     text, lines = _prose_and_lines(readme_text)
     out: list[tuple[str, int]] = []
     for phrase in _ABSOLUTES:
-        pattern = re.compile(r"\b" + r"[\s-]+".join(map(re.escape, phrase.split())) + r"\b", re.I)
+        words = r"[\s-]+".join(map(re.escape, phrase.split()))
+        if phrase == "100% coverage":   # "100% test coverage", "100% line coverage" claim the same
+            words = r"100%[\s-]+(?:(?:test|code|line|branch|statement)[\s-]+)?coverage"
+        pattern = re.compile(r"\b" + words + r"\b", re.I)
         for match in pattern.finditer(text):
             lead = _clause(_sentence(text, match.start()))
             negation = _NEGATION.search(text[max(0, match.start() - 40):match.start()])

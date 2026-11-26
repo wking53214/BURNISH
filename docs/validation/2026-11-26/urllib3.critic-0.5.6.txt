@@ -1,0 +1,33 @@
+$ burnish critic <urllib3/urllib3 at 3db5970fcc56> (after the 0.5.6 fixes)
+exit 4
+
+# Claims critic: urllib3
+
+Outcome: INCOMPLETE
+
+Not finished: some claims could not be checked in this run, and nothing found contradicts them. This is not a pass.
+
+## Claims vs reality
+- (unknown, UNSUPPORTED) 100% test coverage
+  - Claim: "100% test coverage" (README.md line 30)
+  - Evidence: none was read or handed in
+  - Method: Matched the README prose against a fixed list of absolute phrases (fully verified, production ready, battle tested, 100% coverage, no known bugs), leaving out denials, goals and figures scoped to a part.
+  - Evidence is: none (no evidence could be had in this run)
+  - Not inspected: anything that could back an absolute: no coverage report, bug tracker or release record is read
+  - Reason: claim not backed by any measurement in this run
+
+## What is beautiful
+- (nothing recorded)
+
+## What is still ugly
+- The README reads as a product brochure (README.md line 19: the brochure word "powerful"). It does not say what is still ugly. This is a matter of style (the README critic's RM-LIMITS) and does not change the outcome.
+
+## What is unfinished
+- No module states WHAT IT OWNS in the first screen of prose.
+
+## Unsupported
+- '100% test coverage': claim not backed by any measurement in this run
+
+## UNKNOWN
+- No measurements were handed to the critic: the suite result and Ghost's findings are UNKNOWN here.
+

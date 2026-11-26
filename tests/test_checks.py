@@ -98,3 +98,19 @@ def test_check_tree_walks_files_and_skips_vendored_directories(tmp_path: Path):
     (tmp_path / "venv" / "b.py").write_text("from os import *\n", encoding="utf-8")
     findings = check_tree(tmp_path)
     assert {f.path for f in findings} == {"a.py"}
+
+
+def test_an_overload_stub_needs_no_docstring_and_the_function_it_types_still_does():
+    """Found in the outside run (docs/VALIDATION.md): requests and urllib3 type their functions with `@overload` stubs."""
+    source = ('"""m."""\nimport typing\nfrom typing import overload\n\n\n@overload\ndef f(x: int) -> int: ...\n'
+              '@typing.overload\ndef f(x: str) -> str: ...\ndef f(x: object) -> object:\n    y = x\n    return y\n')
+    docs = [f for f in check_source(source, "m.py") if f.check == "PY-DOC"]
+    assert [f.line for f in docs] == [10]
+
+
+def test_a_capwords_function_a_class_decorator_turns_into_an_object_keeps_its_name():
+    """`@_SpecialForm def Self(...)` makes Self a special form used as a type; PEP 8 asks names to reflect usage."""
+    source = ('"""m."""\n\n\nclass _SpecialForm:\n    """A form."""\n\n\n@_SpecialForm\ndef Self(self, p):\n    """Self."""\n\n\n'
+              '@staticmethod\ndef BadName(x):\n    """Bad."""\n\n\ndef AlsoBad(x):\n    """Bad."""\n')
+    names = {f.message for f in check_source(source, "m.py") if f.check == "PY-NAME"}
+    assert names == {"function `BadName` is not lowercase_with_underscores", "function `AlsoBad` is not lowercase_with_underscores"}

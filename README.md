@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.5, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.6, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.5 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.6 (set 2026-11-26)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
@@ -357,9 +357,7 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 
 ## Known defects (open)
 
-- **The critic misses a coverage absolute with a word inside it.** It matches the five absolutes only as written, so "100% test coverage" is not read. Found in the outside run; planted as `tests/planted/hard-12-coverage-with-a-word-inside.txt` and held as a recorded miss by `tests/test_planted.py::test_the_critic_scores_as_the_key_records`.
-- **`check` asks for docstrings on `@overload` stubs.** A function marked `@overload` is a type signature with no body and by convention no docstring, and PY-DOC reports it anyway: 20 of the findings in the outside run. No test holds this yet.
-- **`check` asks for lower-case names a library cannot change.** Public names that must match another standard, such as the `typing` module's `TypedDict`, are reported by PY-NAME: all 17 PY-NAME findings in typing_extensions in the outside run. No test holds this yet.
+- **`check` still flags some names a library cannot change.** Since 0.5.6 a CapWords function that a class-named decorator turns into an object (`@_SpecialForm def Self`) keeps its name. A CapWords factory function with no such decorator (`NamedTuple`, `IntVar`) and a lower-case class used as a callable (`deprecated`, `sentinel`) are still reported by PY-NAME: 4 findings in typing_extensions in the outside run. PEP 8 allows both. No test holds this yet.
 - **The test-count check misses wordy counts.** It reads digits (with a comma, dot, space, apostrophe or underscore between thousands), a number of thousands such as "1k", and number words from two to 999 ("twelve", "twenty-one", "two hundred"). It does not read "about a thousand tests pass", "a couple of hundred tests pass", "1.5 million tests pass" or a number worded above 999, and none of those is misread as a smaller count (`tests/test_count_forms.py::test_wordier_counts_are_still_missed_and_never_misread_as_a_smaller_number`). `tests/test_readme_ledger.py::test_the_worded_test_count_gap_is_still_open` holds this sentence to the code: it fails the day the gap closes, so this line must then be removed.
 - **Python files that start with a byte order mark are skipped, not tidied.** Warden's own syntax check cannot read them, so the file is left alone and a note says so (`tests/test_stable_and_careful.py::test_a_python_file_with_a_bom_is_left_alone`).
 - **A README that ends inside an unclosed code block is left alone,** so it gets no generated section (`tests/test_stable_and_careful.py::test_a_readme_that_ends_inside_a_code_fence_is_left_alone`).
@@ -374,6 +372,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.6** (2026-11-26)
+- *Three kinds of wrong finding from the outside run.* `check` asked for a docstring on `@overload` stubs, which by convention have none (20 findings); it called CapWords functions that a class-named decorator turns into a typing special form badly named (13 of the 17 PY-NAME findings in typing_extensions); and the critic did not read "100% test coverage" as the "100% coverage" absolute. Found by the outside validation (0.5.4, `docs/VALIDATION.md`). Now the stubs are skipped, those names are kept as PEP 8's "reflect usage" rule asks, and "100% coverage" may have test, code, line, branch or statement in the middle. Re-run on the same five: 474 `check` findings became 441, and urllib3 ends INCOMPLETE because its coverage claim is now read and nothing this run reads backs it. Four PY-NAME findings remain, under Known defects. Guard: `tests/test_checks.py::test_an_overload_stub_needs_no_docstring_and_the_function_it_types_still_does`, `tests/test_checks.py::test_a_capwords_function_a_class_decorator_turns_into_an_object_keeps_its_name` and `tests/test_planted.py::test_the_critic_scores_as_the_key_records` (`tests/planted/hard-12-coverage-with-a-word-inside.txt`, no longer a recorded miss).
 
 **0.5.5** (2026-11-26)
 - *A critic FAIL on an outside repository usually meant house style, not a false claim.* A README with a brochure word, or a pip install line and no "does not" anywhere, made the claims critic FAIL. In the first outside run that was the only cause of all three FAILs, and a reader of the outcome would take FAIL to mean something is false. Found by the outside validation (0.5.4, `docs/VALIDATION.md`). The owner chose to take the rule out of the outcome: it is now a note under "What is still ugly" that names the word and line and points to the README critic's RM-LIMITS, which judges the same thing. A FAIL now means evidence contradicts a claim or the tree breaks a rule. Re-run on the same five at the same commits, all five end PASS. Guard: `tests/test_outcome.py::test_a_brochure_readme_with_nothing_contradicted_passes_and_names_the_style_note`, `tests/test_provenance.py::test_a_brochure_readme_points_at_the_word_that_made_it_one` and `tests/test_planted.py::test_the_critic_scores_as_the_key_records` (the trap `tests/planted/trap-13-brochure-readme.txt`).

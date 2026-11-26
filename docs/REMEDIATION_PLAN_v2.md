@@ -1,6 +1,6 @@
 # BURNISH Remediation Plan v2
 
-**As of:** Nov 26, 2026, BURNISH 0.5.5.
+**As of:** Nov 26, 2026, BURNISH 0.5.6.
 **Replaces:** v1 (a draft of Nov 26, 2026, written at 0.4.0 and never saved), which replaced the outside 45-item "9.0+"
 plan that was checked against the code on Nov 25, 2026.
 
@@ -44,6 +44,7 @@ plan that was checked against the code on Nov 25, 2026.
 | 14 | Optional link checking over the network | ⚪ | Off by default. Useful but not urgent |
 | 15 | Label README rules as mechanical, structural or human judgment | ⚪ | Mostly a documentation change |
 | 49 | **New:** the brochure rule made the critic FAIL outside repos | ✅ 0.5.5 | Found by the outside run (item 32). Owner's choice: a style note, not part of the outcome; a FAIL now means a claim is contradicted or a rule of the tree is broken |
+| 50 | **New:** wrong findings from the outside run (`@overload` stubs, names a decorator fixes, "100% test coverage") | ✅ 0.5.6 | Owner's choice: fixed before items 16 to 18. Four PY-NAME findings remain, listed under Known defects |
 
 ## Campaign C: CNS analysis and the Warden boundary
 

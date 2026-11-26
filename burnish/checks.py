@@ -184,7 +184,7 @@ def _docstrings(tree: ast.Module, path: str) -> Iterator[Finding]:
     if ast.get_docstring(tree) is None and tree.body:
         yield Finding("PY-DOC", path, 1, "the module has no docstring")
     for node in _public_definitions(tree):
-        if ast.get_docstring(node) is None and not _is_trivial_member(node):
+        if ast.get_docstring(node) is None and not _is_trivial_member(node) and not _is_overload(node):
             kind = "class" if isinstance(node, ast.ClassDef) else "function"
             yield Finding("PY-DOC", path, node.lineno, f"public {kind} `{node.name}` has no docstring")
 
@@ -201,6 +201,30 @@ def _public_definitions(tree: ast.Module) -> Iterator[ast.ClassDef | ast.Functio
                     yield member
 
 
+def _decorator_name(decorator: ast.expr) -> str:
+    """The last name in a decorator: `overload` for `@overload`, `@typing.overload` and `@overload()`."""
+    if isinstance(decorator, ast.Call):
+        decorator = decorator.func
+    if isinstance(decorator, ast.Attribute):
+        return decorator.attr
+    return decorator.id if isinstance(decorator, ast.Name) else ""
+
+
+def _is_overload(node: ast.AST) -> bool:
+    """A typing `@overload` stub: a signature for type checkers, which by convention carries no docstring."""
+    return isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and any(
+        _decorator_name(d) == "overload" for d in node.decorator_list)
+
+
+def _replaced_by_an_object(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
+    """True when a decorator named like a class turns the function into an object of that class.
+
+    PEP 8 asks public names to reflect usage rather than implementation: `@_SpecialForm def Self(...)` makes `Self` a
+    special form used as a type, so its CapWords name is right.
+    """
+    return any(_CAPWORDS.match(_decorator_name(d).lstrip("_") or "x") for d in node.decorator_list)
+
+
 def _is_trivial_member(node: ast.AST) -> bool:
     """A property, or a body of one short line, says everything its name does."""
     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -212,7 +236,8 @@ def _is_trivial_member(node: ast.AST) -> bool:
 
 def _names(tree: ast.AST, path: str) -> Iterator[Finding]:
     for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not _SNAKE.match(node.name):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not _SNAKE.match(node.name) \
+                and not _replaced_by_an_object(node):
             yield Finding("PY-NAME", path, node.lineno, f"function `{node.name}` is not lowercase_with_underscores")
         elif isinstance(node, ast.ClassDef) and not _CAPWORDS.match(node.name):
             yield Finding("PY-NAME", path, node.lineno, f"class `{node.name}` is not CapWords")
