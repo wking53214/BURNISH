@@ -456,10 +456,16 @@ def _check_cns(nar: Narrative, readme: _Readme, notes: _Notes) -> None:
 
 
 def _check_metadata(nar: Narrative, notes: _Notes) -> None:
-    """A pyproject.toml that is there and cannot be read: listed as UNKNOWN, and as a row a reviewer can open."""
+    """A pyproject.toml that is there and cannot be read: listed as UNKNOWN, and as a row a reviewer can open.
+
+    It makes the outcome INCOMPLETE even when the README makes no pin or dependency claim: the tree's own metadata was not
+    read, so this run cannot say the tree is consistent. Nothing is contradicted, so it is not a FAIL.
+    """
     said = (f"{nar.metadata_problem}: the name, version and description were read line by line and may be wrong or "
             "incomplete, and no pin or dependency was checked.")
     notes.unknown.append(said)
+    notes.unsupported.append(f"{nar.metadata_problem}, so the tree's metadata could not be checked; fix it and run the "
+                             "critic again.")
     _, line = pyproject_problem_at(Path(nar.root))
     _row(notes, "metadata", "pyproject.toml can be read", "pyproject.toml", EpistemicState.UNKNOWN, False, "unchecked",
          Provenance(claim="pyproject.toml can be read as TOML", claim_at=Source("pyproject.toml"),
@@ -468,7 +474,7 @@ def _check_metadata(nar: Narrative, notes: _Notes) -> None:
                     not_inspected=("every pin and dependency pyproject.toml declares",
                                    "the name, version and description as TOML would give them: they were read line by "
                                    "line instead"),
-                    reason=said))
+                    reason=said + " With metadata that could not be read, the critic ends INCOMPLETE, never PASS."))
 
 
 def _check_parse_failures(nar: Narrative, notes: _Notes) -> list[str]:
