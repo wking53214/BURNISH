@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.4.1, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.4.2, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.4.1 (set 2026-11-25)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.4.2 (set 2026-11-25)
 ```
 
 This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
@@ -181,7 +181,9 @@ Three kinds of sentence are checked against the tree, not just against the READM
   needed is reported as not confirmed. A claim said twice in two phrasings is reported once.
 - **A broken `pyproject.toml`.** One that is there but is not valid TOML (or not UTF-8) backs nothing. A pin or dependency
   claim is reported once per kind as not checked and counts as unsupported, the critic lists the problem under UNKNOWN,
-  and `inspect` gives it as `metadata_problem`, because the name and version it shows were then read line by line.
+  and `inspect` gives it as `metadata_problem`, because the name and version it shows were then read line by line. The
+  critic ends INCOMPLETE on such a tree even when the README makes no pin or dependency claim, and FAIL only if
+  something else is contradicted.
 - **A test count.** Burnish counts no tests, so a number the README gives for its suite is reported as unverifiable
   unless a count is supplied: `--collected N` takes the total from `pytest --collect-only -q`, and when the
   finisher runs under Warden the measured suite is used instead. A count that cannot be true is reported either way.
@@ -359,6 +361,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.4.2** (2026-11-25)
+- *A broken `pyproject.toml` could still end PASS.* When the README made no pin or dependency claim, a `pyproject.toml` that is not valid TOML was only listed under UNKNOWN and the critic ended PASS with exit 0, though the tree's own metadata was never read. Found while testing the 0.4.1 provenance rows; the owner chose INCOMPLETE over FAIL, since nothing is contradicted. Now it ends INCOMPLETE (exit 4). Guard: `tests/test_evidence_gaps.py::test_a_broken_pyproject_with_no_claims_is_incomplete_not_a_pass` and `tests/test_evidence_gaps.py::test_a_broken_pyproject_beside_a_contradiction_is_still_a_fail`.
 
 **0.4.1** (2026-11-25)
 - *A finding did not say where it came from.* The critic's report gave a verdict and a sentence, but not the line of the README that made the claim, the line of `pyproject.toml` or the import it was judged against, the method, or what it did not read, so a reviewer had to trust Burnish's reading. A file that did not parse and a `pyproject.toml` that could not be read were not rows at all. Found by item 10 of an outside remediation plan. Now every row carries its provenance and the report prints it. Guard: `tests/test_provenance.py::test_a_pin_finding_names_the_readme_line_and_the_pyproject_line`, `tests/test_provenance.py::test_an_undeclared_import_is_inferred_and_points_at_the_import`, `tests/test_provenance.py::test_a_count_judged_against_warden_names_the_suite_result_as_its_evidence`, `tests/test_provenance.py::test_a_broken_pyproject_names_the_line_the_parser_stopped_at`, `tests/test_provenance.py::test_a_parse_failure_names_the_file_and_the_line_the_parser_stopped_at` and `tests/test_provenance.py::test_a_line_number_is_the_files_own_after_a_generated_block_and_crlf_line_ends`.

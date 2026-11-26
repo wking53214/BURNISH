@@ -12,6 +12,14 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-11-25, not tagged
+
+### Changed
+
+- `burnish critic` ends INCOMPLETE (exit 4), not PASS (exit 0), on a tree whose `pyproject.toml` is there but cannot be
+  read, even when the README makes no pin or dependency claim. The problem is listed under Unsupported as well as
+  UNKNOWN. A tree with that and a contradiction still ends FAIL.
+
 ## [0.4.1] - 2026-11-25, not tagged
 
 ### Added
@@ -523,7 +531,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/6bfb0ba951272740333e2dedb118acaa53a13534...6bfb0ba951272740333e2dedb118acaa53a13534
+[Unreleased]: https://github.com/wking53214/Burnish/compare/105adf7fd6706a6c5ca1f54f33c2e8bd83664596...105adf7fd6706a6c5ca1f54f33c2e8bd83664596
+[0.4.2]: https://github.com/wking53214/Burnish/compare/105adf7fd6706a6c5ca1f54f33c2e8bd83664596...105adf7fd6706a6c5ca1f54f33c2e8bd83664596
 [0.4.1]: https://github.com/wking53214/Burnish/compare/30b1056e7075ef7cd59eb2911ec92becdf69f43e...6bfb0ba951272740333e2dedb118acaa53a13534
 [0.4.0]: https://github.com/wking53214/Burnish/compare/22783b5e2bfa834a6be55f6483865b969cac25e8...265af439334870b9b91d45e7da2996dfe5b386e2
 [0.3.29]: https://github.com/wking53214/Burnish/compare/5ca7e2c44ce9dab0058ca94a36ca2b9f2c57c1a3...206c1141ab01907c9d1d577ae8a06bb8a0a60f32
