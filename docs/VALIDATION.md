@@ -53,6 +53,14 @@ the README critic's RM-LIMITS judges the same thing. The critic was run again on
 five end PASS. The outputs are beside the first ones, as `<repository>.critic-0.5.5.txt`. urllib3's PASS still rests on
 the missed "100% test coverage" above.
 
+**Follow-up (0.5.6).** The three wrong patterns this run found were fixed: `@overload` stubs no longer need a
+docstring, a CapWords function that a class-named decorator turns into an object keeps its name, and "100% test coverage"
+is read. Run again on the same five at the same commits (`<repository>.check-0.5.6.txt`, `<repository>.critic-0.5.6.txt`):
+474 `check` findings became 441 (typing_extensions 47 to 34, urllib3 276 to 268, requests 48 to 36, the other two
+unchanged), and urllib3 now ends INCOMPLETE, because its "100% test coverage" is read and nothing the critic reads backs
+it. The other four end PASS. Four PY-NAME findings in typing_extensions remain (`NamedTuple`, `IntVar`, `deprecated`,
+`sentinel`).
+
 ### `burnish check`
 
 474 findings in all. The reviewer drew a seeded random sample of 20, four per repository, and read the code at each one

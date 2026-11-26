@@ -1,0 +1,23 @@
+$ burnish check <kjd/idna at d35772508224> (after the 0.5.6 fixes)
+exit 1
+
+idna/__init__.py:1: PY-DOC: the module has no docstring
+idna/__main__.py:1: PY-DOC: the module has no docstring
+idna/codec.py:1: PY-DOC: the module has no docstring
+idna/codec.py:20: PY-DOC: public function `encode` has no docstring
+idna/codec.py:29: PY-DOC: public function `decode` has no docstring
+idna/codec.py:61: PY-DOC: public function `reset` has no docstring
+idna/codec.py:66: PY-DOC: public function `getstate` has no docstring
+idna/codec.py:71: PY-DOC: public function `setstate` has no docstring
+idna/codec.py:137: PY-DOC: public function `reset` has no docstring
+idna/codec.py:144: PY-DOC: public function `setstate` has no docstring
+idna/codec.py:193: PY-DOC: public class `StreamWriter` has no docstring
+idna/codec.py:197: PY-DOC: public class `StreamReader` has no docstring
+idna/compat.py:1: PY-DOC: the module has no docstring
+idna/compat.py:8: PY-NAME: function `ToASCII` is not lowercase_with_underscores
+idna/compat.py:21: PY-NAME: function `ToUnicode` is not lowercase_with_underscores
+idna/core.py:1: PY-DOC: the module has no docstring
+idna/core.py:543: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+idna/idnadata.py:1: PY-DOC: the module has no docstring
+idna/package_data.py:1: PY-DOC: the module has no docstring
+idna/uts46data.py:1: PY-DOC: the module has no docstring

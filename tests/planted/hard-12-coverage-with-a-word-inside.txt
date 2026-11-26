@@ -1,7 +1,7 @@
 about: A coverage absolute with a word inside it, found in the outside run.
 group: hard
 suite: passed=12
-defect: README.md:8 absolute missed
+defect: README.md:8 absolute
 
 === file: README.md
 # demo

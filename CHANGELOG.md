@@ -12,6 +12,24 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.6] - 2026-11-26, not tagged
+
+### Fixed
+
+- `check` no longer asks for a docstring on an `@overload` stub (`@overload`, `@typing.overload`): it is a signature for
+  type checkers and by convention has none. Found in the outside run: 20 findings in requests and urllib3.
+- `check` no longer reports a CapWords function that a decorator named like a class turns into an object, such as
+  `@_SpecialForm def Self`: PEP 8 asks public names to reflect usage. Found in the outside run: 13 of the 17 PY-NAME
+  findings in typing_extensions.
+- The critic reads "100% test coverage", and the same with code, line, branch or statement in the middle, as the
+  "100% coverage" absolute. Found in the outside run (urllib3).
+
+### Changed
+
+- The outside run's five repositories were checked again with these fixes; the outputs are in
+  `docs/validation/2026-11-26/` as `<repository>.check-0.5.6.txt` and `<repository>.critic-0.5.6.txt`.
+- `tests/planted/hard-12-coverage-with-a-word-inside.txt` is no longer a recorded miss.
+
 ## [0.5.5] - 2026-11-26, not tagged
 
 ### Changed
@@ -654,7 +672,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/3a3b17cc251e54177e37cd2c2dcc0d7248708da0...3a3b17cc251e54177e37cd2c2dcc0d7248708da0
+[Unreleased]: https://github.com/wking53214/Burnish/compare/1837689d02a18975b43cdcfd2d5143bf0d925f2f...1837689d02a18975b43cdcfd2d5143bf0d925f2f
+[0.5.6]: https://github.com/wking53214/Burnish/compare/88e74c1e1da80bd6e685b84379e3d90b8500f1fa...1837689d02a18975b43cdcfd2d5143bf0d925f2f
 [0.5.5]: https://github.com/wking53214/Burnish/compare/af21c03d4f75f3742d4ab6502242ef16a873831d...3a3b17cc251e54177e37cd2c2dcc0d7248708da0
 [0.5.4]: https://github.com/wking53214/Burnish/compare/3f289c84e2e84632ab525ca8e4f232e1509b6d92...a7b0cdc107cb2e53ea0e95ddb89f22f2ebe123a2
 [0.5.3]: https://github.com/wking53214/Burnish/compare/472e18c26059d0fe3efe3c92cf3015cd2d0810d0...83b2ae6beac4c89d1d363da4a26d35296a47eb8f

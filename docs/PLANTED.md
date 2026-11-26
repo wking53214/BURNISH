@@ -50,8 +50,8 @@ The test checks that this table matches the key.
 |---|---|---|---|---|
 | catch | 10 | 12 | 0 | 0 |
 | trap | 13 | 0 | 0 | 0 |
-| hard | 12 | 15 | 1 | 0 |
-| total | 35 | 27 | 1 | 0 |
+| hard | 12 | 16 | 0 | 0 |
+| total | 35 | 28 | 0 | 0 |
 
 ## History
 
@@ -67,6 +67,8 @@ The test checks that this table matches the key.
   absolute with a word inside it, which the critic misses. Recorded as a miss.
 - **0.5.5:** one trap added: a promotional README with an install line and no admitted limits. The brochure rule no
   longer makes the critic FAIL (the owner's choice), and the trap holds that it raises no flag.
+- **0.5.6:** "100% test coverage" is now read (the critic accepts test, code, line, branch or statement between
+  "100%" and "coverage"), so the miss from the outside run is caught.
 
 A score here does not mean the critic reads every README right. Every sentence in the collection was written by this
 project, and the two newest traps were written after the reader was changed.

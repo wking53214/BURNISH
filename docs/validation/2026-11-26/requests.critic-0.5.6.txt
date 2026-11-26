@@ -1,0 +1,23 @@
+$ burnish critic <psf/requests at 3c7baaa05ab4> (after the 0.5.6 fixes)
+exit 0
+
+# Claims critic: requests
+
+Outcome: PASS
+
+The artifact's story is consistent with what this inspection could count. That is not a proof of the whole architecture.
+
+## Claims vs reality
+
+## What is beautiful
+- (nothing recorded)
+
+## What is still ugly
+- The README reads as a product brochure (README.md line 35: a pip install line, and no "does not" anywhere). It does not say what is still ugly. This is a matter of style (the README critic's RM-LIMITS) and does not change the outcome.
+
+## What is unfinished
+- No module states WHAT IT OWNS in the first screen of prose.
+
+## UNKNOWN
+- No measurements were handed to the critic: the suite result and Ghost's findings are UNKNOWN here.
+

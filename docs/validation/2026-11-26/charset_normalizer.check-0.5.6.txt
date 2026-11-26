@@ -1,0 +1,86 @@
+$ burnish check <jawah/charset_normalizer at 0b45fe26ec06> (after the 0.5.6 fixes)
+exit 1
+
+_build_hook/backend.py:1: PY-DOC: the module has no docstring
+_build_hook/pgo.py:112: PY-DOC: public class `PGOBuildExt` has no docstring
+_build_hook/pgo.py:117: PY-DOC: public function `build_extensions` has no docstring
+bin/bc.py:1: PY-DOC: the module has no docstring
+bin/bc.py:14: PY-DOC: public function `calc_equivalence` has no docstring
+bin/bc.py:14: PY-TYPE: `calc_equivalence` has no annotation for: return
+bin/bc.py:27: PY-DOC: public function `cli_bc` has no docstring
+bin/bc.py:27: PY-TYPE: `cli_bc` has no annotation for: return
+bin/coverage.py:1: PY-DOC: the module has no docstring
+bin/coverage.py:17: PY-DOC: public function `calc_equivalence` has no docstring
+bin/coverage.py:17: PY-TYPE: `calc_equivalence` has no annotation for: return
+bin/coverage.py:27: PY-DOC: public function `normalize_encoding` has no docstring
+bin/coverage.py:34: PY-DOC: public function `evaluate_result` has no docstring
+bin/coverage.py:70: PY-DOC: public function `cli_coverage` has no docstring
+bin/coverage.py:70: PY-TYPE: `cli_coverage` has no annotation for: return
+bin/merge_macos_wheels.py:14: PY-DOC: public function `slices` has no docstring
+bin/merge_macos_wheels.py:28: PY-DOC: public function `main` has no docstring
+bin/performance.py:1: PY-DOC: the module has no docstring
+bin/performance.py:16: PY-DOC: public function `calc_percentile` has no docstring
+bin/performance.py:16: PY-TYPE: `calc_percentile` has no annotation for: data, percentile, return
+bin/performance.py:24: PY-DOC: public function `performance_compare` has no docstring
+bin/performance.py:24: PY-TYPE: `performance_compare` has no annotation for: arguments, return
+bin/train_pgo.py:11: PY-DOC: public function `train` has no docstring
+docs/conf.py:1: PY-DOC: the module has no docstring
+noxfile.py:1: PY-DOC: the module has no docstring
+noxfile.py:9: PY-DOC: public function `test_impl` has no docstring
+noxfile.py:57: PY-DOC: public function `test` has no docstring
+noxfile.py:75: PY-DOC: public function `test_cython` has no docstring
+noxfile.py:98: PY-DOC: public function `backward_compatibility` has no docstring
+noxfile.py:115: PY-DOC: public function `coverage` has no docstring
+noxfile.py:143: PY-DOC: public function `performance` has no docstring
+noxfile.py:163: PY-DOC: public function `downstream_niquests` has no docstring
+noxfile.py:196: PY-DOC: public function `downstream_requests` has no docstring
+noxfile.py:234: PY-DOC: public function `lint` has no docstring
+noxfile.py:240: PY-DOC: public function `docs` has no docstring
+setup.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/__main__.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/api.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/cd.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/cli/__init__.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/cli/__main__.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/constant.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/constant.py:731: PY-DOC: public class `CompatibleFamillyRange` has no docstring
+src/charset_normalizer/legacy.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/md.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/md.py:313: PY-DOC: public class `TooManySymbolOrPunctuationPlugin` has no docstring
+src/charset_normalizer/md.py:340: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:357: PY-DOC: public class `TooManyAccentuatedPlugin` has no docstring
+src/charset_normalizer/md.py:371: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:384: PY-DOC: public class `UnprintablePlugin` has no docstring
+src/charset_normalizer/md.py:406: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:421: PY-DOC: public class `SuspiciousDuplicateAccentPlugin` has no docstring
+src/charset_normalizer/md.py:451: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:465: PY-DOC: public class `SuspiciousRange` has no docstring
+src/charset_normalizer/md.py:504: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:522: PY-DOC: public class `SuperWeirdWordPlugin` has no docstring
+src/charset_normalizer/md.py:669: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:719: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:765: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:783: PY-DOC: public class `ArchaicUpperLowerPlugin` has no docstring
+src/charset_normalizer/md.py:852: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/md.py:870: PY-DOC: public class `ArabicIsolatedFormPlugin` has no docstring
+src/charset_normalizer/md.py:877: PY-DOC: public function `reset` has no docstring
+src/charset_normalizer/models.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/models.py:11: PY-DOC: public class `CharsetMatch` has no docstring
+src/charset_normalizer/models.py:101: PY-DOC: public function `add_submatch` has no docstring
+src/charset_normalizer/models.py:341: PY-DOC: public class `CliDetectionResult` has no docstring
+src/charset_normalizer/models.py:384: PY-DOC: public function `to_json` has no docstring
+src/charset_normalizer/utils.py:1: PY-DOC: the module has no docstring
+src/charset_normalizer/utils.py:89: PY-DOC: public function `remove_accent` has no docstring
+src/charset_normalizer/utils.py:133: PY-DOC: public function `is_punctuation` has no docstring
+src/charset_normalizer/utils.py:147: PY-DOC: public function `is_symbol` has no docstring
+src/charset_normalizer/utils.py:161: PY-DOC: public function `is_emoticon` has no docstring
+src/charset_normalizer/utils.py:170: PY-DOC: public function `is_separator` has no docstring
+src/charset_normalizer/utils.py:298: PY-DOC: public function `cp_similarity` has no docstring
+src/charset_normalizer/utils.py:329: PY-DOC: public function `set_logging_handler` has no docstring
+src/charset_normalizer/utils.py:342: PY-DOC: public function `cut_sequence_chunks` has no docstring
+tests/test_base_detection.py:316: PY-CMP: compare to None with `is` / `is not`, and do not compare a bool with `==`
+tests/test_cli.py:82: PY-EXC: bare `except:` catches everything, including KeyboardInterrupt; name the exceptions
+tests/test_cli.py:82: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+tests/test_cli.py:182: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+tests/test_cli.py:200: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+tests/test_cli.py:230: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
