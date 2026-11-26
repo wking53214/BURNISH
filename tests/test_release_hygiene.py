@@ -72,6 +72,22 @@ def test_the_release_in_each_pin_comment_is_the_release_installed(module: str, n
     assert claimed.group(1) == imported.__version__
 
 
+def test_every_git_pin_is_named_in_the_changelog():
+    """A pin move needs a CHANGELOG entry (item 46 of the remediation plan).
+
+    After 0.3.27 the Warden and CNS pins moved twice with no entry, and nothing failed: they were only recorded later, under
+    0.3.28. Each pin's ref (the full commit, or the release tag) must now appear in the CHANGELOG, so moving a pin without
+    saying so turns this test red. It cannot tell a move back to a ref an older entry already names.
+    """
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    specs = [d for d in PYPROJECT["project"]["dependencies"] if "git+" in d]
+    assert specs
+    for spec in specs:
+        ref = spec.rsplit("@", 1)[1]
+        assert re.search(rf"(?<![\w.]){re.escape(ref)}(?![\w.])", changelog), (
+            f"{spec.split(' @')[0]} is pinned at {ref}, which no CHANGELOG entry names: record the pin move")
+
+
 WORKFLOW = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 
 

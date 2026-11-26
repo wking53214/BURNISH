@@ -124,8 +124,16 @@ def test_a_quoted_example_of_the_phrase_is_not_a_claim(tmp_path: Path):
     assert check_tree_claims(tmp_path) == []
 
 
-def test_a_tree_without_pyproject_has_nothing_to_contradict(tmp_path: Path):
+def test_a_tree_without_pyproject_leaves_its_pin_and_dependency_claims_unchecked(tmp_path: Path):
+    """Reversed on purpose in 0.4.4 (item 47 of the remediation plan): this used to come back empty, so the run passed."""
     (tmp_path / "README.md").write_text("# demo\n\nPinned to Warden v0.11.0. No other dependencies.\n", encoding="utf-8")
+    drifts = check_tree_claims(tmp_path)
+    assert [(d.kind, d.verdict) for d in drifts] == [("pin", "unchecked"), ("dependencies", "unchecked")]
+    assert all("There is no pyproject.toml" in d.problem and "not checked" in d.problem for d in drifts)
+
+
+def test_a_tree_without_pyproject_and_without_such_claims_has_nothing_to_report(tmp_path: Path):
+    (tmp_path / "README.md").write_text("# demo\n\nA small demonstration.\n", encoding="utf-8")
     assert check_tree_claims(tmp_path) == []
 
 

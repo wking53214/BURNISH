@@ -12,6 +12,19 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-11-26, not tagged
+
+### Fixed
+
+- A README pin or dependency claim in a tree with no `pyproject.toml` is reported once per kind as `unchecked`, and the
+  critic ends INCOMPLETE (exit 4) instead of PASS. `readme-critic` lists it under the claims the tree cannot back, so it
+  exits 1 on such a README, as it already did for a broken `pyproject.toml`.
+
+### Added
+
+- A release-hygiene test: every git pin's ref (full commit or release tag) must be named in the CHANGELOG, so a pin
+  cannot move without an entry.
+
 ## [0.4.3] - 2026-11-26, not tagged
 
 ### Fixed
@@ -540,7 +553,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/0940625b32d44f2fde7ddad7f4976127f52d7436...0940625b32d44f2fde7ddad7f4976127f52d7436
+[Unreleased]: https://github.com/wking53214/Burnish/compare/9fd2d7fc7cb48c76b47c93615008c75636d06bbf...9fd2d7fc7cb48c76b47c93615008c75636d06bbf
+[0.4.4]: https://github.com/wking53214/Burnish/compare/de326480e94b1b8da8cb8c3b9a9d5806be5db5dc...9fd2d7fc7cb48c76b47c93615008c75636d06bbf
 [0.4.3]: https://github.com/wking53214/Burnish/compare/dcb74cc09ff5eb77a029009b0ce5363d79abb890...0940625b32d44f2fde7ddad7f4976127f52d7436
 [0.4.2]: https://github.com/wking53214/Burnish/compare/105adf7fd6706a6c5ca1f54f33c2e8bd83664596...245d1f356a28037c7faaa1257287859370a8940c
 [0.4.1]: https://github.com/wking53214/Burnish/compare/30b1056e7075ef7cd59eb2911ec92becdf69f43e...6bfb0ba951272740333e2dedb118acaa53a13534
