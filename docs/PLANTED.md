@@ -28,7 +28,9 @@ A flag is a row of the critic's report that is not supported, identified by its 
 - a **miss** is a defect in the key that the critic does not flag,
 - a **false alarm** is a flag the key does not list as a defect.
 
-A line flagged twice counts once.
+A line flagged twice counts once. The critic reports one complaint once: the same wrong number said on two lines, or the
+same missing dependency behind two sentences, is one row on one of those lines. So each planted repository states each
+complaint once, and every planted line is scored on its own.
 
 ## The ratchet
 
@@ -47,23 +49,23 @@ The test checks that this table matches the key.
 | Group | Repositories | Catches | Misses | False alarms |
 |---|---|---|---|---|
 | catch | 10 | 12 | 0 | 0 |
-| trap | 10 | 0 | 0 | 2 |
-| hard | 10 | 5 | 10 | 1 |
-| total | 30 | 17 | 10 | 3 |
+| trap | 12 | 0 | 0 | 0 |
+| hard | 11 | 15 | 0 | 0 |
+| total | 33 | 27 | 0 | 0 |
 
-What the critic misses today, all in the hard group:
+## History
 
-- a wrong test count in a table cell,
-- a claim after "not just ... but" or "not small:", read as a denial,
-- a count after a negative lead-in ("No one disputes it:", "Without exception,"), read as a denial,
-- a count after "If you clone it,", read as a wish,
-- a count after "As of today," or "now has" following "was", read as history,
-- "depends on nothing outside the standard library" and "Dependencies: none", phrasings the reader does not know.
+- **0.5.2:** 30 repositories; 17 catches, 10 misses and 3 false alarms, all the misses in the hard group. It missed a count
+  in a table cell; claims after "not just ... but", "not small:", "No one disputes it:", "Without exception,", "If you clone
+  it,", "As of today," and "was rewritten; it now has"; and "depends on nothing" and "Dependencies: none". It flagged
+  "production ready" inside quotation marks (twice) and a count that belongs to one module.
+- **0.5.3 (item 13):** all ten caught and all three false alarms gone. Three hard repositories held two sentences that make
+  the same complaint, which the critic reports once; one was split in two and two had a number changed, so each line is
+  scored alone. Two traps were added to check that the new reading does not go too far: real denials, wishes and history
+  next to the phrases it now reads as claims, history after a colon, an old quoted motto, and one package's count.
 
-Its false alarms today:
-
-- "production ready" inside quotation marks, as a phrase or as someone else's words (two),
-- "The parser module has 3 tests", a count of one module, judged against the whole suite.
+A clean score here does not mean the critic reads every README right. Every sentence in the collection was written by this
+project, and the two newest traps were written after the reader was changed.
 
 ## What this does not show
 

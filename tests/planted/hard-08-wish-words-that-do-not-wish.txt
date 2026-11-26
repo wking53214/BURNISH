@@ -1,7 +1,7 @@
 about: Words like 'if' and 'planned' in sentences that still claim.
 group: hard
 suite: passed=12
-defect: README.md:7 tests missed
+defect: README.md:7 tests
 defect: README.md:9 absolute
 
 === file: README.md

@@ -1,7 +1,6 @@
 about: Phrases quoted as words, not asserted.
 group: trap
 suite: passed=12
-false-alarm: README.md:9 absolute
 
 === file: README.md
 # demo

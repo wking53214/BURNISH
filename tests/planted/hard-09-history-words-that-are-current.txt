@@ -1,8 +1,8 @@
 about: Words like 'as of' in sentences about now.
 group: hard
 suite: passed=12
-defect: README.md:7 tests missed
-defect: README.md:9 tests missed
+defect: README.md:7 tests
+defect: README.md:9 tests
 
 === file: README.md
 # demo
@@ -13,7 +13,7 @@ A small planted repository.
 
 As of today, the suite has 30 tests.
 
-The suite was rewritten; it now has 30 tests.
+The suite was rewritten; it now has 31 tests.
 === file: pyproject.toml
 [project]
 name = "demo"

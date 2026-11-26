@@ -1,0 +1,24 @@
+about: Real denials, wishes and history beside the phrases item 13 reads as claims.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Status
+
+It is not just slow, it is not production ready.
+
+If you want something battle tested, look elsewhere.
+
+As of 2024 the suite had 40 tests.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
