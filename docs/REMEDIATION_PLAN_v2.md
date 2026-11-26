@@ -1,6 +1,6 @@
 # BURNISH Remediation Plan v2
 
-**As of:** Nov 26, 2026, BURNISH 0.5.6.
+**As of:** Nov 26, 2026, BURNISH 0.5.7.
 **Replaces:** v1 (a draft of Nov 26, 2026, written at 0.4.0 and never saved), which replaced the outside 45-item "9.0+"
 plan that was checked against the code on Nov 25, 2026.
 
@@ -82,7 +82,7 @@ plan that was checked against the code on Nov 25, 2026.
 | # | Item | Status | Notes |
 |---|---|---|---|
 | 32 | Blind runs on 5 unrelated public repos | ✅ 0.5.4 | Five popular libraries, picked by a rule written first (owner's choice); see `docs/VALIDATION.md` |
-| 33 | Count false alarms and misses against a human reviewer | 🔴 🟡 | First review done by an AI model (0.5.4); no person has reviewed it yet |
+| 33 | Count false alarms and misses against a human reviewer | ✅ 0.5.7 | The owner reviewed the README side and agreed with all 14 AI verdicts; the `check` sample is still AI-reviewed only |
 | 34 | Deliberately broken repos with planted defects | ✅ 0.5.2 | 30 planted repos (33 since 0.5.3) in `tests/planted/`, scored against an answer key with a ratchet (owner's choice); see `docs/PLANTED.md` |
 | 35 | Publish the results in `docs/VALIDATION.md` | ✅ 0.5.4 | Evidence only, with every output and commit on file |
 | 36 | Two independent reviewers | 🟡 | Comes after 32 to 35 |
@@ -100,7 +100,7 @@ engine that misses defects. Which of them already exist in some form has not bee
 4. ✅ Campaign D: reposition as a Python checker (0.5.1)
 5. ✅ Item 34: the planted-defect collection (0.5.2)
 6. ✅ Item 13: better claim reading, measured against the collection (0.5.3)
-7. ✅ Items 32 and 35, and a first review for 33: outside validation (0.5.4). 🔴 33 still needs a person
+7. ✅ Items 32 and 35, and a first review for 33: outside validation (0.5.4). 33's README side reviewed by the owner (0.5.7)
 8. **Items 16 to 18:** evidence-based CNS recommendations
 9. **Items 27, 28, then 9, 11, 19 and the rest**
 
