@@ -12,6 +12,16 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.29] - 2026-11-25, not tagged
+
+### Changed
+
+- An import inside a function no longer counts as optional (reverses that half of the 0.3.13 rule). A function may run on
+  every use, so an undeclared module imported inside one leaves a claim that nothing else is needed `unconfirmed` and
+  unsupported. It is not called a contradiction. Imports behind a `try` that expects them to fail, or under
+  `TYPE_CHECKING`, stay optional; a module declared in an extra or named in the README is still fine. A README that makes
+  such a claim over such an import now ends `burnish critic` and `burnish readme-critic` with exit 1.
+
 ## [0.3.28] - 2026-11-25, not tagged
 
 ### Fixed
@@ -23,7 +33,6 @@ the true head by the commit that last wrote it.
 - A `pyproject.toml` that is present but is not valid TOML or not UTF-8 is no longer treated as absent. The claims critic
   reports each kind of pin or dependency claim as `unchecked` and unsupported, lists the problem under UNKNOWN, and
   `burnish inspect` gives it as `metadata_problem`; the compiled README draft says the version may be wrong.
-
 ### Changed (recorded late)
 
 - After 0.3.27, with no entry here, the Warden pin moved to `5680f5c` (commit `8b59eb6`) and then to
@@ -482,7 +491,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/c44c7ac17c9a76318e86d0eddd588d5987438d7b...c44c7ac17c9a76318e86d0eddd588d5987438d7b
+[Unreleased]: https://github.com/wking53214/Burnish/compare/206c1141ab01907c9d1d577ae8a06bb8a0a60f32...206c1141ab01907c9d1d577ae8a06bb8a0a60f32
+[0.3.29]: https://github.com/wking53214/Burnish/compare/5ca7e2c44ce9dab0058ca94a36ca2b9f2c57c1a3...206c1141ab01907c9d1d577ae8a06bb8a0a60f32
 [0.3.28]: https://github.com/wking53214/Burnish/compare/71a7fba13e5f9f4883148644246fca179a28a476...c44c7ac17c9a76318e86d0eddd588d5987438d7b
 [0.3.27]: https://github.com/wking53214/Burnish/compare/1d043e10f15a1ffab6ca3d6d443b0513a01b23cc...d7eaa51f66b4407358611a573e017c604abce38f
 [0.3.26]: https://github.com/wking53214/Burnish/compare/e75689fba46f1c43e68904eeb814acc6ad279f74...1d043e10f15a1ffab6ca3d6d443b0513a01b23cc

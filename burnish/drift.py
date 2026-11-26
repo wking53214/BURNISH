@@ -9,7 +9,9 @@ sentence went through it unchallenged until a person read them:
 
 A pin or a dependency declared only in an optional dependency (`[project.optional-dependencies]`, `[dependency-groups]`,
 Poetry's groups) is read too: a claim it backs is not a contradiction, and `claims_held_by_extras` says so. A module imported
-only inside a function, behind a `try` that expects the import to fail, or under `TYPE_CHECKING` is optional as well.
+behind a `try` that expects the import to fail, or under `TYPE_CHECKING`, is optional: the code runs without it. A module
+imported inside a function is not: the function may run on every use, and nothing here can tell. If pyproject.toml does not
+declare it, a claim of no dependencies is reported as not confirmed (verdict "unconfirmed"), neither held nor contradicted.
 
 This module catches those three classes. It reads `pyproject.toml`, the imports
 in the Python files, and the README prose. It runs nothing, and it counts no
@@ -48,7 +50,8 @@ class Drift:
     claim: str      # the README's own words
     problem: str    # what is wrong, plainly
     #: "disagrees" (the tree says otherwise), "unverifiable" (nothing measured backs it), "unchecked" (pyproject.toml is
-    #: there but cannot be parsed, so the claim was not compared with it) or "extra" (the claim holds, but only because
+    #: there but cannot be parsed, so the claim was not compared with it), "unconfirmed" (the code imports an undeclared
+    #: module inside a function, which may or may not run on every use) or "extra" (the claim holds, but only because
     #: pyproject.toml declares the thing as an optional dependency; see `claims_held_by_extras`).
     verdict: str = "disagrees"
 
@@ -237,47 +240,52 @@ def _is_type_checking(test: ast.expr) -> bool:
         isinstance(test, ast.Attribute) and test.attr == "TYPE_CHECKING")
 
 
-def _modules_imported(tree: ast.AST) -> tuple[set[str], set[str]]:
-    """(modules imported when the file is loaded, modules imported only later or only if they can be).
+def _modules_imported(tree: ast.AST) -> tuple[set[str], set[str], set[str]]:
+    """(modules imported when the file is loaded, modules imported inside a function, modules imported only if they can be).
 
-    An import inside a function, in a `try` that expects the import to fail, or under `if TYPE_CHECKING:` is optional: the
-    file loads without it. The walk is iterative, because a file can nest an expression deeper than Python's recursion limit.
+    An import behind a `try` that expects the import to fail, or under `if TYPE_CHECKING:`, is guarded: the code runs
+    without it. An import inside a function is deferred, not optional: the function may run on every use. A guard wins
+    over a function. The walk is iterative, because a file can nest an expression deeper than Python's recursion limit.
     """
     hard: set[str] = set()
-    lazy: set[str] = set()
-    stack: list[tuple[ast.AST, bool]] = [(tree, False)]
+    deferred: set[str] = set()
+    guarded: set[str] = set()
+    stack: list[tuple[ast.AST, bool, bool]] = [(tree, False, False)]
     while stack:
-        node, optional = stack.pop()
+        node, in_function, in_guard = stack.pop()
+        bucket = guarded if in_guard else deferred if in_function else hard
         if isinstance(node, ast.Import):
-            (lazy if optional else hard).update(alias.name.split(".")[0] for alias in node.names)
+            bucket.update(alias.name.split(".")[0] for alias in node.names)
             continue
         if isinstance(node, ast.ImportFrom):
             if node.level == 0 and node.module:
-                (lazy if optional else hard).add(node.module.split(".")[0])
+                bucket.add(node.module.split(".")[0])
             continue
-        inherits = optional or isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))
-        body_optional = inherits
+        function = in_function or isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))
+        body_guard = in_guard
         if isinstance(node, (ast.Try, ast.TryStar)) and any(_catches_a_failed_import(h) for h in node.handlers):
-            body_optional = True
+            body_guard = True
         elif isinstance(node, ast.If) and _is_type_checking(node.test):
-            body_optional = True
+            body_guard = True
         for field, value in ast.iter_fields(node):
             children = value if isinstance(value, list) else [value]
             for child in children:
                 if isinstance(child, ast.AST):
-                    stack.append((child, body_optional if field == "body" else inherits))
-    return hard, lazy
+                    stack.append((child, function, body_guard if field == "body" else in_guard))
+    return hard, deferred, guarded
 
 
-def _imported(root: Path) -> tuple[dict[str, int], dict[str, int]]:
+def _imported(root: Path) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
     """Third-party top-level modules the target's own non-test code imports, and in how many files.
 
-    Two tables: modules the code needs to load, and modules it imports only optionally (inside a function, behind a
-    `try` that expects the import to fail, or under `TYPE_CHECKING`). A module in both is in the first.
+    Three tables: modules the code needs to load, modules it imports inside a function, and modules it imports only
+    behind a guard (a `try` that expects the import to fail, or `TYPE_CHECKING`). A module is counted once per file, in
+    the first of the three that holds it there.
     """
     own = _own_top_levels(root)
     hard_counts: dict[str, int] = {}
-    lazy_counts: dict[str, int] = {}
+    deferred_counts: dict[str, int] = {}
+    guarded_counts: dict[str, int] = {}
     for path in python_files(root):
         relative = path.relative_to(root).as_posix()
         if is_protected(relative):
@@ -286,12 +294,13 @@ def _imported(root: Path) -> tuple[dict[str, int], dict[str, int]]:
             tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
         except (OSError, SyntaxError, ValueError, RecursionError, MemoryError):
             continue
-        hard, lazy = _modules_imported(tree)
-        for names, counts in ((hard, hard_counts), (lazy - hard, lazy_counts)):
+        hard, deferred, guarded = _modules_imported(tree)
+        tables = ((hard, hard_counts), (deferred - hard, deferred_counts), (guarded - hard - deferred, guarded_counts))
+        for names, counts in tables:
             for name in names:
                 if name not in sys.stdlib_module_names and name not in own and name != "__future__":
                     counts[name] = counts.get(name, 0) + 1
-    return hard_counts, lazy_counts
+    return hard_counts, deferred_counts, guarded_counts
 
 
 def _distribution_of(module: str, declared: set[str]) -> str:
@@ -317,12 +326,18 @@ def _dependency_drift(root: Path, text: str, data: dict) -> tuple[list[Drift], l
     declared = {n for n in map(_dependency_name, _dependency_strings(data)) if n}
     optional = {name: where for where, spec in _optional_strings(data) if (name := _dependency_name(spec))}
     known = declared | set(optional)
-    hard_imports, _ = _imported(root)
+    hard_imports, deferred_imports, _ = _imported(root)
     files_using: dict[str, int] = {}
     for module, files in hard_imports.items():
         dist = _distribution_of(module, known)
         files_using[dist] = max(files_using.get(dist, 0), files)
     actual = declared | set(files_using)
+    #: Undeclared modules imported only inside a function: the claim may be true, and nothing here can show it.
+    deferred_using: dict[str, int] = {}
+    for module, files in deferred_imports.items():
+        dist = _distribution_of(module, known)
+        if dist not in known and dist not in actual:
+            deferred_using[dist] = max(deferred_using.get(dist, 0), files)
     out: list[Drift] = []
     held: list[Drift] = []
     seen: set[str] = set()
@@ -330,10 +345,11 @@ def _dependency_drift(root: Path, text: str, data: dict) -> tuple[list[Drift], l
         if _QUOTED.search(text[max(0, claim.start() - 2):claim.start()]):
             continue   # the phrase is being mentioned in quotation marks, not asserted
         paragraph = _normal(_paragraph(text, claim.start())).replace("-", " ")
-        named = {n for n in actual if re.search(rf"\b{re.escape(n.replace('-', ' '))}\b", paragraph)}
+        named = {n for n in actual | set(deferred_using) if re.search(rf"\b{re.escape(n.replace('-', ' '))}\b", paragraph)}
         if not _OTHER_WORD.search(claim.group(0)):
             named = set()   # "no dependencies" leaves nothing out
         unnamed = sorted(actual - named)
+        unconfirmed = sorted(set(deferred_using) - named)
         only_optional = [n for n in unnamed if n not in declared and n in optional]
         against = [n for n in unnamed if n not in only_optional]
         details = []
@@ -350,6 +366,13 @@ def _dependency_drift(root: Path, text: str, data: dict) -> tuple[list[Drift], l
             problem, bucket, verdict = ("The README says there are no dependencies beyond the ones it names; the tree also "
                                         f"imports {places}, which pyproject.toml declares only as an optional dependency, not "
                                         "as a runtime dependency. The claim holds for runtime dependencies."), held, "extra"
+        elif unconfirmed:
+            places = ", ".join(f"{n} (imported inside a function in {deferred_using[n]} file(s), not declared)"
+                               for n in unconfirmed)
+            problem, bucket, verdict = ("The README says there are no dependencies beyond the ones it names; the code also "
+                                        f"imports {places}. Whether that code runs on every use was not checked, so the claim "
+                                        "is not confirmed. Declare the module in pyproject.toml (as a runtime or an optional "
+                                        "dependency) or name it in the README."), out, "unconfirmed"
         else:
             continue
         if problem not in seen:   # two phrasings of one claim ("no runtime dependencies", "no runtime dependency") are one note
@@ -445,8 +468,9 @@ def check_tree_claims(root: Path, readme: Optional[str] = None) -> list[Drift]:
     `readme` is the README text to judge; by default it is read from `root`. A tree with no pyproject.toml
     or no README has nothing to contradict. A pyproject.toml that is there but cannot be parsed backs nothing: each
     kind of claim the README makes comes back once with the verdict "unchecked". Pins and dependencies in
-    `[project.optional-dependencies]` and `[dependency-groups]` are read too, and a module imported only inside a
-    function or behind a `try` that expects the import to fail is optional: neither makes a claim false.
+    `[project.optional-dependencies]` and `[dependency-groups]` are read too, and a module imported behind a `try` that
+    expects the import to fail is optional: neither makes a claim false. An undeclared module imported inside a function
+    makes a claim of no dependencies "unconfirmed": it is listed here, because nothing shows the claim holds.
     """
     return _tree_claims(root, readme)[0]
 
