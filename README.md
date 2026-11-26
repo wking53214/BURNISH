@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.3.27, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.3.28, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.3.27 (checked 2026-11-18)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.3.28 (set 2026-11-25)
 ```
 
 This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
@@ -178,6 +178,9 @@ Three kinds of sentence are checked against the tree, not just against the READM
   too. A claim that only an extra backs is not called false: the critic lists it as supported and says it holds for the
   optional dependency only. A module imported only inside a function, behind a `try` that expects the import to fail, or under
   `TYPE_CHECKING` counts as optional. A claim said twice in two phrasings is reported once.
+- **A broken `pyproject.toml`.** One that is there but is not valid TOML (or not UTF-8) backs nothing. A pin or dependency
+  claim is reported once per kind as not checked and counts as unsupported, the critic lists the problem under UNKNOWN,
+  and `inspect` gives it as `metadata_problem`, because the name and version it shows were then read line by line.
 - **A test count.** Burnish counts no tests, so a number the README gives for its suite is reported as unverifiable
   unless a count is supplied: `--collected N` takes the total from `pytest --collect-only -q`, and when the
   finisher runs under Warden the measured suite is used instead. A count that cannot be true is reported either way.
@@ -194,8 +197,9 @@ accept one. A broken symbolic link with a Python name (`.py`) is an unreadable f
 says "broken symbolic link" for it. So is a broken link with a README name, for every command that reads or may write the
 README (all but `check`), instead of "found no README": a write through it would create its target, wherever that is. `finish` also never proposes an edit to a file that is a symbolic link or lies under one, whether the
 link is broken or not; it says so in its notes.
-`check` does not follow a symbolic link to a directory (nor does any other command): Python files that can only be reached through
-one are not read, and nothing is printed about them. A tree whose only Python is behind such a link has nothing to check and exits 2.
+`check` walks the tree the way every other command does, with one list of skipped folders (`burnish/files.py`): vendored,
+generated, fixture, environment and build folders are not read. It does not follow a symbolic link to a directory (nor does any other command): Python files that can
+only be reached through one are not read, nor is a `.py` file that is itself a link, and nothing is printed about them. A tree whose only Python is behind such a link has nothing to check and exits 2.
 
 A folder with Python but no README is not a failure for `critic`, `readme`, `inspect`, `cns` or `finish`; only
 `readme-critic` needs a README to judge. The missing README is itself reported or supplied: `critic` lists "There is no
@@ -342,6 +346,11 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.3.28** (2026-11-25)
+- *`check` judged files every other command skips.* It kept its own, shorter list of skipped folders, so it reported findings in `vendor`, `third_party`, `fixtures`, `specimens`, `env`, `.tox` and `*.egg-info` folders that the critic and the finisher leave out, and it read a `.py` file that is a link. Found by checking an outside remediation plan against the code. `check` now uses the same walk as the rest. Guard: `tests/test_evidence_gaps.py::test_check_and_the_critic_read_the_same_files` and `tests/test_evidence_gaps.py::test_check_skips_the_folders_every_other_command_skips`.
+- *A broken `pyproject.toml` was treated as a missing one.* The claims critic checked neither pin claims nor dependency claims and said nothing, so a README saying the package needs nothing outside the standard library passed unexamined, and `inspect` printed a name and version read line by line as if the file had parsed. Found the same way. Now such a claim is reported as not checked and unsupported, and the problem is named. Guard: `tests/test_evidence_gaps.py::test_the_critic_does_not_call_a_tree_good_enough_when_it_could_not_read_the_claims_evidence` and `tests/test_evidence_gaps.py::test_inspect_says_the_metadata_came_from_a_broken_file`.
+- Two pin moves after 0.3.27 had no CHANGELOG entry; they are recorded under 0.3.28. No Burnish code changed in them.
 
 **0.3.27** (2026-11-14)
 - The Warden pin moved again, to the Warden whose ghost_tools pin matches ghost_tools' current head, so the circuit installs one Warden commit. No Burnish code changed.

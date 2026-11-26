@@ -30,12 +30,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Iterator, Sequence
 
+from .files import broken_python_links, python_files
+
 __all__ = ["Finding", "CHECK_IDS", "check_source", "check_tree", "checkable_files", "summarize", "only"]
 
 CHECK_IDS = ("PY-EXC", "PY-SWALLOW", "PY-STAR", "PY-DOC", "PY-NAME", "PY-CMP", "PY-RET", "PY-TYPE")
 
-_SKIPPED_DIRS = {".git", "__pycache__", ".venv", "venv", "build", "dist", ".pytest_cache", "target",
-                 "node_modules", ".ruff_cache", ".mypy_cache"}
 _SNAKE = re.compile(r"^_{0,2}[a-z][a-z0-9_]*_{0,2}$")
 _CAPWORDS = re.compile(r"^_?[A-Z][A-Za-z0-9]*$")
 
@@ -57,11 +57,11 @@ def check_tree(root: Path) -> list[Finding]:
     """Every finding in every Python file under `root`, in path and line order."""
     root = Path(root)
     findings: list[Finding] = []
+    for link in broken_python_links(root):
+        # The walk skips links, so a dangling `.py` link is looked for here: it is an unreadable file, not an absent one.
+        raise OSError(errno.ENOENT, "broken symbolic link (its target cannot be reached)", str(link))
     for path in checkable_files(root):
         relative = path.relative_to(root).as_posix()
-        if path.is_symlink() and not path.exists():
-            # Name the true reason (the link leads nowhere) instead of whatever error a read of it would raise.
-            raise OSError(errno.ENOENT, "broken symbolic link (its target cannot be reached)", str(path))
         try:
             source = path.read_text(encoding="utf-8")
         except UnicodeDecodeError as error:
@@ -97,10 +97,12 @@ def check_source(source: str, path: str, *, is_test: bool = False) -> list[Findi
 
 
 def checkable_files(root: Path) -> Iterator[Path]:
-    """The Python files `check_tree` reads under `root`, in path order."""
-    for path in sorted(Path(root).rglob("*.py")):
-        if not _SKIPPED_DIRS.intersection(path.relative_to(root).parts):
-            yield path
+    """The Python files `check_tree` reads under `root`, in path order.
+
+    The same walk every other command uses (`files.python_files`), so `check` and the critic agree about which files are
+    the target's own: vendored, generated and fixture folders are skipped, and no link is followed.
+    """
+    yield from python_files(Path(root))
 
 
 def _is_test_file(relative: str) -> bool:

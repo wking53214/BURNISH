@@ -199,11 +199,11 @@ def _require_something_to_read(command: str, path: Path) -> None:
     if not path.is_dir():
         raise CannotRun(f"{path}: not a directory; give the folder that holds the code and the README")
     needs = _NEEDS[command]
-    # A link that leads nowhere is an unreadable file, not an absent one. `check` meets a dangling `.py` link in its own
-    # walk and says the same; the other commands skip links, so they are looked for here. Every command that reads or may
-    # write the README refuses a dangling README link: a write through it would create its target, wherever that is.
+    # A link that leads nowhere is an unreadable file, not an absent one. Every command walks the tree the same way and
+    # skips links, so they are looked for here. Every command that reads or may write the README refuses a dangling README
+    # link: a write through it would create its target, wherever that is.
     dangling = [] if command == "check" else broken_readme_links(path)
-    if command not in ("check", "readme-critic"):
+    if command != "readme-critic":
         dangling = dangling + list(broken_python_links(path))
     if dangling:
         raise OSError(errno.ENOENT, "broken symbolic link (its target cannot be reached)", str(dangling[0]))
@@ -306,7 +306,7 @@ def _readme_text(root: Path) -> str:
 def _inspect(args: argparse.Namespace) -> int:
     narrative = inspect_tree(args.path)
     print(json.dumps({
-        "name": narrative.name, "version": narrative.version,
+        "name": narrative.name, "version": narrative.version, "metadata_problem": narrative.metadata_problem,
         "cns_mentioned": narrative.cns_mentioned, "readme_exists": narrative.readme_exists,
         "modules": [{"path": m.path, "purpose": m.purpose, "classes": list(m.classes)} for m in narrative.modules],
     }, indent=2))

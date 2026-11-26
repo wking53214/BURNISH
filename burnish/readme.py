@@ -70,7 +70,9 @@ def _default_sections(narrative: Narrative, critic: CriticReport) -> dict[str, s
     unfinished = _bullets(critic.what_is_unfinished, "- (none recorded)")
     return {
         "WHAT THIS IS": (f"`{narrative.name}` as declared by its own tree. "
-                         f"Version `{narrative.version or 'UNKNOWN'}`."),
+                         f"Version `{narrative.version or 'UNKNOWN'}`."
+                         + (f" {narrative.metadata_problem}; the name and version were read line by line and may be wrong."
+                            if narrative.metadata_problem else "")),
         "WHY IT EXISTS": "See the module docstrings. If they do not say, that absence is the answer.",
         "WHAT IT OWNS": "- Whatever its modules declare. Modules that never say so are listed as unfinished.",
         "WHAT IT DOES NOT OWN": "- Whatever this README does not have evidence for. Absence of a denial is not a grant.",
