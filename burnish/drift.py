@@ -569,6 +569,8 @@ def _tree_claims(root: Path, readme: Optional[str]) -> tuple[list[Drift], list[D
     problem, problem_line = pyproject_problem_at(root)
     if problem is not None:
         return _unchecked(text, lines, problem, problem_line), []
+    if not (Path(root) / "pyproject.toml").is_file():
+        return _unchecked(text, lines, "There is no pyproject.toml", 0, missing=True), []
     project = _project(root)
     if project is None:
         return [], []
@@ -578,8 +580,9 @@ def _tree_claims(root: Path, readme: Optional[str]) -> tuple[list[Drift], list[D
     return _unique(pin_against + dep_against), _unique(pin_held + dep_held)
 
 
-def _unchecked(text: str, lines: list[int], problem: str, problem_line: int) -> list[Drift]:
-    """One "unchecked" drift for each kind of claim (a pin, a dependency list) the README makes, when pyproject.toml is broken.
+def _unchecked(text: str, lines: list[int], problem: str, problem_line: int, missing: bool = False) -> list[Drift]:
+    """One "unchecked" drift for each kind of claim (a pin, a dependency list) the README makes, when pyproject.toml is
+    broken or, with `missing`, not there at all.
 
     The claim may be true. It is not reported as held, because the only file that could back it was not read.
     """
@@ -590,13 +593,20 @@ def _unchecked(text: str, lines: list[int], problem: str, problem_line: int) -> 
         if matches:
             words = clean(matches[0].group(0), 80)
             line = _line_at(text, lines, matches[0].start())
-            note = (f"{problem}, so this {'pin' if kind == 'pin' else 'dependency'} claim was not checked against it. "
-                    "Fix pyproject.toml and run the critic again.")
+            what = "pin" if kind == "pin" else "dependency"
+            if missing:
+                note = (f"{problem}, so this {what} claim was not checked against anything. Add a pyproject.toml that "
+                        f"declares the {what}, or drop the claim, and run the critic again.")
+                method = "Looked for pyproject.toml at the top of the tree; there is none, so nothing was compared."
+                unread = (f"wherever else the {what} might be declared (setup.py, setup.cfg, requirements files): only "
+                          "pyproject.toml is read",)
+            else:
+                note = f"{problem}, so this {what} claim was not checked against it. Fix pyproject.toml and run the critic again."
+                method = "Parsed pyproject.toml as TOML with Python's tomllib; it failed, so nothing was compared."
+                unread = (f"every {what} pyproject.toml declares: the file did not parse, so the claim was not compared "
+                          "with it",)
             out.append(Drift(kind, words, note, "unchecked", line, _provenance(
-                words, line, (Source("pyproject.toml", problem_line, problem),),
-                "Parsed pyproject.toml as TOML with Python's tomllib; it failed, so nothing was compared.", "direct",
-                (f"every {'pin' if kind == 'pin' else 'dependency'} pyproject.toml declares: the file did not parse, so the "
-                 "claim was not compared with it",), note)))
+                words, line, (Source("pyproject.toml", problem_line, problem),), method, "direct", unread, note)))
     return out
 
 
@@ -614,9 +624,9 @@ def _unique(drifts: list[Drift]) -> list[Drift]:
 def check_tree_claims(root: Path, readme: Optional[str] = None) -> list[Drift]:
     """Pin and dependency claims in the README of `root` that its pyproject.toml and imports contradict.
 
-    `readme` is the README text to judge; by default it is read from `root`. A tree with no pyproject.toml
-    or no README has nothing to contradict. A pyproject.toml that is there but cannot be parsed backs nothing: each
-    kind of claim the README makes comes back once with the verdict "unchecked". Pins and dependencies in
+    `readme` is the README text to judge; by default it is read from `root`. A tree with no README has nothing to
+    contradict. A pyproject.toml that is missing, or there but cannot be parsed, backs nothing: each kind of claim the
+    README makes comes back once with the verdict "unchecked". Pins and dependencies in
     `[project.optional-dependencies]` and `[dependency-groups]` are read too, and a module imported behind a `try` that
     expects the import to fail is optional: neither makes a claim false. An undeclared module imported inside a function
     makes a claim of no dependencies "unconfirmed": it is listed here, because nothing shows the claim holds.

@@ -101,3 +101,17 @@ def test_an_earned_4_is_kept_when_the_report_cannot_be_delivered(tmp_path: Path,
     monkeypatch.setattr("sys.stdout", None)
     assert cli.main(["critic", str(tmp_path)]) == 4
     capsys.readouterr()
+
+
+def test_pin_and_dependency_claims_with_no_pyproject_end_incomplete(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    """Item 47 of the remediation plan: with nothing to check the claims against, the run cannot end PASS."""
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "__init__.py").write_text('"""demo."""\n', encoding="utf-8")
+    (tmp_path / "README.md").write_text("# demo\n\nIt does not do much. Pinned to Warden v0.11.0.\n", encoding="utf-8")
+    report = PoetryCritic().critique(tmp_path)
+    assert report.outcome.value == "INCOMPLETE"
+    (row,) = [c for c in report.claims if c.kind == "pin"]
+    assert row.agreement == "unchecked" and row.provenance is not None
+    assert row.provenance.evidence[0].path == "pyproject.toml" and "There is no pyproject.toml" in row.provenance.reason
+    assert cli.main(["critic", str(tmp_path)]) == cli.EXIT_INCOMPLETE
+    capsys.readouterr()

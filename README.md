@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.4.3, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.4.4, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.4.3 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.4.4 (set 2026-11-26)
 ```
 
 This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
@@ -184,6 +184,8 @@ Three kinds of sentence are checked against the tree, not just against the READM
   and `inspect` gives it as `metadata_problem`, because the name and version it shows were then read line by line. The
   critic ends INCOMPLETE on such a tree even when the README makes no pin or dependency claim, and FAIL only if
   something else is contradicted.
+- **No `pyproject.toml` at all.** A pin or dependency claim then has nothing to be checked against, so it is reported
+  once per kind as not checked and the critic ends INCOMPLETE. A tree with no such claim is not affected.
 - **A test count.** Burnish counts no tests, so a number the README gives for its suite is reported as unverifiable
   unless a count is supplied: `--collected N` takes the total from `pytest --collect-only -q`, and when the
   finisher runs under Warden the measured suite is used instead. A count that cannot be true is reported either way.
@@ -360,6 +362,10 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.4.4** (2026-11-26)
+- *A pin or dependency claim in a tree with no `pyproject.toml` passed.* Nothing was checked and nothing was said, so the critic ended PASS. Found in the Nov 25 audit of the outside remediation plan (item 47 of the plan that replaced it). Now each kind of claim is reported as not checked and the critic ends INCOMPLETE; `readme-critic` lists it with the other claims it cannot back. Guard: `tests/test_drift.py::test_a_tree_without_pyproject_leaves_its_pin_and_dependency_claims_unchecked` and `tests/test_outcome.py::test_pin_and_dependency_claims_with_no_pyproject_end_incomplete`.
+- *A pin could move with no CHANGELOG entry.* After 0.3.27 the Warden and CNS pins moved twice and no test noticed; the moves were recorded later, under 0.3.28. Found in the same audit (item 46). Now every git pin's ref must be named in the CHANGELOG. Guard: `tests/test_release_hygiene.py::test_every_git_pin_is_named_in_the_changelog`.
 
 **0.4.3** (2026-11-26)
 - *A README compiled from nothing stated a module count and the package version.* For a repository with no README, Burnish builds one from the tree, and after the first finish it belongs to the author, so nothing corrects it: "Python modules in this tree" and the version went stale at the next new file or release, and no test held the compiled body to the patterns the sibling repositories fail on. It was listed under Known defects; item 7 of an outside remediation plan asked for it to be closed. Now the body says the version is the one `pyproject.toml` declares and points at the module list instead of counting it. Guard: `tests/test_block_has_no_snapshots.py::test_a_compiled_readme_matches_nothing_a_sibling_repository_forbids`, `tests/test_block_has_no_snapshots.py::test_a_compiled_readme_points_at_the_version_and_lists_the_modules_instead_of_counting_them` and `tests/test_block_has_no_snapshots.py::test_the_readme_draft_command_states_no_version_or_module_count`.
