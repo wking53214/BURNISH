@@ -12,6 +12,25 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.3.28] - 2026-11-25, not tagged
+
+### Fixed
+
+- `burnish check` walks the tree with the same skipped-folder list and link rule as every other command
+  (`files.python_files`). It had its own, shorter list, so it judged vendored, generated, fixture and environment
+  folders the critic and the finisher skip, and it read `.py` files that are links. A dangling `.py` link is still
+  reported (exit 2).
+- A `pyproject.toml` that is present but is not valid TOML or not UTF-8 is no longer treated as absent. The claims critic
+  reports each kind of pin or dependency claim as `unchecked` and unsupported, lists the problem under UNKNOWN, and
+  `burnish inspect` gives it as `metadata_problem`; the compiled README draft says the version may be wrong.
+
+### Changed (recorded late)
+
+- After 0.3.27, with no entry here, the Warden pin moved to `5680f5c` (commit `8b59eb6`) and then to
+  `26d8128ecd75c841125128533812763385dc7497` (Warden 1.0.0, head of Warden's `main`) with the CNS pin moving from `v4.0.0`
+  to `v4.1.0` (commit `44a1613`). No Burnish code changed in those commits. They are recorded here so the CHANGELOG
+  matches `pyproject.toml`.
+
 ## [0.3.27] - 2026-11-14, not tagged
 
 ### Changed
@@ -463,7 +482,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/1d043e10f15a1ffab6ca3d6d443b0513a01b23cc...1d043e10f15a1ffab6ca3d6d443b0513a01b23cc
+[Unreleased]: https://github.com/wking53214/Burnish/compare/c44c7ac17c9a76318e86d0eddd588d5987438d7b...c44c7ac17c9a76318e86d0eddd588d5987438d7b
+[0.3.28]: https://github.com/wking53214/Burnish/compare/71a7fba13e5f9f4883148644246fca179a28a476...c44c7ac17c9a76318e86d0eddd588d5987438d7b
 [0.3.27]: https://github.com/wking53214/Burnish/compare/1d043e10f15a1ffab6ca3d6d443b0513a01b23cc...d7eaa51f66b4407358611a573e017c604abce38f
 [0.3.26]: https://github.com/wking53214/Burnish/compare/e75689fba46f1c43e68904eeb814acc6ad279f74...1d043e10f15a1ffab6ca3d6d443b0513a01b23cc
 [0.3.25]: https://github.com/wking53214/Burnish/compare/c3b709618ee194cf50179e45456519ad740fe525...e75689fba46f1c43e68904eeb814acc6ad279f74

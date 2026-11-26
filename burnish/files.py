@@ -18,12 +18,13 @@ from __future__ import annotations
 
 import os
 import re
+import tomllib
 from pathlib import Path
 from typing import Iterator, Optional
 
 __all__ = ["SKIPPED_DIRS", "GENERATED_MARKERS", "README_NAMES", "MARKDOWN_SUFFIXES", "python_files",
-           "broken_python_links", "broken_readme_links", "read_strict", "looks_generated", "is_protected", "find_readme",
-           "readme_is_markdown", "dominant_ending", "split_endings"]
+           "broken_python_links", "broken_readme_links", "read_strict", "pyproject_problem", "looks_generated",
+           "is_protected", "find_readme", "readme_is_markdown", "dominant_ending", "split_endings"]
 
 #: Directories that hold code the target does not own, or output it can rebuild. The first
 #: row mirrors what Warden refuses to touch (its forbidden and vendored directories); the
@@ -107,6 +108,26 @@ def read_strict(path: Path) -> str:
         return Path(path).read_bytes().decode("utf-8")
     except UnicodeDecodeError as error:
         raise ValueError(f"{Path(path).name} is not valid UTF-8") from error
+
+
+def pyproject_problem(root: Path) -> Optional[str]:
+    """Why the `pyproject.toml` in `root` cannot be read as TOML, or None when there is none or it parses.
+
+    A broken file is not the same as a missing one: whatever is read from it by other means may be incomplete, and a
+    claim that only it could back has not been checked. The callers say so instead of carrying on as if all were read.
+    """
+    path = Path(root) / "pyproject.toml"
+    if not path.is_file():
+        return None
+    try:
+        tomllib.loads(path.read_bytes().decode("utf-8"))
+    except UnicodeDecodeError:
+        return "pyproject.toml is not valid UTF-8"
+    except OSError as error:
+        return f"pyproject.toml could not be read ({error.strerror or type(error).__name__})"
+    except (tomllib.TOMLDecodeError, ValueError) as error:
+        return f"pyproject.toml is not valid TOML ({str(error).splitlines()[0] if str(error) else 'parse error'})"
+    return None
 
 
 def looks_generated(text: str) -> bool:

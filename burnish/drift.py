@@ -33,7 +33,7 @@ from pathlib import Path
 from typing import Optional
 
 from .claims import test_claims
-from .files import find_readme, is_protected, python_files
+from .files import find_readme, is_protected, pyproject_problem, python_files
 from .marked import outside_fences, without_block
 from .textsafe import clean
 
@@ -47,8 +47,9 @@ class Drift:
     kind: str       # "pin", "dependencies" or "tests"
     claim: str      # the README's own words
     problem: str    # what is wrong, plainly
-    #: "disagrees" (the tree says otherwise), "unverifiable" (nothing measured backs it) or "extra" (the claim holds, but
-    #: only because pyproject.toml declares the thing as an optional dependency; see `claims_held_by_extras`).
+    #: "disagrees" (the tree says otherwise), "unverifiable" (nothing measured backs it), "unchecked" (pyproject.toml is
+    #: there but cannot be parsed, so the claim was not compared with it) or "extra" (the claim holds, but only because
+    #: pyproject.toml declares the thing as an optional dependency; see `claims_held_by_extras`).
     verdict: str = "disagrees"
 
     def render(self) -> str:
@@ -398,14 +399,33 @@ def _tree_claims(root: Path, readme: Optional[str]) -> tuple[list[Drift], list[D
         if path is None:
             return [], []
         readme = path.read_text(encoding="utf-8", errors="replace")
+    text = readme_text_for_drift(readme)
+    problem = pyproject_problem(root)
+    if problem is not None:
+        return _unchecked(text, problem), []
     project = _project(root)
     if project is None:
         return [], []
     data, raw = project
-    text = readme_text_for_drift(readme)
     pin_against, pin_held = _pin_drift(text, _pins(data, raw))
     dep_against, dep_held = _dependency_drift(root, text, data)
     return _unique(pin_against + dep_against), _unique(pin_held + dep_held)
+
+
+def _unchecked(text: str, problem: str) -> list[Drift]:
+    """One "unchecked" drift for each kind of claim (a pin, a dependency list) the README makes, when pyproject.toml is broken.
+
+    The claim may be true. It is not reported as held, because the only file that could back it was not read.
+    """
+    out = []
+    pins = list(_PIN_CLAIM.finditer(text))
+    deps = [m for m in _NO_OTHER.finditer(text) if not _QUOTED.search(text[max(0, m.start() - 2):m.start()])]
+    for kind, matches in (("pin", pins), ("dependencies", deps)):
+        if matches:
+            out.append(Drift(kind, clean(matches[0].group(0), 80),
+                             f"{problem}, so this {'pin' if kind == 'pin' else 'dependency'} claim was not checked against it. "
+                             "Fix pyproject.toml and run the critic again.", "unchecked"))
+    return out
 
 
 def _unique(drifts: list[Drift]) -> list[Drift]:
@@ -423,9 +443,10 @@ def check_tree_claims(root: Path, readme: Optional[str] = None) -> list[Drift]:
     """Pin and dependency claims in the README of `root` that its pyproject.toml and imports contradict.
 
     `readme` is the README text to judge; by default it is read from `root`. A tree with no pyproject.toml
-    or no README has nothing to contradict. Pins and dependencies in `[project.optional-dependencies]` and
-    `[dependency-groups]` are read too, and a module imported only inside a function or behind a `try` that expects
-    the import to fail is optional: neither makes a claim false.
+    or no README has nothing to contradict. A pyproject.toml that is there but cannot be parsed backs nothing: each
+    kind of claim the README makes comes back once with the verdict "unchecked". Pins and dependencies in
+    `[project.optional-dependencies]` and `[dependency-groups]` are read too, and a module imported only inside a
+    function or behind a `try` that expects the import to fail is optional: neither makes a claim false.
     """
     return _tree_claims(root, readme)[0]
 

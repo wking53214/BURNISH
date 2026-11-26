@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from .files import find_readme, python_files
+from .files import find_readme, pyproject_problem, python_files
 from .marked import without_block
 
 
@@ -52,6 +52,9 @@ class Narrative:
     does_not_own: tuple[str, ...]
     unknowns: tuple[str, ...]
     claims_in_readme: tuple[str, ...]
+    #: Why pyproject.toml could not be read as TOML, or None. When it is set, the name, version, description and scripts
+    #: above were read line by line and may be wrong or incomplete; they are not presented as if the file had parsed.
+    metadata_problem: Optional[str] = None
 
 
 def inspect_tree(root: Path) -> Narrative:
@@ -75,6 +78,7 @@ def inspect_tree(root: Path) -> Narrative:
         does_not_own=tuple(scan.does_not_own),
         unknowns=tuple(scan.unknowns),
         claims_in_readme=_readme_claims(readme_text),
+        metadata_problem=pyproject_problem(root),
     )
 
 
