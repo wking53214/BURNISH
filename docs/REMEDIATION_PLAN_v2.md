@@ -1,6 +1,6 @@
 # BURNISH Remediation Plan v2
 
-**As of:** Nov 26, 2026, BURNISH 0.5.4.
+**As of:** Nov 26, 2026, BURNISH 0.5.5.
 **Replaces:** v1 (a draft of Nov 26, 2026, written at 0.4.0 and never saved), which replaced the outside 45-item "9.0+"
 plan that was checked against the code on Nov 25, 2026.
 
@@ -43,6 +43,7 @@ plan that was checked against the code on Nov 25, 2026.
 | 13 | Better claim reading (negations, tables, headings, quotes) | ✅ 0.5.3 | Every planted defect caught, no false alarms (was 10 misses, 3 false alarms). Owner's choice: the two new "no dependencies" phrasings were part of 13, not 9 |
 | 14 | Optional link checking over the network | ⚪ | Off by default. Useful but not urgent |
 | 15 | Label README rules as mechanical, structural or human judgment | ⚪ | Mostly a documentation change |
+| 49 | **New:** the brochure rule made the critic FAIL outside repos | ✅ 0.5.5 | Found by the outside run (item 32). Owner's choice: a style note, not part of the outcome; a FAIL now means a claim is contradicted or a rule of the tree is broken |
 
 ## Campaign C: CNS analysis and the Warden boundary
 

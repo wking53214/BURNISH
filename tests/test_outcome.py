@@ -115,3 +115,14 @@ def test_pin_and_dependency_claims_with_no_pyproject_end_incomplete(tmp_path: Pa
     assert row.provenance.evidence[0].path == "pyproject.toml" and "There is no pyproject.toml" in row.provenance.reason
     assert cli.main(["critic", str(tmp_path)]) == cli.EXIT_INCOMPLETE
     capsys.readouterr()
+
+
+def test_a_brochure_readme_with_nothing_contradicted_passes_and_names_the_style_note(tmp_path: Path,
+                                                                                   capsys: pytest.CaptureFixture[str]):
+    """The brochure finding is style (the README critic's RM-LIMITS), so it never makes the critic FAIL."""
+    _tree(tmp_path, "# demo\n\nA powerful, seamless tool.\n\nInstall it with pip install demo.\n")
+    report = PoetryCritic().critique(tmp_path)
+    assert report.outcome is Outcome.PASS and report.good_enough
+    assert any("brochure" in note and "does not change the outcome" in note for note in report.what_is_ugly)
+    code, out = _run(tmp_path, capsys)
+    assert code == 0 and "Outcome: PASS" in out and "RM-LIMITS" in out

@@ -34,7 +34,7 @@ from .textsafe import clean
 
 #: Kinds of row that are findings about the tree rather than claims a document makes. They are reported with their
 #: provenance like every other row, and the generated README section and the finisher's notes leave them out, as before.
-TREE_FINDINGS = frozenset({"metadata", "parse", "suite", "readme-shape", "history"})
+TREE_FINDINGS = frozenset({"metadata", "parse", "suite", "history"})
 
 
 @dataclass(frozen=True)
@@ -237,7 +237,12 @@ _HONEST_KEYS = ("WHAT IT DOES NOT", "What It Does NOT", "Brutally Honest", "CLAI
 
 
 def _read_readme(nar: Narrative, readme: _Readme, notes: _Notes) -> None:
-    """A missing README is the first ugliness; a brochure with no admissions is the second."""
+    """A missing README is the first ugliness; a brochure with no admissions is the second.
+
+    The brochure finding is a matter of style, not a claim the tree contradicts, so it is a note under "What is still
+    ugly" and never changes the outcome: a FAIL from the critic means evidence contradicts a claim or the tree breaks a
+    rule. The README critic judges the same thing as `RM-LIMITS`.
+    """
     if not nar.readme_exists:
         notes.ugly.append("There is no README. The book of the source is missing.")
         notes.unfinished.append("README")
@@ -246,23 +251,12 @@ def _read_readme(nar: Narrative, readme: _Readme, notes: _Notes) -> None:
     if honest:
         notes.beautiful.append("The README already distinguishes ownership, non-goals, and honest status.")
     if _sounds_like_marketing(nar.readme_text) and not honest:
-        notes.ugly.append("The README reads as a product brochure. It does not say what is still ugly.")
-        notes.fail("polished README without a claims-vs-reality section")
         word = _MARKETING.search(nar.readme_text) or re.search(r"pip install", nar.readme_text)
         found = (f"the brochure word \"{clean(word.group(0), 40)}\"" if word and _MARKETING.match(word.group(0))
                  else "a pip install line, and no \"does not\" anywhere")
-        _row(notes, "readme-shape", "the README says what is still unfinished", "README", EpistemicState.ASSUMED, False,
-             "disagrees", Provenance(
-                 claim="the README says what is still unfinished (a claims-vs-reality or what-it-does-not section)",
-                 claim_at=readme.at(0), evidence=(readme.at(readme.line_of(nar, word), found),),
-                 method=("Looked for brochure words (powerful, seamless, state-of-the-art, simply works), or a pip install "
-                         "line with no \"does not\" anywhere, and for at least two of the honest-section headings ("
-                         + ", ".join(_HONEST_KEYS) + ")."),
-                 basis="inferred",
-                 not_inspected=("whether the README admits its gaps in other words: only these fixed phrases and headings "
-                                "were looked for",),
-                 reason=("The README reads as a product brochure and has fewer than two honest-section headings: a polished "
-                         "README without a claims-vs-reality section fails the critic.")))
+        where = readme.at(readme.line_of(nar, word), found)
+        notes.ugly.append(f"The README reads as a product brochure ({where.render()}). It does not say what is still ugly. "
+                          "This is a matter of style (the README critic's RM-LIMITS) and does not change the outcome.")
 
 
 def _speak_about_measurements(facts: Facts | None, measured: Measured | None, notes: _Notes) -> None:

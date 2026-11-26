@@ -212,8 +212,9 @@ def test_a_cns_mention_points_at_the_line_that_mentions_it(tmp_path: Path):
 
 def test_a_brochure_readme_points_at_the_word_that_made_it_one(tmp_path: Path):
     root = _tree(tmp_path, "# demo\n\nA tool.\n\nIt is powerful.\n")
-    p = _complete(_row(PoetryCritic().critique(root).claims, "readme-shape").provenance)
-    assert p.basis == "inferred" and "powerful" in _line(root, p.evidence[0])
+    report = PoetryCritic().critique(root)
+    note = next(n for n in report.what_is_ugly if "brochure" in n)
+    assert "line 5" in note and '"powerful"' in note
 
 
 def test_a_red_suite_is_a_row_with_the_suite_result_as_evidence(tmp_path: Path):

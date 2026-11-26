@@ -12,6 +12,21 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.5] - 2026-11-26, not tagged
+
+### Changed
+
+- The brochure rule no longer decides the claims critic's outcome (the owner's choice, after the outside run in
+  `docs/VALIDATION.md`, where it was the only cause of all three FAILs). A README with a brochure word, or a pip install
+  line and no "does not", now gets a note under "What is still ugly" that names the word and its line and says it does not
+  change the outcome; the README critic's `RM-LIMITS` judges the same thing. A FAIL now means evidence contradicts a claim
+  or the tree breaks a rule. The report no longer has a `readme-shape` row.
+
+### Added
+
+- `tests/planted/trap-13-brochure-readme.txt`, and a test that a brochure README with nothing contradicted passes.
+- The critic's output on the five outside repositories after the change, in `docs/validation/2026-11-26/`: all PASS.
+
 ## [0.5.4] - 2026-11-26, not tagged
 
 ### Added
@@ -639,7 +654,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/a7b0cdc107cb2e53ea0e95ddb89f22f2ebe123a2...a7b0cdc107cb2e53ea0e95ddb89f22f2ebe123a2
+[Unreleased]: https://github.com/wking53214/Burnish/compare/3a3b17cc251e54177e37cd2c2dcc0d7248708da0...3a3b17cc251e54177e37cd2c2dcc0d7248708da0
+[0.5.5]: https://github.com/wking53214/Burnish/compare/af21c03d4f75f3742d4ab6502242ef16a873831d...3a3b17cc251e54177e37cd2c2dcc0d7248708da0
 [0.5.4]: https://github.com/wking53214/Burnish/compare/3f289c84e2e84632ab525ca8e4f232e1509b6d92...a7b0cdc107cb2e53ea0e95ddb89f22f2ebe123a2
 [0.5.3]: https://github.com/wking53214/Burnish/compare/472e18c26059d0fe3efe3c92cf3015cd2d0810d0...83b2ae6beac4c89d1d363da4a26d35296a47eb8f
 [0.5.2]: https://github.com/wking53214/Burnish/compare/e2f567b971913cff0b764bcdc52b8ec74f10122b...05cf80f9d4fa424528a2a20c3154230475f5eec9

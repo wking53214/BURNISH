@@ -48,6 +48,11 @@ battle tested, 100% coverage, no known bugs).
   read; the reviewer checked all three against `requires-python` and all three agree. That is evidence for where item 9
   (more kinds of claims) should start.
 
+**Follow-up (0.5.5).** On the owner's choice the brochure rule no longer decides the outcome: it is a style note, and
+the README critic's RM-LIMITS judges the same thing. The critic was run again on the same five, at the same commits: all
+five end PASS. The outputs are beside the first ones, as `<repository>.critic-0.5.5.txt`. urllib3's PASS still rests on
+the missed "100% test coverage" above.
+
 ### `burnish check`
 
 474 findings in all. The reviewer drew a seeded random sample of 20, four per repository, and read the code at each one

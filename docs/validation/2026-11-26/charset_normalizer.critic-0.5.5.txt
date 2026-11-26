@@ -1,0 +1,23 @@
+$ burnish critic <jawah/charset_normalizer at 0b45fe26ec06> (after the 0.5.5 change)
+exit 0
+
+# Claims critic: charset-normalizer
+
+Outcome: PASS
+
+The artifact's story is consistent with what this inspection could count. That is not a proof of the whole architecture.
+
+## Claims vs reality
+
+## What is beautiful
+- (nothing recorded)
+
+## What is still ugly
+- (nothing recorded)
+
+## What is unfinished
+- No module states WHAT IT OWNS in the first screen of prose.
+
+## UNKNOWN
+- No measurements were handed to the critic: the suite result and Ghost's findings are UNKNOWN here.
+
