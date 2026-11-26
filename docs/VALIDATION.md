@@ -19,8 +19,9 @@ one per owner. The rule, every package looked at, and every output are in
 | psf/requests | `3c7baaa` | FAIL | 48 | fails 4 |
 
 **Who reviewed it.** Claude (an AI model), on 2026-11-26, reading each README in full and the code behind a sample of the
-`check` findings. **No person has reviewed these results yet.** Item 33 asks for a human reviewer, so it stays open; the
-review below is a first pass for a person to confirm or overturn.
+`check` findings. Then a person, William N. King, the same day, reviewed the README side: 14 questions, each with
+Burnish's answer and the AI reviewer's, and agreed with the AI reviewer on all 14
+([`HUMAN_REVIEW.md`](validation/2026-11-26/HUMAN_REVIEW.md)). The `check` sample has not been reviewed by a person.
 
 ### The claims critic
 
@@ -88,6 +89,7 @@ examples sit in sub-sections, so it fails "usage has a code block".
 
 - Anything about repositories with test counts, pins or "no dependencies" claims in their README: none of these five had
   them, so the parts of the critic built for those were not exercised.
-- Whether a person agrees with the review. Until one does, every verdict above is one AI reviewer's reading.
+- Whether a person agrees with the `check` verdicts. Those are one AI reviewer's reading; the README verdicts were
+  confirmed by one person, who is also Burnish's owner, not an independent reviewer (item 36).
 - How Burnish does on applications, data projects or anything that is not a widely used library. The rule picks the most
   downloaded packages, which are small, mature libraries.

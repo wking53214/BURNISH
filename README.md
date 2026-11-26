@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.6, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.7, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.6 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.7 (set 2026-11-26)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
@@ -372,6 +372,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.7** (2026-11-26)
+- *No person had reviewed the outside run.* Item 33 asks for misses and false alarms counted against a human reviewer, and only an AI model had reviewed the 0.5.4 run. Found in the remediation plan. Now the owner has reviewed the README side, 14 questions, and agreed with the AI reviewer on all of them, which confirms one miss, no wrongly flagged claim, and one wrong brochure call; the record is `docs/validation/2026-11-26/HUMAN_REVIEW.md`. The `check` sample is still reviewed by the AI model only. Guard: `tests/test_validation_records.py::test_every_record_validation_md_links_exists`.
 
 **0.5.6** (2026-11-26)
 - *Three kinds of wrong finding from the outside run.* `check` asked for a docstring on `@overload` stubs, which by convention have none (20 findings); it called CapWords functions that a class-named decorator turns into a typing special form badly named (13 of the 17 PY-NAME findings in typing_extensions); and the critic did not read "100% test coverage" as the "100% coverage" absolute. Found by the outside validation (0.5.4, `docs/VALIDATION.md`). Now the stubs are skipped, those names are kept as PEP 8's "reflect usage" rule asks, and "100% coverage" may have test, code, line, branch or statement in the middle. Re-run on the same five: 474 `check` findings became 441, and urllib3 ends INCOMPLETE because its coverage claim is now read and nothing this run reads backs it. Four PY-NAME findings remain, under Known defects. Guard: `tests/test_checks.py::test_an_overload_stub_needs_no_docstring_and_the_function_it_types_still_does`, `tests/test_checks.py::test_a_capwords_function_a_class_decorator_turns_into_an_object_keeps_its_name` and `tests/test_planted.py::test_the_critic_scores_as_the_key_records` (`tests/planted/hard-12-coverage-with-a-word-inside.txt`, no longer a recorded miss).

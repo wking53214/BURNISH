@@ -12,6 +12,18 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.7] - 2026-11-26, not tagged
+
+### Added
+
+- `docs/validation/2026-11-26/HUMAN_REVIEW.md`: the owner's review of the README side of the outside run (item 33): 14
+  questions, agreement with the AI reviewer on all 14. `docs/VALIDATION.md` names the reviewer and says the `check` sample
+  is still reviewed by the AI model only.
+
+### Changed
+
+- `docs/REMEDIATION_PLAN_v2.md`: item 33 done for the README side.
+
 ## [0.5.6] - 2026-11-26, not tagged
 
 ### Fixed
@@ -672,7 +684,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/1837689d02a18975b43cdcfd2d5143bf0d925f2f...1837689d02a18975b43cdcfd2d5143bf0d925f2f
+[Unreleased]: https://github.com/wking53214/Burnish/compare/e5d863f80c70a8a78b7ed5ae96abf1297c056c10...e5d863f80c70a8a78b7ed5ae96abf1297c056c10
+[0.5.7]: https://github.com/wking53214/Burnish/compare/646978a87f802d0ec1d6fadc29d245c509ca9fba...e5d863f80c70a8a78b7ed5ae96abf1297c056c10
 [0.5.6]: https://github.com/wking53214/Burnish/compare/88e74c1e1da80bd6e685b84379e3d90b8500f1fa...1837689d02a18975b43cdcfd2d5143bf0d925f2f
 [0.5.5]: https://github.com/wking53214/Burnish/compare/af21c03d4f75f3742d4ab6502242ef16a873831d...3a3b17cc251e54177e37cd2c2dcc0d7248708da0
 [0.5.4]: https://github.com/wking53214/Burnish/compare/3f289c84e2e84632ab525ca8e4f232e1509b6d92...a7b0cdc107cb2e53ea0e95ddb89f22f2ebe123a2
