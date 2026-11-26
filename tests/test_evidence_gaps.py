@@ -113,6 +113,22 @@ def test_a_broken_pyproject_with_no_claims_is_still_listed_as_unknown(tmp_path: 
     assert any("not valid TOML" in item for item in PoetryCritic().critique(tmp_path).unknown)
 
 
+def test_a_broken_pyproject_with_no_claims_is_incomplete_not_a_pass(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    """Changed on purpose in 0.4.2 (the owner's choice): it used to end PASS, because no README claim needed the file."""
+    _tree(tmp_path, "# demo\n\nA small demo.\n", BROKEN_TOML)
+    report = PoetryCritic().critique(tmp_path)
+    assert report.outcome.value == "INCOMPLETE" and not report.good_enough
+    assert any("not valid TOML" in item and "metadata could not be checked" in item for item in report.unsupported)
+    assert cli.run(["critic", str(tmp_path)]) == cli.EXIT_INCOMPLETE
+    capsys.readouterr()
+
+
+def test_a_broken_pyproject_beside_a_contradiction_is_still_a_fail(tmp_path: Path):
+    _tree(tmp_path, "# demo\n\nA small demo.\n", BROKEN_TOML)
+    (tmp_path / "demo" / "bad.py").write_text("def (:\n", encoding="utf-8")
+    assert PoetryCritic().critique(tmp_path).outcome.value == "FAIL"
+
+
 def test_inspect_says_the_metadata_came_from_a_broken_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
     _tree(tmp_path, "# demo\n", BROKEN_TOML)
     assert cli.main(["inspect", str(tmp_path)]) == 0
