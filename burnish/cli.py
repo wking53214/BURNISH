@@ -9,6 +9,7 @@ EXIT CODES
   1  findings (or a README below the requested tier)
   2  could not run (bad usage, a path that is missing or unreadable, or a path with nothing to check)
   3  the report could not be delivered (standard output closed or full) and the check itself would have exited 0
+  4  `critic` only: nothing is contradicted, but evidence some claim needs could not be had (outcome INCOMPLETE)
 
 A command that cannot look at anything never reports a clean result: "0 findings" over a tree
 that was not read would be a lie, so it exits 2 and says why on stderr.
@@ -16,7 +17,7 @@ that was not read would be a lie, so it exits 2 and says why on stderr.
 A report that cannot be delivered is never a silent success either. If the reader of a pipe went away
 (`burnish critic . | head`) the output is cut short, one line on stderr says so, and the exit code stays the one
 the check earned, as `head` itself intends. For any other failure to write standard output (closed, full device) the
-line says why, an earned 1 or 2 stays as it is, and an earned 0 becomes 3.
+line says why, an earned 1, 2 or 4 stays as it is, and an earned 0 becomes 3.
 
 LOGGING
   Messages go to stderr. `--verbose` shows the debug trail; `BURNISH_LOG_LEVEL`
@@ -43,7 +44,7 @@ from .cns_boundary import to_dict as cns_to_dict
 from cns.seat import Facts
 
 from .criteria import CRITERIA
-from .critic import PoetryCritic
+from .critic import Outcome, PoetryCritic
 from .drift import check_test_claims, check_tree_claims
 from .files import broken_python_links, broken_readme_links, find_readme, python_files
 from .finisher import Burnish
@@ -54,7 +55,7 @@ from .readme_critic import ReadmeCritic, Tier
 
 _TIERS = {"minimum": Tier.MINIMUM, "strong": Tier.STRONG, "over-the-top": Tier.OVER_THE_TOP}
 
-EXIT_OK, EXIT_FINDINGS, EXIT_CANNOT_RUN, EXIT_NOT_DELIVERED = 0, 1, 2, 3
+EXIT_OK, EXIT_FINDINGS, EXIT_CANNOT_RUN, EXIT_NOT_DELIVERED, EXIT_INCOMPLETE = 0, 1, 2, 3, 4
 
 #: The exit codes, as the README's table states them. A test keeps the two in step.
 EXIT_CODES = {
@@ -62,6 +63,7 @@ EXIT_CODES = {
     EXIT_FINDINGS: "Findings, or a README below the requested tier, or a README claim the tree contradicts.",
     EXIT_CANNOT_RUN: "Could not run: bad usage, a path that is missing or unreadable, or a path with nothing to check.",
     EXIT_NOT_DELIVERED: "The report could not be delivered (standard output closed or full) and the check itself would have exited 0.",
+    EXIT_INCOMPLETE: "`critic` only: nothing is contradicted, but evidence some claim needs could not be had (outcome INCOMPLETE).",
 }
 
 LOG_LEVEL_ENV = "BURNISH_LOG_LEVEL"
@@ -278,7 +280,7 @@ def _check(args: argparse.Namespace) -> int:
 def _critic(args: argparse.Namespace) -> int:
     report = PoetryCritic().critique(args.path, collected=args.collected)
     print(report.as_markdown())
-    return EXIT_OK if report.good_enough else EXIT_FINDINGS
+    return {Outcome.PASS: EXIT_OK, Outcome.FAIL: EXIT_FINDINGS, Outcome.INCOMPLETE: EXIT_INCOMPLETE}[report.outcome]
 
 
 def _readme_critic(args: argparse.Namespace) -> int:

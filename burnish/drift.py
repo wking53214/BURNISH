@@ -409,6 +409,10 @@ def check_test_claims(readme: str, collected: Optional[int] = None) -> list[Drif
         if wrong:
             out.append(Drift("tests", words, f"The README states a count of {claim.number}; the suite collects {collected}. "
                                              "These disagree."))
+        elif claim.kind == "passing":
+            out.append(Drift("tests", words, f"The README says {claim.number} tests pass; the suite collects {collected}, "
+                                             "which allows it, but whether they pass was not measured here. Run the "
+                                             "finisher through Warden for a measured result.", "unverifiable"))
     return out
 
 

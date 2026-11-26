@@ -64,7 +64,8 @@ def test_a_worded_count_is_reported_as_unverifiable_like_any_other():
 
 
 def test_a_dotted_count_is_judged_against_a_collected_number():
-    assert check_test_claims("# demo\n\n1.374 tests pass.\n", collected=1374) == []
+    (allowed,) = check_test_claims("# demo\n\n1.374 tests pass.\n", collected=1374)
+    assert allowed.verdict == "unverifiable" and "says 1374 tests pass" in allowed.problem
     (drift,) = check_test_claims("# demo\n\nThe suite has 1.374 tests.\n", collected=1200)
     assert "count of 1374" in drift.problem
 
