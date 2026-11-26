@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Iterator, Optional
 
 __all__ = ["SKIPPED_DIRS", "GENERATED_MARKERS", "README_NAMES", "MARKDOWN_SUFFIXES", "python_files",
-           "broken_python_links", "broken_readme_links", "read_strict", "pyproject_problem", "looks_generated",
+           "broken_python_links", "broken_readme_links", "read_strict", "pyproject_problem", "pyproject_problem_at", "looks_generated",
            "is_protected", "find_readme", "readme_is_markdown", "dominant_ending", "split_endings"]
 
 #: Directories that hold code the target does not own, or output it can rebuild. The first
@@ -116,18 +116,35 @@ def pyproject_problem(root: Path) -> Optional[str]:
     A broken file is not the same as a missing one: whatever is read from it by other means may be incomplete, and a
     claim that only it could back has not been checked. The callers say so instead of carrying on as if all were read.
     """
+    return pyproject_problem_at(root)[0]
+
+
+_AT_LINE = re.compile(r"\(at line (\d+), column \d+\)")
+
+
+def pyproject_problem_at(root: Path) -> tuple[Optional[str], int]:
+    """`pyproject_problem`, and the line of pyproject.toml where reading it failed (0 when there is no single line).
+
+    The line is the one TOML's parser names, the line holding the first byte that is not UTF-8, or, for a file that ends
+    in the middle of a value, its last line.
+    """
     path = Path(root) / "pyproject.toml"
     if not path.is_file():
-        return None
+        return None, 0
+    data = b""
     try:
-        tomllib.loads(path.read_bytes().decode("utf-8"))
-    except UnicodeDecodeError:
-        return "pyproject.toml is not valid UTF-8"
+        data = path.read_bytes()
+        tomllib.loads(data.decode("utf-8"))
+    except UnicodeDecodeError as error:
+        return "pyproject.toml is not valid UTF-8", data[:error.start].count(b"\n") + 1
     except OSError as error:
-        return f"pyproject.toml could not be read ({error.strerror or type(error).__name__})"
+        return f"pyproject.toml could not be read ({error.strerror or type(error).__name__})", 0
     except (tomllib.TOMLDecodeError, ValueError) as error:
-        return f"pyproject.toml is not valid TOML ({str(error).splitlines()[0] if str(error) else 'parse error'})"
-    return None
+        message = str(error)
+        at = _AT_LINE.search(message)
+        line = int(at.group(1)) if at else (len(data.decode("utf-8").splitlines()) if "end of document" in message else 0)
+        return f"pyproject.toml is not valid TOML ({message.splitlines()[0] if message else 'parse error'})", line
+    return None, 0
 
 
 def looks_generated(text: str) -> bool:

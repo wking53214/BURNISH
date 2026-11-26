@@ -33,6 +33,11 @@ class ModuleStory:
     classes: tuple[str, ...]
     functions: tuple[str, ...]
     cns_import: bool
+    #: The first line that mentions CNS (`from cns`, `import cns`, `cns.gate`, `cns.graph`), or 0.
+    cns_line: int = 0
+    #: For a file that does not parse: the line the parser stopped at (0 when it names none) and what it said.
+    parse_error_line: int = 0
+    parse_error: str = ""
 
 
 @dataclass
@@ -170,11 +175,15 @@ def _scan_python(root: Path) -> _PythonScan:
 
 def _record_module(scan: _PythonScan, path: Path, rel: str, src: str) -> None:
     """Add one module's story and ownership statements to the scan."""
-    mentions_cns = bool(_CNS.search(src))
+    cns = _CNS.search(src)
+    mentions_cns = bool(cns)
     scan.cns_mentioned = scan.cns_mentioned or mentions_cns
     classes, functions = _names(src)
-    scan.modules.append(ModuleStory(path=rel, purpose=_module_purpose(src), classes=classes,
-                                    functions=functions, cns_import=mentions_cns))
+    purpose = _module_purpose(src)
+    error_line, error = _parse_error(src) if purpose == "(unparseable)" else (0, "")
+    scan.modules.append(ModuleStory(path=rel, purpose=purpose, classes=classes, functions=functions,
+                                    cns_import=mentions_cns, cns_line=src.count("\n", 0, cns.start()) + 1 if cns else 0,
+                                    parse_error_line=error_line, parse_error=error))
     for line in src.splitlines()[:80]:
         upper = line.strip().upper()
         if upper.startswith(("WHAT THIS OWNS", "WHAT IT OWNS")):
@@ -197,6 +206,17 @@ def _module_purpose(src: str) -> str:
     doc = ast.get_docstring(tree) or ""
     first = doc.strip().split("\n\n", 1)[0].strip().replace("\n", " ")
     return first[:400]
+
+
+def _parse_error(src: str) -> tuple[int, str]:
+    """(line, message) for source the parser refuses: the line it stopped at, or 0 when it names none."""
+    try:
+        ast.parse(src)
+    except SyntaxError as error:
+        return error.lineno or 0, f"{type(error).__name__}: {error.msg}"
+    except _UNPARSEABLE as error:
+        return 0, f"{type(error).__name__}: {str(error).splitlines()[0] if str(error) else 'no message'}"
+    return 0, ""
 
 
 def _names(src: str) -> tuple[tuple[str, ...], tuple[str, ...]]:

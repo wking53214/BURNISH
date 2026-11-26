@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.4.0, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.4.1, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.4.0 (set 2026-11-25)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.4.1 (set 2026-11-25)
 ```
 
 This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
@@ -189,6 +189,15 @@ Three kinds of sentence are checked against the tree, not just against the READM
   nobody measured whether they pass, and the critic ends INCOMPLETE.
   The simplest honest README states no such number.
 
+Every finding in the `burnish critic` report says where it comes from, so a reviewer can repeat it without trusting
+Burnish's reading. Under each row are six lines: the claim and the line of the README (or other file) that states it; the
+evidence, as a file and line (or, for a suite result or a `--collected` count, what was handed in); the method used; whether
+the evidence is direct (it states the fact), inferred (a reading another person could make differently, such as which
+package a module belongs to) or none (nothing could be had); what was not inspected; and the reason for the verdict. A
+line number is the file's own, counted after any generated section and with any line ends. A file that does not parse and
+a `pyproject.toml` that cannot be read are rows of their own, with the line the parser stopped at. These six lines are
+printed in the report only; the generated README section is unchanged.
+
 ### Exit codes and logging
 
 Every command that takes a path reads a folder, and a folder it cannot read has no verdict: a missing path, a path
@@ -304,7 +313,7 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 - **The Python checker finds eight things.** The checks are `PY-EXC`, `PY-SWALLOW`, `PY-STAR`, `PY-DOC`, `PY-NAME`, `PY-CMP`, `PY-RET` and `PY-TYPE`. `tests/test_checks.py` has a test for each, for example `tests/test_checks.py::test_bare_except_is_found`. A file it cannot parse is a finding, not silence (`tests/test_checks.py::test_unparseable_file_is_reported_not_skipped`).
 - **Burnish passes its own checks.** `tests/test_self.py::test_burnish_passes_its_own_python_checks` and `tests/test_self.py::test_burnishes_readme_is_over_the_top_by_its_own_critic`. CI runs `burnish check .`, `burnish critic .` and `burnish readme-critic . --tier over-the-top` in the `python` job.
 - **The README critic judges a README against its rules and gives no score.** `tests/test_readme_critic.py`. The sample under Usage is held to the real output by `tests/test_docs_in_sync.py::test_the_readme_sample_is_what_the_readme_critic_says_about_this_repository`.
-- **The claims critic compares a README's pin, dependency list and test count with the tree.** `tests/test_drift.py`. Burnish's own README is held to it by `tests/test_self.py::test_burnishes_readme_makes_no_claim_its_tree_contradicts`.
+- **The claims critic compares a README's pin, dependency list and test count with the tree.** `tests/test_drift.py`. Each finding names its claim, evidence, method, basis, what was not inspected and its reason, and each line it names holds what it says: `tests/test_provenance.py::test_every_row_has_all_six_fields_and_the_report_prints_them`. Burnish's own README is held to it by `tests/test_self.py::test_burnishes_readme_makes_no_claim_its_tree_contradicts`.
 - **Commands fail closed.** A missing path, a path that is not a folder, a folder with nothing to read and an unreadable file exit 2 and say why (`tests/test_cli_fail_closed.py::test_a_path_that_does_not_exist_exits_2_and_says_so`). A broken symbolic link is named as one (`tests/test_cli_fail_closed.py::test_a_broken_py_symlink_among_real_files_makes_every_command_exit_2`).
 - **A report nobody received is not a success.** `tests/test_cli_delivery.py` runs each printing command in a real process against a closed pipe, a closed descriptor and a full device, with Python's output buffered and unbuffered (`tests/test_cli_delivery.py::test_a_closed_pipe_is_not_a_traceback_and_keeps_the_earned_code`). The exit-code table above equals the code: `tests/test_cli_ops.py::test_the_readme_exit_code_table_matches_the_code`.
 - **The finisher proposes and never writes.** `tests/test_finisher.py::test_the_finisher_proposes_and_never_writes`. `tests/test_independence.py::test_no_burnish_module_opens_a_file_for_writing` looks for the calls `write_text`, `write_bytes`, `unlink` and `rmtree` in the package and finds none; it does not look for other ways to write, and a search for `open(` and `os.replace` on 2026-10-22 also found none, which no test holds.
@@ -350,6 +359,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.4.1** (2026-11-25)
+- *A finding did not say where it came from.* The critic's report gave a verdict and a sentence, but not the line of the README that made the claim, the line of `pyproject.toml` or the import it was judged against, the method, or what it did not read, so a reviewer had to trust Burnish's reading. A file that did not parse and a `pyproject.toml` that could not be read were not rows at all. Found by item 10 of an outside remediation plan. Now every row carries its provenance and the report prints it. Guard: `tests/test_provenance.py::test_a_pin_finding_names_the_readme_line_and_the_pyproject_line`, `tests/test_provenance.py::test_an_undeclared_import_is_inferred_and_points_at_the_import`, `tests/test_provenance.py::test_a_count_judged_against_warden_names_the_suite_result_as_its_evidence`, `tests/test_provenance.py::test_a_broken_pyproject_names_the_line_the_parser_stopped_at`, `tests/test_provenance.py::test_a_parse_failure_names_the_file_and_the_line_the_parser_stopped_at` and `tests/test_provenance.py::test_a_line_number_is_the_files_own_after_a_generated_block_and_crlf_line_ends`.
 
 **0.4.0** (2026-11-25)
 - *The critic gave one answer for "wrong" and "not looked at".* A claim the tree contradicts and a claim nothing could check both ended "This isn't good enough yet." with exit 1, so a reader could not tell them apart. Found by checking an outside remediation plan against the code. Now the outcome is PASS, FAIL or INCOMPLETE, with INCOMPLETE on the new exit code 4. Guard: `tests/test_outcome.py::test_a_claim_nothing_measured_is_incomplete_and_exits_4`, `tests/test_outcome.py::test_a_claim_the_tree_contradicts_fails_and_exits_1` and `tests/test_outcome.py::test_a_contradiction_beside_an_unchecked_claim_is_still_a_fail`.

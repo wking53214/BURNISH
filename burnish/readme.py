@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 
-from .critic import CriticReport
+from .critic import TREE_FINDINGS, CriticReport
 from .files import GENERATED_MARKERS, dominant_ending
 from .marked import Block, ends_inside_comment, find_block, wrap
 from .narrative import Narrative
@@ -113,7 +113,7 @@ def _scripts(narrative: Narrative) -> str:
 def _claims_versus_reality(critic: CriticReport, complete: bool = True) -> str:
     """The claims the critic checked, then its verdict. `complete` is False when any check did not run."""
     lines = [f"- {c.label or '`' + c.text + '`'}: {_plain(c.note)} [{_TAGS.get(c.agreement) or c.agreement or c.epistemic.value}]"
-             for c in critic.claims]
+             for c in critic.claims if c.kind not in TREE_FINDINGS]
     if not critic.readme_test_claims:
         lines.append("- No test-count claims found in the README.")
     if critic.readme_unchecked:

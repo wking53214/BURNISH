@@ -62,7 +62,7 @@ from warden.models import Transformation, TransformationStatus
 from cns.seat import Facts
 
 from .beautify import tidy_edits
-from .critic import CriticReport, PoetryCritic
+from .critic import TREE_FINDINGS, CriticReport, PoetryCritic
 from .files import broken_readme_links, find_readme, looks_generated, read_strict, readme_is_markdown
 from .marked import HEADING, find_block, has_heading, unclosed_fence
 from .measured import Measured, describe_suite, measure
@@ -243,7 +243,8 @@ class Burnish:
         report = PoetryCritic().critique(path.parent, narrative, facts)
         self.notes += [f"Not measured: {item}." for item in measured.not_run]
         self.notes += [f"README says: {clean(c.text, 80)}: {clean(c.note)}"
-                       for c in report.claims if c.location == "README" and not c.supported]
+                       for c in report.claims
+                       if c.location == "README" and not c.supported and c.kind not in TREE_FINDINGS]
 
 
 def _commentary(report: CriticReport, readme: ReadmeReport, measured: Measured) -> str:
