@@ -69,8 +69,11 @@ def _default_sections(narrative: Narrative, critic: CriticReport) -> dict[str, s
     ugly = _bullets(critic.what_is_ugly, _NOTHING_RECORDED)
     unfinished = _bullets(critic.what_is_unfinished, "- (none recorded)")
     return {
+        #: The version is named by where it lives, not restated: a compiled README belongs to the author after the first
+        #: finish, so a figure copied into it goes stale at the next release.
         "WHAT THIS IS": (f"`{narrative.name}` as declared by its own tree. "
-                         f"Version `{narrative.version or 'UNKNOWN'}`."
+                         + ("Its version is the one `pyproject.toml` declares." if narrative.version else
+                            "No version was found in `pyproject.toml`.")
                          + (f" {narrative.metadata_problem}; the name and version were read line by line and may be wrong."
                             if narrative.metadata_problem else "")),
         "WHY IT EXISTS": "See the module docstrings. If they do not say, that absence is the answer.",
@@ -82,7 +85,9 @@ def _default_sections(narrative: Narrative, critic: CriticReport) -> dict[str, s
         "LIFECYCLE / EXECUTION MODEL": "- UNKNOWN unless a module docstring states it.",
         "WHAT WORKS": "- UNKNOWN until a test is executed and cited.",
         "WHAT IS BEAUTIFUL": _bullets(critic.what_is_beautiful, _NOTHING_RECORDED),
-        "WHAT IS IMPLEMENTED": f"- Python modules in this tree: {len(narrative.modules)}",
+        #: The modules are listed under ARCHITECTURAL STORY; a count of them would go stale at the next new file.
+        "WHAT IS IMPLEMENTED": ("- The Python modules listed under ARCHITECTURAL STORY." if narrative.modules else
+                                "- (no Python modules)"),
         "WHAT IS PROVEN": "- Only what an executed test shows. See CLAIMS VS REALITY for what was measured.",
         "WHAT IS NOT PROVEN": ("- Anything no executed test covers.\n"
                                "- Burnish does not claim this README is complete."),

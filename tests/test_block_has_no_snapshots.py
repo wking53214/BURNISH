@@ -186,3 +186,45 @@ def test_the_section_matches_nothing_a_sibling_repository_forbids_in_a_readme(tm
     block = _block(tmp_path, facts, readme)
     tripped = {name: pattern.findall(block) for name, pattern in FORBIDDEN.items() if pattern.search(block)}
     assert tripped == {}, f"{tripped} in:\n{block}"
+
+
+# ---- the README Burnish compiles for a repository that has none ----------------------------------------------------------
+#
+# Item 7 of the 2026-11 remediation plan. The compiled body is written once and then belongs to the author, so a figure in
+# it is never corrected: it said "Python modules in this tree: N" and the package version, and both went stale. The body is
+# now held to the same patterns as the generated section.
+
+def _compiled(root: Path, facts: Facts) -> str:
+    """The whole README the finisher writes into a demo tree that has none: the compiled body and the generated section."""
+    (root / "pkg").mkdir(parents=True)
+    (root / "pkg" / "__init__.py").write_text(SOURCE, encoding="utf-8")
+    (root / "pyproject.toml").write_text(PYPROJECT, encoding="utf-8")
+    proposal = Burnish().finish(root, "base", facts)
+    assert proposal is not None
+    return next(edit for edit in proposal.edits if edit.path == "README.md").new
+
+
+@pytest.mark.parametrize("case", [c for c in FACTS_BY_CASE if FACTS_BY_CASE[c][1] is README])
+def test_a_compiled_readme_matches_nothing_a_sibling_repository_forbids(tmp_path: Path, case: str):
+    readme = _compiled(tmp_path, FACTS_BY_CASE[case][0])
+    tripped = {name: pattern.findall(readme) for name, pattern in FORBIDDEN.items() if pattern.search(readme)}
+    assert tripped == {}, f"{tripped} in:\n{readme}"
+    assert STANDALONE_NUMBER.findall(readme) == [], readme
+
+
+def test_a_compiled_readme_points_at_the_version_and_lists_the_modules_instead_of_counting_them(tmp_path: Path):
+    readme = _compiled(tmp_path, _facts(**GREEN))
+    assert "Its version is the one `pyproject.toml` declares." in readme and "0.0.1" not in readme
+    assert "- The Python modules listed under ARCHITECTURAL STORY." in readme and "- `pkg/__init__.py`: demo." in readme
+    assert "modules in this tree:" not in readme
+
+
+def test_the_readme_draft_command_states_no_version_or_module_count(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    from burnish import cli
+
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "__init__.py").write_text(SOURCE, encoding="utf-8")
+    (tmp_path / "pyproject.toml").write_text(PYPROJECT, encoding="utf-8")
+    assert cli.main(["readme", str(tmp_path)]) == 0
+    draft = capsys.readouterr().out
+    assert VERSION_OR_COMMIT.findall(draft) == [] and STANDALONE_NUMBER.findall(draft) == [], draft

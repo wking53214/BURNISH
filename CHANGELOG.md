@@ -12,6 +12,15 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-11-26, not tagged
+
+### Fixed
+
+- A README Burnish compiles for a repository that has none (by the finisher, or as the `burnish readme` draft) no longer
+  states the package version or a count of Python modules. It says the version is the one `pyproject.toml` declares, and
+  WHAT IS IMPLEMENTED points at the module list under ARCHITECTURAL STORY. The compiled README is now tested against the
+  same sibling-repository patterns as the generated section. This closes the Known defect about it.
+
 ## [0.4.2] - 2026-11-25, not tagged
 
 ### Changed
@@ -531,7 +540,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/245d1f356a28037c7faaa1257287859370a8940c...245d1f356a28037c7faaa1257287859370a8940c
+[Unreleased]: https://github.com/wking53214/Burnish/compare/0940625b32d44f2fde7ddad7f4976127f52d7436...0940625b32d44f2fde7ddad7f4976127f52d7436
+[0.4.3]: https://github.com/wking53214/Burnish/compare/dcb74cc09ff5eb77a029009b0ce5363d79abb890...0940625b32d44f2fde7ddad7f4976127f52d7436
 [0.4.2]: https://github.com/wking53214/Burnish/compare/105adf7fd6706a6c5ca1f54f33c2e8bd83664596...245d1f356a28037c7faaa1257287859370a8940c
 [0.4.1]: https://github.com/wking53214/Burnish/compare/30b1056e7075ef7cd59eb2911ec92becdf69f43e...6bfb0ba951272740333e2dedb118acaa53a13534
 [0.4.0]: https://github.com/wking53214/Burnish/compare/22783b5e2bfa834a6be55f6483865b969cac25e8...265af439334870b9b91d45e7da2996dfe5b386e2
