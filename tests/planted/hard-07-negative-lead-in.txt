@@ -1,8 +1,8 @@
 about: A negative word early in a sentence that still claims a count.
 group: hard
 suite: passed=12
-defect: README.md:7 tests missed
-defect: README.md:9 tests missed
+defect: README.md:7 tests
+defect: README.md:9 tests
 
 === file: README.md
 # demo
@@ -13,7 +13,7 @@ A small planted repository.
 
 No one disputes it: the suite has 30 tests.
 
-Without exception, all 30 tests pass.
+Without exception, all 31 tests pass.
 === file: pyproject.toml
 [project]
 name = "demo"

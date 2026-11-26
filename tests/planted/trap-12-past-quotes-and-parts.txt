@@ -1,0 +1,24 @@
+about: History after a colon, an old quoted motto, and one package's count.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## History
+
+Before the rewrite: 40 tests.
+
+Our old motto was "all 99 tests pass".
+
+The plugin package has 5 tests.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

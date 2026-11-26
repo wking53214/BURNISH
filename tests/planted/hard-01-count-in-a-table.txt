@@ -1,7 +1,7 @@
 about: A wrong count in a status table.
 group: hard
 suite: passed=12
-defect: README.md:9 tests missed
+defect: README.md:9 tests
 
 === file: README.md
 # demo

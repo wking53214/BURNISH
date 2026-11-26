@@ -18,7 +18,13 @@ ONLY CLAIMS ABOUT THIS PROJECT'S OWN SUITE ARE JUDGED
     or a named subject ("herald 390 tests"). The last three are counted as
     "mentioned, not checked" so the report can say so without quoting them,
   * a wish, a rule or a denial: "should have 30 tests", "we make no claim of
-    100% coverage", "the goal is 100% coverage".
+    100% coverage", "the goal is 100% coverage",
+  * a quotation: a phrase inside double quotation marks is mentioned, not asserted.
+
+Some words that usually deny, wish or look back do not here: "not just fast but production ready", "without exception, all
+30 tests pass", "if you clone it, all 30 tests pass", "as of today, the suite has 30 tests" and "the suite was rewritten; it
+now has 30 tests" are claims. A table cell ends a count ("| Tests | 40 tests |"), and a count after a named part ("the
+parser module has 3 tests") is about that part.
 
 The shapes mirror what Ghost Tools treats as not a current claim, copied here and
 not imported: Burnish reads no other role's code.
@@ -63,7 +69,7 @@ _GREEN = re.compile(r"\ball\s+(?:of\s+)?(?:the\s+|our\s+|its\s+)?tests?\s+(?:are
 #: Words that may sit between the number and "tests" and still leave it a count of the whole suite.
 _WHOLE = frozenset({"automated", "total", "pytest", "passing", "passed", "green"})
 _PASS_AFTER = re.compile(rf"^\s+(?:(?:all|are|now|currently)\s+)*{_PASSING}\b", re.I)
-_TAIL = re.compile(r"^(?:[ \t]*(?:[,.;:)!]|\n|$)|\s+(?:in\s+total|total|(?:are\s+)?collected|exists?|ran|runs?|covers?|covering|"
+_TAIL = re.compile(r"^(?:[ \t]*(?:[,.;:)!|]|\n|$)|\s+(?:in\s+total|total|(?:are\s+)?collected|exists?|ran|runs?|covers?|covering|"
                    r"in\s+the\s+suite|in\s+this\s+repo\w*|and)\b)", re.I)
 _LOWER_BOUND = re.compile(r"(?:at least|over|more than|above|\d\s*\+|plus)\s*$", re.I)
 _NO_SKIPS = re.compile(r"\b(?:no|zero|without|never|0|none|nothing)\s+(?:tests?\s+)?(?:skips?|skipped|skipping)\b|"
@@ -93,6 +99,17 @@ _LEAD_INS = frozenset((
     "comprising numbering counts gained gains gain grew grown grows growing minus removed removes dropped drops extra "
     "net more fewer claimed reported said currently presently there here we suite tests test total full entire whole "
     "every so ci pytest also now currently ships includes include including currently least above").split())
+#: A named part before the count: "the parser module has 3 tests" counts one module, not the suite.
+_NAMED_PART = re.compile(r"\b([A-Za-z][\w.\-]*)\s+(?=(?:module|package|subpackage|file|class|function|component|plugin|"
+                         r"crate)\b)", re.I)
+#: Phrases that hold a negative, wishful or past word and still state a claim about now. They are taken out of the
+#: sentence before it is tested for a denial, a wish or a history: "without exception, all 30 tests pass" claims a count.
+_NOT_DENYING = re.compile(r"\b(?:without\s+(?:exception|fail|doubt)|no\s+(?:doubt|surprise)|no\s+one\s+(?:disputes|doubts)|"
+                          r"not\s+(?:just|only|merely|simply))\b", re.I)
+_NOT_WISHING = re.compile(r"\b(?:if|when|once)\s+you\b[^,.;:]*,", re.I)
+_NOT_PAST = re.compile(r"\bas\s+of\s+(?:today|now|this\s+(?:release|version|writing|commit))\b", re.I)
+#: A word after a history word that brings the sentence back to now: "the suite was rewritten and now has 30 tests".
+_NOW = re.compile(r"\b(?:now|currently|presently|today)\b", re.I)
 _SCOPED_TO_FILE = re.compile(r"\b\w+\.py\b|\btests?/|\btest_\w+|--ignore|\bpytest\s+\S", re.I)
 
 _ABSOLUTES = ("fully verified", "production ready", "battle tested", "100% coverage", "no known bugs")
@@ -185,14 +202,45 @@ def _line(text: str, start: int) -> tuple[str, int]:
     return text[begin:finish if finish >= 0 else len(text)], start - begin
 
 
+def _clause(lead: str, marks: str = ";") -> str:
+    """The last clause of `lead`: "the suite was rewritten; it now has" is read from "it now has"."""
+    return re.split(rf"[{marks}]", lead)[-1]
+
+
+def _looks_back(lead: str) -> bool:
+    """True when the words before a phrase put it in the past, and nothing after the past word brings it back to now."""
+    kept = _NOT_PAST.sub(" ", lead)
+    found = list(_HISTORY.finditer(kept))
+    return bool(found) and not _NOW.search(kept[found[-1].end():])
+
+
+def _denies(lead: str) -> bool:
+    """True when the clause right before a phrase denies it. A colon ends a clause here: "it is not small: it has"."""
+    return bool(_DENIAL.search(_NOT_DENYING.sub(" ", _clause(lead, ":;"))[-60:]))
+
+
+def _wishes(lead: str) -> bool:
+    """True when the words before a phrase make it a wish, a goal or a condition. "If you clone it," is none of these."""
+    return bool(_WISH.search(_NOT_WISHING.sub(" ", lead)))
+
+
+def _quoted(text: str, start: int) -> bool:
+    """True when the phrase sits inside double quotation marks on its line: it is mentioned or reported, not asserted."""
+    line, at = _line(text, start)
+    before, after = line[:at], line[at:]
+    if "\u201c" in before and before.count("\u201c") > before.count("\u201d") and "\u201d" in after:
+        return True
+    return before.count('"') % 2 == 1 and '"' in after
+
+
 def _not_a_claim(text: str, start: int, end: int) -> bool:
-    """True for a phrase that is a change, a history, a wish or a denial rather than a statement of the suite now."""
+    """True for a phrase that is a change, a history, a wish, a denial or a quotation rather than a statement of the suite now."""
     before = text[max(0, start - 80):start]
     if _DELTA.search(before) or _TRANSITION.search(before) or _QUOTATION.search(before) \
-            or _ATTRIBUTION.search(before):
+            or _ATTRIBUTION.search(before) or _quoted(text, start):
         return True
-    lead = _sentence(text, start)
-    return bool(_HISTORY.search(lead) or _WISH.search(lead) or _NO_CLAIM.search(lead) or _DENIAL.search(lead[-60:]))
+    lead = _clause(_sentence(text, start))
+    return bool(_looks_back(lead) or _wishes(lead) or _NO_CLAIM.search(lead) or _denies(lead))
 
 
 def _scoped(text: str, start: int, end: int) -> bool:
@@ -200,6 +248,9 @@ def _scoped(text: str, start: int, end: int) -> bool:
     line, at = _line(text, start)
     named = _OWNER.search(line[max(0, at - 80):at])
     if named and named.group(1).lower() not in _LEAD_INS:
+        return True
+    parts = list(_NAMED_PART.finditer(_clause(line[max(0, at - 80):at], ",:;")))
+    if parts and parts[-1].group(1).lower() not in _LEAD_INS:
         return True
     if _SCOPED_TO_FILE.search(line[max(0, at - 60):at + (end - start) + 60]) or _CODE in line[max(0, at - 60):at]:
         return True
@@ -285,9 +336,12 @@ def absolutes_at(readme_text: str) -> list[tuple[str, int]]:
     for phrase in _ABSOLUTES:
         pattern = re.compile(r"\b" + r"[\s-]+".join(map(re.escape, phrase.split())) + r"\b", re.I)
         for match in pattern.finditer(text):
-            lead = _sentence(text, match.start())
-            if _NEGATION.search(text[max(0, match.start() - 40):match.start()]) or _NO_CLAIM.search(lead) \
-                    or _WISH.search(lead) or _AFTER_WISH.match(_sentence_after(text, match.end())):
+            lead = _clause(_sentence(text, match.start()))
+            negation = _NEGATION.search(text[max(0, match.start() - 40):match.start()])
+            if negation and _NOT_DENYING.search(negation.group(0)):
+                negation = None   # "not just fast but production ready" still claims it
+            if negation or _NO_CLAIM.search(lead) or _wishes(lead) or _quoted(text, match.start()) \
+                    or _AFTER_WISH.match(_sentence_after(text, match.end())):
                 continue
             if phrase.startswith("100%") and _SCOPED_COVERAGE.match(text[match.end():]):
                 continue

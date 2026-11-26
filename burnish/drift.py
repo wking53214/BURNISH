@@ -263,7 +263,7 @@ def _pin_drift(text: str, lines: list[int], pins: list[_Pin]) -> tuple[list[Drif
 _NO_OTHER = re.compile(
     r"\bno\s+(?:other|further|additional|more|external|third[- ]party)\s+(?:runtime\s+)?dependenc(?:y|ies)\b"
     r"|\bno\s+(?:runtime\s+)?dependenc(?:y|ies)\b|\bzero[- ]dependenc(?:y|ies)\b|\bdependency[- ]free\b"
-    r"|\b(?:standard[- ]library|stdlib)\s+only\b", re.I)
+    r"|\b(?:standard[- ]library|stdlib)\s+only\b|\bdepends\s+on\s+nothing\b|\bdependencies\s*:\s*none\b", re.I)
 _QUOTED = re.compile(r"[\"'\u201c\u2018]\s*$")
 _OTHER_WORD = re.compile(r"\b(?:other|further|additional|more)\b", re.I)
 

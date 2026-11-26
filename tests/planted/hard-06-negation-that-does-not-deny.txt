@@ -1,8 +1,8 @@
 about: A 'not just ... but' sentence that still claims.
 group: hard
 suite: passed=12
-defect: README.md:7 absolute missed
-defect: README.md:9 tests missed
+defect: README.md:7 absolute
+defect: README.md:9 tests
 
 === file: README.md
 # demo

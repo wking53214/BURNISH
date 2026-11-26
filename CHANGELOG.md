@@ -12,6 +12,29 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-11-26, not tagged
+
+### Fixed
+
+- The claims critic reads claims better (item 13 of the remediation plan), measured against the planted-defect
+  collection: from 17 catches, 10 misses and 3 false alarms to every planted defect caught and no false alarm.
+  - A count in a table cell (`| Tests | 40 tests |`) is read.
+  - "not just", "not only", "without exception", "no doubt" and "no one disputes" no longer make a claim a denial, and a
+    colon or semicolon ends the clause a denial is looked for in ("it is not small: it has 30 tests").
+  - "If you clone it," and other conditions addressed to the reader no longer make a claim a wish.
+  - "as of today" and "as of this release" are not history, and "now", "currently" or "today" after a past word brings the
+    sentence back to the present ("the suite was rewritten; it now has 30 tests").
+  - A test count or an absolute inside double quotation marks is a mention, not a claim.
+  - A count after a named part ("the parser module has 3 tests") counts that part, not the suite.
+  - "depends on nothing" and "Dependencies: none" are read as saying a package needs nothing else.
+
+### Changed
+
+- The planted-defect collection: three hard repositories held two sentences making one complaint, which the critic reports
+  once. One was split in two and two had a number changed, so each planted line is scored alone. Two traps were added to
+  check that the new reading does not go too far. It now holds 33 repositories.
+- `docs/REMEDIATION_PLAN_v2.md`: item 13 is done.
+
 ## [0.5.2] - 2026-11-26, not tagged
 
 ### Added
@@ -597,7 +620,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/05cf80f9d4fa424528a2a20c3154230475f5eec9...05cf80f9d4fa424528a2a20c3154230475f5eec9
+[Unreleased]: https://github.com/wking53214/Burnish/compare/83b2ae6beac4c89d1d363da4a26d35296a47eb8f...83b2ae6beac4c89d1d363da4a26d35296a47eb8f
+[0.5.3]: https://github.com/wking53214/Burnish/compare/472e18c26059d0fe3efe3c92cf3015cd2d0810d0...83b2ae6beac4c89d1d363da4a26d35296a47eb8f
 [0.5.2]: https://github.com/wking53214/Burnish/compare/e2f567b971913cff0b764bcdc52b8ec74f10122b...05cf80f9d4fa424528a2a20c3154230475f5eec9
 [0.5.1]: https://github.com/wking53214/Burnish/compare/0066cceae67373bc7c0a59228f5f8c1e2154bf49...22101aeace88938f0f857e6c0553b0887fde0d28
 [0.5.0]: https://github.com/wking53214/Burnish/compare/d90addf0758e351bd80942ff5413133b170d833a...4a3061498ed0769486aaec07a00668c7bf7edd1c

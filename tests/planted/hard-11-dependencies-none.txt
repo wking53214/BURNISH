@@ -1,17 +1,14 @@
-about: No dependencies said in words the reader does not know.
+about: No dependencies said as 'Dependencies: none'.
 group: hard
 suite: passed=12
-defect: README.md:7 dependencies missed
-defect: README.md:9 dependencies missed
+defect: README.md:7 dependencies
 
 === file: README.md
 # demo
 
 A small planted repository.
 
-## Dependencies
-
-It depends on nothing outside the standard library.
+## Install
 
 Dependencies: none.
 === file: pyproject.toml

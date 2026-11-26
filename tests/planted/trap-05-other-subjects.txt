@@ -1,7 +1,6 @@
 about: Counts that belong to something else.
 group: trap
 suite: passed=12
-false-alarm: README.md:7 tests
 
 === file: README.md
 # demo
