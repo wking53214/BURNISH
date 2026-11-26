@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.1, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.2, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.1 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.2 (set 2026-11-26)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
@@ -357,6 +357,7 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 
 ## Known defects (open)
 
+- **The claims critic misreads some sentences.** The planted-defect collection records where (`docs/PLANTED.md`, held by `tests/test_planted.py::test_the_critic_scores_as_the_key_records`). It misses a count in a table cell, a claim after "not just ... but" or after a negative, wishful or past-tense lead-in that does not deny, wish or look back, and ways of saying a package needs nothing else that it does not know. It flags a status phrase inside quotation marks and a count that belongs to one module. Item 13 of the remediation plan works on these.
 - **The test-count check misses wordy counts.** It reads digits (with a comma, dot, space, apostrophe or underscore between thousands), a number of thousands such as "1k", and number words from two to 999 ("twelve", "twenty-one", "two hundred"). It does not read "about a thousand tests pass", "a couple of hundred tests pass", "1.5 million tests pass" or a number worded above 999, and none of those is misread as a smaller count (`tests/test_count_forms.py::test_wordier_counts_are_still_missed_and_never_misread_as_a_smaller_number`). `tests/test_readme_ledger.py::test_the_worded_test_count_gap_is_still_open` holds this sentence to the code: it fails the day the gap closes, so this line must then be removed.
 - **Python files that start with a byte order mark are skipped, not tidied.** Warden's own syntax check cannot read them, so the file is left alone and a note says so (`tests/test_stable_and_careful.py::test_a_python_file_with_a_bom_is_left_alone`).
 - **A README that ends inside an unclosed code block is left alone,** so it gets no generated section (`tests/test_stable_and_careful.py::test_a_readme_that_ends_inside_a_code_fence_is_left_alone`).
@@ -371,6 +372,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.2** (2026-11-26)
+- *The claims critic had no fixed yardstick.* A change to how it reads claims could catch more, or flag what it should not, and nothing would show which. Found by item 34 of the remediation plan, which comes before item 13 (better claim reading). Now `tests/planted/` holds 30 small repositories with planted defects and an answer key that also records today's result, scored as catches, misses and false alarms; a result that differs from the key in either direction fails until the key records it. `docs/PLANTED.md` has the totals and what is still missed. Guard: `tests/test_planted.py::test_the_critic_scores_as_the_key_records`, `tests/test_planted.py::test_every_answer_key_is_well_formed` and `tests/test_planted.py::test_docs_planted_states_the_scorecard_the_key_records`.
 
 **0.5.1** (2026-11-26)
 - *The role section still said Burnish depends on Warden.* 0.5.0 made Warden the `finisher` extra, but the "Depends on" line under Role within ≡TACK was not changed with it. Found while repositioning the README as a Python checker (Campaign D of the remediation plan). It now names CNS as the dependency and Warden as the finisher extra. Guard: `tests/test_without_warden.py::test_the_readme_role_section_names_warden_as_the_finisher_extra`.

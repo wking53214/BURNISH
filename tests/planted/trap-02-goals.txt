@@ -1,0 +1,24 @@
+about: Goals and plans, not claims.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Roadmap
+
+The goal is 100% coverage.
+
+We plan to reach 50 tests by spring.
+
+It should be production ready next year.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

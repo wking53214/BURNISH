@@ -1,0 +1,26 @@
+about: No runtime dependencies, and the one import is an optional extra.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Dependencies
+
+It has no runtime dependencies.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+
+[project.optional-dependencies]
+color = ["rich>=13"]
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
+=== file: demo/show.py
+"""Pretty output."""
+import rich

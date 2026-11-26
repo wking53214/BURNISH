@@ -1,0 +1,18 @@
+about: pyproject.toml cannot be parsed.
+group: catch
+suite: passed=12
+defect: pyproject.toml:0 metadata
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Status
+
+A small tool.
+=== file: pyproject.toml
+[project
+name = "demo"
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

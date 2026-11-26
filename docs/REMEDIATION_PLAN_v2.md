@@ -1,6 +1,6 @@
 # BURNISH Remediation Plan v2
 
-**As of:** Nov 26, 2026, BURNISH 0.5.1.
+**As of:** Nov 26, 2026, BURNISH 0.5.2.
 **Replaces:** v1 (a draft of Nov 26, 2026, written at 0.4.0 and never saved), which replaced the outside 45-item "9.0+"
 plan that was checked against the code on Nov 25, 2026.
 
@@ -40,7 +40,7 @@ plan that was checked against the code on Nov 25, 2026.
 | 10 | Every finding says what evidence it used | ✅ 0.4.1 | Six lines under every finding in the printed report (owner's choice: printed, no JSON mode) |
 | 11 | Keep "finding a claim" separate from "judging it" | 🟡 | Not assessed during item 10. Some of the separation exists (claims are read in one module, judged in another) |
 | 12 | PASS / FAIL / INCOMPLETE | ✅ 0.4.0 | INCOMPLETE has its own exit code, 4 |
-| 13 | Better claim reading (negations, tables, headings, quotes) | 🟡 | Build a test collection of example claims first (item 34), then improve the reader |
+| 13 | Better claim reading (negations, tables, headings, quotes) | 🔵 Next | Measured against the planted collection (item 34): today 10 misses and 3 false alarms, listed in `docs/PLANTED.md` |
 | 14 | Optional link checking over the network | ⚪ | Off by default. Useful but not urgent |
 | 15 | Label README rules as mechanical, structural or human judgment | ⚪ | Mostly a documentation change |
 
@@ -81,7 +81,7 @@ plan that was checked against the code on Nov 25, 2026.
 |---|---|---|---|
 | 32 | Blind runs on 5 unrelated public repos | 🔴 | The biggest gap between a good internal tool and a credible product |
 | 33 | Count false alarms and misses against a human reviewer | 🔴 | |
-| 34 | Deliberately broken repos with planted defects | 🔴 🔵 Next | Can double as the test collection for 13 |
+| 34 | Deliberately broken repos with planted defects | ✅ 0.5.2 | 30 planted repos in `tests/planted/`, scored against an answer key with a ratchet (owner's choice); see `docs/PLANTED.md` |
 | 35 | Publish the results in `docs/VALIDATION.md` | 🔴 | Evidence only, not a sales page |
 | 36 | Two independent reviewers | 🟡 | Comes after 32 to 35 |
 
@@ -96,10 +96,11 @@ engine that misses defects. Which of them already exist in some form has not bee
 2. ✅ Items 46 and 47, plus 48 (0.4.2, 0.4.4); item 7 (0.4.3)
 3. ✅ Item 31: run without Warden (0.5.0)
 4. ✅ Campaign D: reposition as a Python checker (0.5.1)
-5. 🔵 **Items 34 and 13:** build the planted-defect collection, then improve claim reading against it
-6. 🔴 **Items 32, 33 and 35:** outside validation
-7. **Items 16 to 18:** evidence-based CNS recommendations
-8. **Items 27, 28, then 9, 11, 19 and the rest**
+5. ✅ Item 34: the planted-defect collection (0.5.2)
+6. 🔵 **Item 13:** improve claim reading, measured against the collection
+7. 🔴 **Items 32, 33 and 35:** outside validation
+8. **Items 16 to 18:** evidence-based CNS recommendations
+9. **Items 27, 28, then 9, 11, 19 and the rest**
 
 ## What this plan does not claim
 - **No new scores.** Nothing here has been re-audited end to end, so the original plan's target scores are not earned.

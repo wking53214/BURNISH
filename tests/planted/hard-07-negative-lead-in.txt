@@ -1,0 +1,24 @@
+about: A negative word early in a sentence that still claims a count.
+group: hard
+suite: passed=12
+defect: README.md:7 tests missed
+defect: README.md:9 tests missed
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Status
+
+No one disputes it: the suite has 30 tests.
+
+Without exception, all 30 tests pass.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

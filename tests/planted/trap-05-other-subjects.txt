@@ -1,0 +1,25 @@
+about: Counts that belong to something else.
+group: trap
+suite: passed=12
+false-alarm: README.md:7 tests
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Testing
+
+The parser module has 3 tests.
+
+The file test_io.py has 4 tests.
+
+herald 390 tests run in its own repository.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

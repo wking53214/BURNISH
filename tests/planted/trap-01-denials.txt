@@ -1,0 +1,24 @@
+about: Denials of absolutes.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Status
+
+This is not production ready.
+
+We make no claim of 100% coverage.
+
+It has never been battle tested.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
