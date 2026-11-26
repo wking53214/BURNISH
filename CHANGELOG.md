@@ -12,6 +12,19 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-26, not tagged
+
+### Changed
+
+- Warden is no longer a runtime dependency. It is the `finisher` extra (`pip install "burnish[finisher] @ git+..."`), at
+  the same pinned commit, `26d8128ecd75c841125128533812763385dc7497` (Warden 1.0.0). A plain install brings only CNS.
+  The `dev` extra includes `finisher`, so the suite still tests the finisher. Anything that installs Burnish and uses
+  `burnish finish` or `burnish.finisher` must now ask for the extra. This is why the version is 0.5.0.
+- The command-line tool loads the finisher only for `burnish finish`. Every other command (`check`, `critic`,
+  `readme-critic`, `inspect`, `readme`, `cns`, `criteria`, `languages`, `--version`) runs without Warden installed.
+  Before, each of them failed with an import error. `burnish finish` without Warden says what is missing and exits 2;
+  the exit-code table says so.
+
 ## [0.4.4] - 2026-11-26, not tagged
 
 ### Fixed
@@ -553,7 +566,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/9fd2d7fc7cb48c76b47c93615008c75636d06bbf...9fd2d7fc7cb48c76b47c93615008c75636d06bbf
+[Unreleased]: https://github.com/wking53214/Burnish/compare/4a3061498ed0769486aaec07a00668c7bf7edd1c...4a3061498ed0769486aaec07a00668c7bf7edd1c
+[0.5.0]: https://github.com/wking53214/Burnish/compare/d90addf0758e351bd80942ff5413133b170d833a...4a3061498ed0769486aaec07a00668c7bf7edd1c
 [0.4.4]: https://github.com/wking53214/Burnish/compare/de326480e94b1b8da8cb8c3b9a9d5806be5db5dc...9fd2d7fc7cb48c76b47c93615008c75636d06bbf
 [0.4.3]: https://github.com/wking53214/Burnish/compare/dcb74cc09ff5eb77a029009b0ce5363d79abb890...0940625b32d44f2fde7ddad7f4976127f52d7436
 [0.4.2]: https://github.com/wking53214/Burnish/compare/105adf7fd6706a6c5ca1f54f33c2e8bd83664596...245d1f356a28037c7faaa1257287859370a8940c

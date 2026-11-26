@@ -10,7 +10,7 @@ PINNED = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _warden_dependency() -> re.Match:
-    deps = tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))["project"]["dependencies"]
+    deps = tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))["project"]["optional-dependencies"]["finisher"]
     found = [m for d in deps if (m := WARDEN.match(d))]
     assert len(found) == 1, f"expected exactly one pinned Warden dependency, got {deps}"
     return found[0]

@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.4.4, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.0, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,13 +36,22 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.4.4 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.0 (set 2026-11-26)
 ```
 
-This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
-[Warden](https://github.com/wking53214/Warden), which Burnish plugs into, and
-[CNS](https://github.com/wking53214/CNS), the shared data shapes that both import. Python 3.11 or newer; CI runs 3.11, 3.12 and 3.13 on Linux.
-Those two are the only runtime dependencies. If you install Warden separately, use the commit `pyproject.toml` names.
+This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
+`pyproject.toml` (see `dependencies` there). That is all `check`, `critic`, `readme-critic`, `inspect`, `readme`, `cns`,
+`criteria` and `languages` need. Python 3.11 or newer; CI runs 3.11, 3.12 and 3.13 on Linux.
+
+Only `burnish finish` needs [Warden](https://github.com/wking53214/Warden), which the finisher plugs into. Install it
+with the `finisher` extra, which pins Warden to one commit (see [Bumping the Warden pin](#bumping-the-warden-pin)):
+
+```bash
+pip install "burnish[finisher] @ git+https://github.com/wking53214/Burnish.git"
+```
+
+Without it, `burnish finish` says Warden is missing and exits 2; every other command runs as usual. If you install Warden
+separately, use the commit `pyproject.toml` names.
 
 Do not install any of these by bare name. Burnish is not on PyPI (on 2026-10-22 there was no project of that name there), and `warden` and `cns` on PyPI are other people's projects. Use the git URL above or a checkout.
 
@@ -61,8 +70,8 @@ CNS has a migration note. The pin moved from `v1.9.0` to `v2.0.0` in Burnish 0.3
 
 ### Bumping the Warden pin
 
-This package depends on one exact Warden commit (see `dependencies` in `pyproject.toml`), so a change on
-Warden's `main` cannot break it without anyone noticing. To move to a newer Warden:
+The `finisher` extra depends on one exact Warden commit (see `[project.optional-dependencies]` in `pyproject.toml`), so
+a change on Warden's `main` cannot break it without anyone noticing. To move to a newer Warden:
 
 1. Pick the Warden commit you want, and note the release it belongs to.
 2. Put the full 40-character commit after the `@` in the `warden @ git+...` line of `pyproject.toml`, and the release it
@@ -226,7 +235,7 @@ README" among what is still ugly, `inspect` says `readme_exists` is false, `read
 |------|---------|
 | 0 | Nothing to report at the level asked for. |
 | 1 | Findings, or a README below the requested tier, or a README claim the tree contradicts. |
-| 2 | Could not run: bad usage, a path that is missing or unreadable, or a path with nothing to check. |
+| 2 | Could not run: bad usage, a path that is missing or unreadable, a path with nothing to check, or `finish` without Warden installed. |
 | 3 | The report could not be delivered (standard output closed or full) and the check itself would have exited 0. |
 | 4 | `critic` only: nothing is contradicted, but evidence some claim needs could not be had (outcome INCOMPLETE). |
 
@@ -362,6 +371,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.0** (2026-11-26)
+- *Every command needed Warden, though only the finisher uses it.* The command-line tool loaded the finisher at start, so without Warden installed `check`, `critic`, `readme-critic` and even `--version` failed with an import error. Burnish left the circuit on 2026-10-29 and its standalone checkers are what is still used. Found by item 31 of the remediation plan and confirmed in an environment with no Warden. Now only `burnish finish` loads the finisher; without Warden it says what is missing and exits 2. Warden moved from the runtime dependencies to the `finisher` extra, so a plain install brings only CNS. Guard: `tests/test_without_warden.py::test_a_standalone_command_runs_without_warden`, `tests/test_without_warden.py::test_finish_without_warden_says_what_is_missing_and_exits_2`, `tests/test_without_warden.py::test_warden_is_the_finisher_extra_and_not_a_runtime_dependency` and `tests/test_without_warden.py::test_only_the_finisher_imports_warden`.
 
 **0.4.4** (2026-11-26)
 - *A pin or dependency claim in a tree with no `pyproject.toml` passed.* Nothing was checked and nothing was said, so the critic ended PASS. Found in the Nov 25 audit of the outside remediation plan (item 47 of the plan that replaced it). Now each kind of claim is reported as not checked and the critic ends INCOMPLETE; `readme-critic` lists it with the other claims it cannot back. Guard: `tests/test_drift.py::test_a_tree_without_pyproject_leaves_its_pin_and_dependency_claims_unchecked` and `tests/test_outcome.py::test_pin_and_dependency_claims_with_no_pyproject_end_incomplete`.

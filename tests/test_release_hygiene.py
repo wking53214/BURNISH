@@ -11,6 +11,9 @@ from burnish import cli
 
 ROOT = Path(__file__).resolve().parent.parent
 PYPROJECT = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+#: Every git dependency, runtime and extra: CNS is a runtime dependency, Warden is the `finisher` extra (since 0.5.0).
+GIT_SPECS = [d for d in PYPROJECT["project"]["dependencies"]
+             + [d for extra in PYPROJECT["project"]["optional-dependencies"].values() for d in extra] if "git+" in d]
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 
 
@@ -51,7 +54,7 @@ def test_python_313_is_declared_and_tested():
 
 
 def test_every_git_dependency_is_a_full_commit():
-    specs = [d for d in PYPROJECT["project"]["dependencies"] if "git+" in d]
+    specs = GIT_SPECS
     assert len(specs) == 2
     for spec in specs:
         ref = spec.rsplit("@", 1)[1]
@@ -80,7 +83,7 @@ def test_every_git_pin_is_named_in_the_changelog():
     saying so turns this test red. It cannot tell a move back to a ref an older entry already names.
     """
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    specs = [d for d in PYPROJECT["project"]["dependencies"] if "git+" in d]
+    specs = GIT_SPECS
     assert specs
     for spec in specs:
         ref = spec.rsplit("@", 1)[1]

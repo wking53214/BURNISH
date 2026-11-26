@@ -15,7 +15,7 @@ WHAT IT OWNS
 WHAT IT DOES NOT OWN
     The discipline of change: the human grant, the test gate, the SWIZZLE proof
     gate and the audit file are Warden's. Forensic detection is Ghost Tools'.
-    Burnish imports Warden; Warden never imports Burnish.
+    Only the finisher imports Warden, and only when it runs; Warden never imports Burnish.
 
 WHAT IT MUST NEVER DO
     Write to a repository without going through Warden.
@@ -25,4 +25,4 @@ WHAT IT MUST NEVER DO
     Report a language as checked when it is only written down.
 """
 
-__version__ = "0.4.4"
+__version__ = "0.5.0"
