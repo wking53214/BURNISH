@@ -1,0 +1,39 @@
+$ burnish readme-critic <jawah/charset_normalizer at 0b45fe26ec06>
+exit 1
+
+# README critic: README.md
+
+This README fails the minimum: 3 thing(s) a reader needs are missing or broken. It is not ready to be someone's first impression.
+
+## Failures (minimum not met)
+- [RM-TITLE] It does not open with a title. (the first line is not a level-one title)
+- [RM-ONELINER] It never says what the project is in one plain sentence. (there is no sentence under the title)
+- [RM-USAGE] A reader cannot tell how to use it. (the usage section has no code block)
+
+## Gaps (not strong)
+- [RM-STATUS] A reader cannot tell whether this is alive. (no statement of whether this is maintained, experimental or stable)
+- [RM-SUPPORT] A stuck reader has nowhere to go. (no place to ask for help)
+- [RM-TOC] It is long and offers no way through. (244 lines and no table of contents)
+- [RM-FENCES] Code is shown unhighlighted. (1 code block(s) with no language, so no highlighting)
+- [RM-EXAMPLES] No example a reader can run. (no runnable examples are linked)
+
+## Not over the top
+- [OT-QUICKLINKS] There is no way to jump to what you came for. (fewer than three navigation links in the first screen)
+- [OT-BADGES] No badge tells the reader anything. (no badge in the first screen (CI status, license or version tells a reader something real))
+- [OT-ARCH] A contributor cannot see how it fits together. (no architecture or how-it-works section)
+- [OT-FAQ] The obvious questions go unanswered. (no FAQ)
+- [OT-ALTERNATIVES] It does not say why this and not something else. (no comparison with alternatives)
+- [OT-ROADMAP] It does not say where it is going. (no roadmap, so the reader cannot tell where it is going)
+- [OT-DECISIONS] The reasoning behind the design is not written down. (no link to why the design is the way it is)
+
+## What holds
+- RM-INSTALL Install, with a command
+- RM-LICENSE License, named
+- RM-LINKS No broken relative links
+- RM-SIZE Under GitHub's size limit
+- RM-CONTRIB Contributing, with a stance
+- RM-LIMITS Says what it will not do
+- OT-VISUAL A picture of the thing
+- OT-DEMO A demo with its output
+- OT-EVIDENCE Claims come with their evidence
+

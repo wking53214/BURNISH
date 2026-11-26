@@ -1,0 +1,33 @@
+$ burnish critic <kjd/idna at d35772508224>
+exit 1
+
+# Claims critic: idna
+
+Outcome: FAIL
+
+This isn't good enough yet.
+
+## Claims vs reality
+- (assumed, UNSUPPORTED) the README says what is still unfinished
+  - Claim: the README says what is still unfinished (a claims-vs-reality or what-it-does-not section) (README.md (whole file))
+  - Evidence: README.md line 13: a pip install line, and no "does not" anywhere
+  - Method: Looked for brochure words (powerful, seamless, state-of-the-art, simply works), or a pip install line with no "does not" anywhere, and for at least two of the honest-section headings (WHAT IT DOES NOT, What It Does NOT, Brutally Honest, CLAIMS VS REALITY, What is still ugly).
+  - Evidence is: inferred (the verdict rests on a reading of the evidence another reader could make differently)
+  - Not inspected: whether the README admits its gaps in other words: only these fixed phrases and headings were looked for
+  - Reason: The README reads as a product brochure and has fewer than two honest-section headings: a polished README without a claims-vs-reality section fails the critic.
+
+## What is beautiful
+- (nothing recorded)
+
+## What is still ugly
+- The README reads as a product brochure. It does not say what is still ugly.
+
+## What is unfinished
+- No module states WHAT IT OWNS in the first screen of prose.
+
+## Unsupported
+- polished README without a claims-vs-reality section
+
+## UNKNOWN
+- No measurements were handed to the critic: the suite result and Ghost's findings are UNKNOWN here.
+

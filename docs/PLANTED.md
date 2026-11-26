@@ -50,8 +50,8 @@ The test checks that this table matches the key.
 |---|---|---|---|---|
 | catch | 10 | 12 | 0 | 0 |
 | trap | 12 | 0 | 0 | 0 |
-| hard | 11 | 15 | 0 | 0 |
-| total | 33 | 27 | 0 | 0 |
+| hard | 12 | 15 | 1 | 0 |
+| total | 34 | 27 | 1 | 0 |
 
 ## History
 
@@ -63,8 +63,10 @@ The test checks that this table matches the key.
   the same complaint, which the critic reports once; one was split in two and two had a number changed, so each line is
   scored alone. Two traps were added to check that the new reading does not go too far: real denials, wishes and history
   next to the phrases it now reads as claims, history after a colon, an old quoted motto, and one package's count.
+- **0.5.4:** one hard repository added from the first outside run (`docs/VALIDATION.md`): "100% test coverage", an
+  absolute with a word inside it, which the critic misses. Recorded as a miss.
 
-A clean score here does not mean the critic reads every README right. Every sentence in the collection was written by this
+A score here does not mean the critic reads every README right. Every sentence in the collection was written by this
 project, and the two newest traps were written after the reader was changed.
 
 ## What this does not show

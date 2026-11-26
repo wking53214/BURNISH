@@ -1,0 +1,53 @@
+$ burnish check <python/typing_extensions at 7cfb2aed844b>
+exit 1
+
+doc/_extensions/gh_link.py:1: PY-DOC: the module has no docstring
+doc/_extensions/gh_link.py:4: PY-DOC: public function `setup` has no docstring
+doc/_extensions/gh_link.py:4: PY-TYPE: `setup` has no annotation for: app, return
+doc/_extensions/gh_link.py:21: PY-DOC: public function `autolink` has no docstring
+doc/_extensions/gh_link.py:21: PY-TYPE: `autolink` has no annotation for: return
+doc/conf.py:1: PY-DOC: the module has no docstring
+doc/conf.py:68: PY-DOC: public function `visit_desc_signature` has no docstring
+doc/conf.py:75: PY-DOC: public function `setup` has no docstring
+doc/conf.py:75: PY-TYPE: `setup` has no annotation for: app, return
+scripts/check_package.py:1: PY-DOC: the module has no docstring
+scripts/check_package.py:8: PY-DOC: public class `ValidationError` has no docstring
+scripts/check_package.py:12: PY-DOC: public function `check` has no docstring
+src/_typed_dict_test_helper.py:1: PY-DOC: the module has no docstring
+src/_typed_dict_test_helper.py:14: PY-DOC: public class `Foo` has no docstring
+src/_typed_dict_test_helper.py:18: PY-DOC: public class `FooGeneric` has no docstring
+src/_typed_dict_test_helper.py:22: PY-DOC: public class `VeryAnnotated` has no docstring
+src/test_typing_extensions.py:1980: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/test_typing_extensions.py:2281: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/test_typing_extensions.py:2285: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:1: PY-DOC: the module has no docstring
+src/typing_extensions.py:167: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:171: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:182: PY-NAME: class `sentinel` is not CapWords
+src/typing_extensions.py:421: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:456: PY-NAME: function `IntVar` is not lowercase_with_underscores
+src/typing_extensions.py:456: PY-TYPE: `IntVar` has no annotation for: name, return
+src/typing_extensions.py:504: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:583: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:1447: PY-NAME: function `TypedDict` is not lowercase_with_underscores
+src/typing_extensions.py:1738: PY-NAME: function `TypeAlias` is not lowercase_with_underscores
+src/typing_extensions.py:2256: PY-NAME: function `Concatenate` is not lowercase_with_underscores
+src/typing_extensions.py:2276: PY-NAME: function `TypeGuard` is not lowercase_with_underscores
+src/typing_extensions.py:2329: PY-NAME: function `TypeIs` is not lowercase_with_underscores
+src/typing_extensions.py:2382: PY-NAME: function `TypeForm` is not lowercase_with_underscores
+src/typing_extensions.py:2410: PY-NAME: function `LiteralString` is not lowercase_with_underscores
+src/typing_extensions.py:2433: PY-NAME: function `Self` is not lowercase_with_underscores
+src/typing_extensions.py:2454: PY-NAME: function `Never` is not lowercase_with_underscores
+src/typing_extensions.py:2485: PY-NAME: function `Required` is not lowercase_with_underscores
+src/typing_extensions.py:2505: PY-NAME: function `NotRequired` is not lowercase_with_underscores
+src/typing_extensions.py:2526: PY-NAME: function `ReadOnly` is not lowercase_with_underscores
+src/typing_extensions.py:2632: PY-NAME: function `Unpack` is not lowercase_with_underscores
+src/typing_extensions.py:3005: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:3020: PY-NAME: class `deprecated` is not CapWords
+src/typing_extensions.py:3491: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:3523: PY-NAME: function `NamedTuple` is not lowercase_with_underscores
+src/typing_extensions.py:4022: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+src/typing_extensions.py:4189: PY-SWALLOW: the handler only passes, so a failure looks like success; handle it or let it rise
+
+[stderr]
+burnish check: 47 finding(s) (PY-DOC 14, PY-NAME 17, PY-SWALLOW 12, PY-TYPE 4)
