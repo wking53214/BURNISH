@@ -51,3 +51,10 @@ def test_only_the_finisher_imports_warden():
                        if any(line.lstrip().startswith(("import warden", "from warden"))
                               for line in path.read_text(encoding="utf-8").splitlines()))
     assert importers == ["finisher.py"]
+
+
+def test_the_readme_role_section_names_warden_as_the_finisher_extra():
+    """0.5.0 moved Warden to the `finisher` extra; the role section said otherwise until 0.5.1."""
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    (line,) = [raw for raw in readme.splitlines() if raw.startswith("- **Depends on.**")]
+    assert "CNS" in line and "`finisher` extra" in line and not line.startswith("- **Depends on.** Warden")

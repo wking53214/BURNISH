@@ -10,20 +10,20 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.0, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.1, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
-Burnish is a written set of rules for what makes Python, Rust and C++23 code and a README better, plus the tools that measure a tree against the rules a program can judge: eight Python checks, a README critic with a rule list, and a critic that compares what a README says with what the tree contains. It can also act as the finisher in the Warden loop (an explicit `--finisher`; it is released from the circuit, see the status note below): it runs once, after the loop has converged, and proposes a whitespace tidy and one generated section in the README. It never writes a file itself; it returns a proposal, and [Warden](https://github.com/wking53214/Warden) applies it or puts everything back.
+Burnish is a Python checker with written standards for Rust and C++23. It is a written set of rules for what makes Python, Rust and C++23 code and a README better, plus the tools that measure a tree against the rules a program can judge: eight Python checks, a README critic with a rule list, and a critic that compares what a README says with what the tree contains. For Rust and C++23 it checks nothing: their rules are written down, and each has one small exemplar that the language's own tools build in CI (see [Languages](#languages)). It can also act as the finisher in the Warden loop (an explicit `--finisher`; it is released from the circuit, see the status note below): it runs once, after the loop has converged, and proposes a whitespace tidy and one generated section in the README. It never writes a file itself; it returns a proposal, and [Warden](https://github.com/wking53214/Warden) applies it or puts everything back.
 
 **Status: released from the circuit (2026-10-29).** Burnish was the finisher seat in the Horsemen circuit, and the owner has released it from the circuit. Released means removed from the circuit and nothing else: the code, the tests, the history and the CI are intact, and Burnish still works on its own as described below. The reason, with the evidence: across the thirteen self-hosting runs of 2026-10-22 and 2026-10-23, the sections the finisher generated were the only change the circuit kept, and the two FINISH_REJECTED results the finisher's change caused (SWIZZLE and JUDGE, first run) were caused by that text. The record is in the CNS repository under `docs/evidence/selfhosting-records-2026-10-23/`. What remains usable on its own: `burnish check`, `burnish critic` and `burnish readme-critic` run standalone on any tree. Standalone here means outside the circuit, not without Warden: every `burnish` command, `burnish --version` included, imports the Warden package and stops with `No module named 'warden'` when Warden is not installed (run on 2026-11-18 in an environment holding Burnish and CNS only). A normal install brings Warden with it, as Install says. In the circuit, the pinned manifest in the CNS repository omits Burnish, so the circuit does not install it. The explicit flow `--finisher burnish.finisher:Burnish` with a bare `--stack` still works, and a bare `--stack` still needs all six checkouts (drafter and burnish included); only a pinned `--stack-manifest` that omits Burnish, with a folder that lacks it, runs without it. Burnish is free to be reborn elsewhere; that is the owner's intent, not a plan or a promise.
 
 ## Role within ≡TACK
 
-- **What it is.** A written set of code and README criteria, plus tools that judge a tree against the rules a program can judge: a Python checker, a README critic, a claims critic and a finisher.
+- **What it is.** A Python checker with written code standards for Rust and C++23 and a README standard, plus tools that judge a tree against the rules a program can judge: a Python checker, a README critic, a claims critic and a finisher.
 - **Authority matrix.** Evaluation (the checkers and critics) and a proposal step (the finisher proposes tidying edits and never writes them itself). It does not define ≡TACK policy, enforce, authorize, authenticate, or keep durable evidence. It is released from the circuit (see the status note under What this is), so nothing in the circuit depends on it.
 - **Does not own.** Whether a change is accepted (Warden and the Judge), the answer key, or the human grant.
-- **Depends on.** Warden (pinned by full commit) and CNS (pinned by release tag); see Install.
+- **Depends on.** CNS (pinned by release tag). Only the finisher needs Warden, as the `finisher` extra (pinned by full commit); see Install.
 - **Depended on by.** UNKNOWN (not inspected here).
 - **Fail behavior.** Commands fail closed: a missing or unreadable path exits 2 with a reason, and a report nobody received is not a success. Weaker spots are under Known defects, for example the critics find claims by phrasing and the test-count check misses some wordy counts.
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.0 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.1 (set 2026-11-26)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
@@ -372,6 +372,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
 
+**0.5.1** (2026-11-26)
+- *The role section still said Burnish depends on Warden.* 0.5.0 made Warden the `finisher` extra, but the "Depends on" line under Role within ≡TACK was not changed with it. Found while repositioning the README as a Python checker (Campaign D of the remediation plan). It now names CNS as the dependency and Warden as the finisher extra. Guard: `tests/test_without_warden.py::test_the_readme_role_section_names_warden_as_the_finisher_extra`.
+
 **0.5.0** (2026-11-26)
 - *Every command needed Warden, though only the finisher uses it.* The command-line tool loaded the finisher at start, so without Warden installed `check`, `critic`, `readme-critic` and even `--version` failed with an import error. Burnish left the circuit on 2026-10-29 and its standalone checkers are what is still used. Found by item 31 of the remediation plan and confirmed in an environment with no Warden. Now only `burnish finish` loads the finisher; without Warden it says what is missing and exits 2. Warden moved from the runtime dependencies to the `finisher` extra, so a plain install brings only CNS. Guard: `tests/test_without_warden.py::test_a_standalone_command_runs_without_warden`, `tests/test_without_warden.py::test_finish_without_warden_says_what_is_missing_and_exits_2`, `tests/test_without_warden.py::test_warden_is_the_finisher_extra_and_not_a_runtime_dependency` and `tests/test_without_warden.py::test_only_the_finisher_imports_warden`.
 
@@ -577,8 +580,11 @@ report is a list of named rules.
 **Can it fix my code?** Not by itself. Proposing a fix is a Drafter's job (Warden seats one with `--drafter`; it is optional since the claim seat, and it is released from the circuit like Burnish). Burnish, when Warden seats it with `--finisher`, runs once after the loop and proposes a tidy and the final README. Warden, with a human grant and a green suite, decides. Today the tidy removes trailing whitespace and nothing else.
 
 **Why does it check Python but not Rust or C++?** Because only Python has a
-checker. Rust and C++23 have written criteria and a working exemplar, and the
-language's own tools enforce the exemplar in CI. `burnish languages` says so.
+checker, and that is the intended shape. Rust and C++23 have written criteria and a
+working exemplar, and the language's own tools enforce the exemplar in CI.
+`burnish languages` says so. On 2026-11-26 the owner chose to keep it that way
+rather than build Rust and C++23 checkers; Clippy, rustfmt and the compiler's
+warnings are better at those languages than a new checker here would be.
 
 **Why is the critic so harsh?** Because a critic that praises is a brochure. The
 README critic is allowed, and required, to say a README is not good.
@@ -600,7 +606,7 @@ Outstanding, in the order a person would likely want them:
 
 1. A first rewrite for names or comments in the finisher, behind Warden's gate.
 2. Read the parts of the C++ Core Guidelines the first pass missed, and add their criteria.
-3. A Rust checker, if Clippy's lints are not enough.
+3. Not planned: Rust and C++23 checkers. Burnish stays a Python checker with written standards for the other two (the owner's choice, 2026-11-26); this is revisited only if Clippy and the compiler's warnings miss what the written rules ask for.
 4. (Superseded by the release of Burnish and Drafter from the circuit on 2026-10-29; kept as history.) Run Warden's loop with Drafter and Burnish in their seats on a real repository and record it in Warden's registry. The loop has run with every seat live on a scratch repository (2026-10-14, `warden tagteam --stack`; under a `code` grant Burnish's tidy and README section were both applied and the run ended `ACCEPT`), and that run is in Warden's `docs/REGISTRY.json`; a real repository is still to do.
 
 ## Support

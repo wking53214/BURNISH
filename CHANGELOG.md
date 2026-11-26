@@ -12,6 +12,22 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-26, not tagged
+
+### Changed
+
+- The README describes Burnish as a Python checker with written standards for Rust and C++23 (Campaign D of the
+  remediation plan; the owner chose this over building Rust and C++23 checkers). The roadmap says those checkers are not
+  planned. No code changed.
+
+### Fixed
+
+- The README's role section still said Burnish depends on Warden; since 0.5.0 Warden is the `finisher` extra.
+
+### Added
+
+- `docs/REMEDIATION_PLAN_v2.md`: the remediation plan with each item's status as of this release.
+
 ## [0.5.0] - 2026-11-26, not tagged
 
 ### Changed
@@ -566,7 +582,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/4a3061498ed0769486aaec07a00668c7bf7edd1c...4a3061498ed0769486aaec07a00668c7bf7edd1c
+[Unreleased]: https://github.com/wking53214/Burnish/compare/22101aeace88938f0f857e6c0553b0887fde0d28...22101aeace88938f0f857e6c0553b0887fde0d28
+[0.5.1]: https://github.com/wking53214/Burnish/compare/0066cceae67373bc7c0a59228f5f8c1e2154bf49...22101aeace88938f0f857e6c0553b0887fde0d28
 [0.5.0]: https://github.com/wking53214/Burnish/compare/d90addf0758e351bd80942ff5413133b170d833a...4a3061498ed0769486aaec07a00668c7bf7edd1c
 [0.4.4]: https://github.com/wking53214/Burnish/compare/de326480e94b1b8da8cb8c3b9a9d5806be5db5dc...9fd2d7fc7cb48c76b47c93615008c75636d06bbf
 [0.4.3]: https://github.com/wking53214/Burnish/compare/dcb74cc09ff5eb77a029009b0ce5363d79abb890...0940625b32d44f2fde7ddad7f4976127f52d7436
