@@ -1,0 +1,28 @@
+about: Standard library only is claimed; a function imports an undeclared package.
+group: catch
+suite: passed=12
+defect: README.md:7 dependencies
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Dependencies
+
+Standard library only.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
+=== file: demo/fast.py
+"""Speed."""
+
+
+def load(text):
+    import orjson
+    return orjson.loads(text)

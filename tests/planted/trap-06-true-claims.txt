@@ -1,0 +1,23 @@
+about: Claims that are true.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Status
+
+The suite has 12 tests, and all 12 tests pass.
+
+Warden is pinned to v1.0.0. Its one dependency is Warden;
+there are no other runtime dependencies.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = ["warden @ git+https://github.com/wking53214/warden@v1.0.0"]
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

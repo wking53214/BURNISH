@@ -1,0 +1,22 @@
+about: All tests are said to pass, and one fails.
+group: catch
+suite: passed=9 failed=1
+defect: README.md:7 tests
+defect: -:0 suite
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Status
+
+All tests pass.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

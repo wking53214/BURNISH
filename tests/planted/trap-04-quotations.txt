@@ -1,0 +1,23 @@
+about: Phrases quoted as words, not asserted.
+group: trap
+suite: passed=12
+false-alarm: README.md:9 absolute
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## FAQ
+
+Some users asked for a "no dependencies" build.
+
+The phrase "production ready" is banned here.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

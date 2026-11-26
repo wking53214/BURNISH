@@ -1,0 +1,24 @@
+about: The project's own claim in a blockquote, and someone else's words quoted.
+group: hard
+suite: passed=12
+defect: README.md:7 tests
+false-alarm: README.md:9 absolute
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Notes
+
+> Note: the suite has 30 tests.
+
+A user wrote: "this is production ready".
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

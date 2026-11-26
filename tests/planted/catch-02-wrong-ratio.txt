@@ -1,0 +1,21 @@
+about: An N/M passing figure that is wrong.
+group: catch
+suite: passed=10
+defect: README.md:7 tests
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+## Status
+
+12/12 tests passing.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

@@ -12,6 +12,21 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-11-26, not tagged
+
+### Added
+
+- `tests/planted/`: the planted-defect collection (item 34 of the remediation plan). Thirty small repositories, each one
+  text file with an answer key: ten with plain defects, ten honest traps, and ten hard cases (tables, headings,
+  blockquotes, negation). `tests/test_planted.py` unpacks each into a scratch folder, runs the claims critic with the suite
+  result the key gives, and scores catches, misses and false alarms. The key records today's misses and false alarms, and
+  a result that differs from it in either direction fails, so a regression is caught and an improvement is recorded.
+- `docs/PLANTED.md`: what the collection holds, how it is scored, and today's totals, which a test holds to the key.
+
+### Changed
+
+- `docs/REMEDIATION_PLAN_v2.md`: item 34 is done; item 13 is next, measured against the collection.
+
 ## [0.5.1] - 2026-11-26, not tagged
 
 ### Changed
@@ -582,7 +597,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/22101aeace88938f0f857e6c0553b0887fde0d28...22101aeace88938f0f857e6c0553b0887fde0d28
+[Unreleased]: https://github.com/wking53214/Burnish/compare/05cf80f9d4fa424528a2a20c3154230475f5eec9...05cf80f9d4fa424528a2a20c3154230475f5eec9
+[0.5.2]: https://github.com/wking53214/Burnish/compare/e2f567b971913cff0b764bcdc52b8ec74f10122b...05cf80f9d4fa424528a2a20c3154230475f5eec9
 [0.5.1]: https://github.com/wking53214/Burnish/compare/0066cceae67373bc7c0a59228f5f8c1e2154bf49...22101aeace88938f0f857e6c0553b0887fde0d28
 [0.5.0]: https://github.com/wking53214/Burnish/compare/d90addf0758e351bd80942ff5413133b170d833a...4a3061498ed0769486aaec07a00668c7bf7edd1c
 [0.4.4]: https://github.com/wking53214/Burnish/compare/de326480e94b1b8da8cb8c3b9a9d5806be5db5dc...9fd2d7fc7cb48c76b47c93615008c75636d06bbf
