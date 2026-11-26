@@ -12,6 +12,25 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.8] - 2026-11-26, not tagged
+
+### Fixed
+
+- `burnish cns` decides from evidence (items 16 and 17 of the remediation plan). It parses each Python file for imports of
+  cns (`import cns`, `from cns`, `importlib.import_module("cns...")`), keeps test files and optional imports apart, and
+  reads pyproject.toml for the project's name and any dependency on cns, runtime or optional. A project named cns is CNS
+  (no action); no import outside the tests and no dependency is no action; an import without a dependency, or a dependency
+  without an import, is defer; both is an adapter. A mention in a README, a comment or a string, an import in a test and
+  the folder's name decide nothing. The `composition-engine` special case is gone. Internal convergence is never
+  recommended from these readings (the owner's choice); the adapter's reason says what evidence it would take.
+- Each recommendation carries its provenance (evidence with file and line, method, what was not inspected, reason) and
+  what would change it; `burnish cns` prints them as `evidence`, `provenance` and `would_change`.
+
+### Added
+
+- `tests/test_cns_examples.py` (item 18): eleven example trees with known answers, each run in four differently named
+  folders, checked for the answer, for no internal convergence, for no writes, and for the evidence listed.
+
 ## [0.5.7] - 2026-11-26, not tagged
 
 ### Added
@@ -684,7 +703,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/e5d863f80c70a8a78b7ed5ae96abf1297c056c10...e5d863f80c70a8a78b7ed5ae96abf1297c056c10
+[Unreleased]: https://github.com/wking53214/Burnish/compare/522b6b152e8f51bdf9722ece226daf8e39130c90...522b6b152e8f51bdf9722ece226daf8e39130c90
+[0.5.8]: https://github.com/wking53214/Burnish/compare/22472e7ec838a1cf9810165963dc1a191fba7df5...522b6b152e8f51bdf9722ece226daf8e39130c90
 [0.5.7]: https://github.com/wking53214/Burnish/compare/646978a87f802d0ec1d6fadc29d245c509ca9fba...e5d863f80c70a8a78b7ed5ae96abf1297c056c10
 [0.5.6]: https://github.com/wking53214/Burnish/compare/88e74c1e1da80bd6e685b84379e3d90b8500f1fa...1837689d02a18975b43cdcfd2d5143bf0d925f2f
 [0.5.5]: https://github.com/wking53214/Burnish/compare/af21c03d4f75f3742d4ab6502242ef16a873831d...3a3b17cc251e54177e37cd2c2dcc0d7248708da0

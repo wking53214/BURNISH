@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.7, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.8, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.7 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.8 (set 2026-11-26)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
@@ -169,7 +169,7 @@ The other commands:
 | `burnish inspect PATH` | What the tree declares about itself, as JSON |
 | `burnish readme PATH` | Prints a README draft compiled from the tree. Never writes |
 | `burnish finish PATH` | Lists the files the finishing proposal would change. Never writes |
-| `burnish cns PATH` | A recommendation about a repository's CNS seam. Never modifies CNS |
+| `burnish cns PATH` | A recommendation about a repository's CNS seam, decided from its imports and `pyproject.toml`, with the evidence it rests on. Never modifies CNS |
 | `burnish criteria` | Every criterion, its level, and how implemented it is |
 | `burnish languages` | What is written down and what is enforced, per language |
 
@@ -372,6 +372,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.8** (2026-11-26)
+- *The CNS analyser decided from mentions and folder names.* Any text that named CNS, a README line or a comment, made it recommend an adapter, so a README saying a tool does not use CNS got one; a folder named `CNS` or `composition-engine` decided the answer, so an identical copy of CNS in a folder with another name was told to build an adapter; "defer" was never given; and no recommendation said what it rested on. Found by items 16 to 18 of the remediation plan and confirmed by running it. Now the answer comes from evidence alone: a project named cns is CNS; a tree that neither imports cns outside the tests nor declares it gets no action; one that does only one of the two gets defer; one that does both gets an adapter. Internal convergence is never recommended from these readings (the owner's choice), and the adapter's reason says what evidence it would take. Each recommendation carries its evidence, method, what was not read and what would change it. Run on real trees: CNS gets no action, and Warden, swizzle and Burnish get an adapter. Guard: `tests/test_cns_examples.py::test_each_example_gets_its_known_answer_whatever_the_folder_is_called`, `tests/test_cns_examples.py::test_each_recommendation_lists_the_evidence_it_required` and `tests/test_cns_readonly.py::test_a_retired_repository_is_judged_by_its_evidence_not_its_folder_name`.
 
 **0.5.7** (2026-11-26)
 - *No person had reviewed the outside run.* Item 33 asks for misses and false alarms counted against a human reviewer, and only an AI model had reviewed the 0.5.4 run. Found in the remediation plan. Now the owner has reviewed the README side, 14 questions, and agreed with the AI reviewer on all of them, which confirms one miss, no wrongly flagged claim, and one wrong brochure call; the record is `docs/validation/2026-11-26/HUMAN_REVIEW.md`. The `check` sample is still reviewed by the AI model only. Guard: `tests/test_validation_records.py::test_every_record_validation_md_links_exists`.
