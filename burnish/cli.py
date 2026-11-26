@@ -7,7 +7,7 @@ is how Burnish's one-time finishing proposal reaches a file.
 EXIT CODES
   0  nothing to report at the level asked for
   1  findings (or a README below the requested tier)
-  2  could not run (bad usage, a path that is missing or unreadable, or a path with nothing to check)
+  2  could not run (bad usage, a path that is missing or unreadable, a path with nothing to check, or `finish` without Warden)
   3  the report could not be delivered (standard output closed or full) and the check itself would have exited 0
   4  `critic` only: nothing is contradicted, but evidence some claim needs could not be had (outcome INCOMPLETE)
 
@@ -47,7 +47,6 @@ from .criteria import CRITERIA
 from .critic import Outcome, PoetryCritic
 from .drift import check_test_claims, check_tree_claims
 from .files import broken_python_links, broken_readme_links, find_readme, python_files
-from .finisher import Burnish
 from .languages import describe
 from .narrative import inspect_tree
 from .readme import compile_readme
@@ -61,7 +60,8 @@ EXIT_OK, EXIT_FINDINGS, EXIT_CANNOT_RUN, EXIT_NOT_DELIVERED, EXIT_INCOMPLETE = 0
 EXIT_CODES = {
     EXIT_OK: "Nothing to report at the level asked for.",
     EXIT_FINDINGS: "Findings, or a README below the requested tier, or a README claim the tree contradicts.",
-    EXIT_CANNOT_RUN: "Could not run: bad usage, a path that is missing or unreadable, or a path with nothing to check.",
+    EXIT_CANNOT_RUN: ("Could not run: bad usage, a path that is missing or unreadable, a path with nothing to check, or "
+                      "`finish` without Warden installed."),
     EXIT_NOT_DELIVERED: "The report could not be delivered (standard output closed or full) and the check itself would have exited 0.",
     EXIT_INCOMPLETE: "`critic` only: nothing is contradicted, but evidence some claim needs could not be had (outcome INCOMPLETE).",
 }
@@ -322,7 +322,19 @@ def _readme(args: argparse.Namespace) -> int:
 
 
 def _finish(args: argparse.Namespace) -> int:
-    """List the files the finisher would change, using no measurements (a preview, not the real hand-off)."""
+    """List the files the finisher would change, using no measurements (a preview, not the real hand-off).
+
+    The finisher is the one part of Burnish that needs Warden, so it is loaded here and nowhere else: every other command
+    runs without Warden installed.
+    """
+    try:
+        from .finisher import Burnish
+    except ImportError as error:
+        if (error.name or "").split(".")[0] != "warden":
+            raise
+        print("burnish finish: needs Warden, which is not installed. Install Burnish with the finisher extra: "
+              "pip install \"burnish[finisher] @ git+https://github.com/wking53214/Burnish.git\"", file=sys.stderr)
+        return EXIT_CANNOT_RUN
     seat = Burnish(scope=args.scope)
     proposal = seat.finish(args.path, "preview", Facts(suite=None, remaining=(), cycles=0))
     for edit in () if proposal is None else proposal.edits:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "burnish"
-version = "0.4.4"
+version = "0.5.0"
 description = "What makes code beautiful, written down, checked, and applied to itself"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,12 +23,11 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Documentation",
 ]
-# Warden is pinned to a full commit, never to a branch or a movable tag, so a change on its main cannot silently break
-# this seat; the release the commit corresponds to is in the comment on its line. CNS is pinned by its release tag, the
-# one spelling every repository in the circuit uses, because pip treats a tag URL and a commit URL as different sources.
-# To bump: see "Bumping the Warden pin" in README.md.
+# CNS is the one runtime dependency. It is pinned by its release tag, the one spelling every repository in the circuit
+# uses, because pip treats a tag URL and a commit URL as different sources. Warden is needed only by the finisher
+# (`burnish finish`), so it is the `finisher` extra; it is pinned to a full commit, never to a branch or a movable tag,
+# with the release the commit corresponds to in the comment on its line. To bump: see "Bumping the Warden pin" in README.md.
 dependencies = [
-    "warden @ git+https://github.com/wking53214/Warden.git@26d8128ecd75c841125128533812763385dc7497",  # Warden 1.0.0
     "cns @ git+https://github.com/wking53214/CNS.git@v4.1.0",  # v4.1.0 = c84ef8c60079aae1753f92d9169d89081c670c22
 ]
 
@@ -39,7 +38,10 @@ Homepage = "https://github.com/wking53214/Burnish"
 burnish = "burnish.cli:run"
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff~=0.17", "mypy~=2.4"]
+finisher = [
+    "warden @ git+https://github.com/wking53214/Warden.git@26d8128ecd75c841125128533812763385dc7497",  # Warden 1.0.0
+]
+dev = ["burnish[finisher]", "pytest>=8", "ruff~=0.17", "mypy~=2.4"]
 
 [tool.setuptools]
 packages = ["burnish"]
