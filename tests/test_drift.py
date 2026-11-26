@@ -155,9 +155,10 @@ def test_a_lower_bound_is_checked_against_the_collected_count():
 
 
 def test_a_passing_claim_is_refuted_only_when_it_cannot_be_true():
-    assert check_test_claims("247 tests pass.\n", collected=247) == []
-    assert check_test_claims("200 tests pass.\n", collected=247) == []   # skips and failures can explain fewer
-    assert len(check_test_claims("250 tests pass.\n", collected=247)) == 1
+    # 0.4.0: a passing claim the count allows is still not confirmed, because no one measured whether they pass.
+    assert [d.verdict for d in check_test_claims("247 tests pass.\n", collected=247)] == ["unverifiable"]
+    assert [d.verdict for d in check_test_claims("200 tests pass.\n", collected=247)] == ["unverifiable"]   # skips, failures
+    assert [d.verdict for d in check_test_claims("250 tests pass.\n", collected=247)] == ["disagrees"]
 
 
 def test_a_history_or_a_file_count_is_not_a_claim_about_the_suite():
@@ -201,7 +202,7 @@ def test_the_critic_cli_takes_the_collected_count(tmp_path: Path, capsys: pytest
     _tree(tmp_path, "# demo\n\n240 test cases are collected in this tree.\n")
     assert cli.main(["critic", str(tmp_path), "--collected", "240"]) == 0
     assert cli.main(["critic", str(tmp_path), "--collected", "241"]) == 1
-    assert cli.main(["critic", str(tmp_path)]) == 1
+    assert cli.main(["critic", str(tmp_path)]) == 4   # unmeasured, not contradicted: INCOMPLETE
     capsys.readouterr()
 
 

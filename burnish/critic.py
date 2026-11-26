@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 
 from cns.epistemic import EpistemicState
@@ -43,6 +44,19 @@ class Claim:
     label: str = ""
 
 
+class Outcome(str, Enum):
+    """The critic's top-level answer.
+
+    FAIL: the evidence contradicts a claim, or the tree breaks a rule (a file that does not parse, a suite that is not
+    green). INCOMPLETE: nothing is contradicted, but evidence a claim needs could not be had in this run (an unmeasured
+    test count, a broken pyproject.toml, an import whose use was not checked). PASS: neither.
+    """
+
+    PASS = "PASS"
+    FAIL = "FAIL"
+    INCOMPLETE = "INCOMPLETE"
+
+
 @dataclass(frozen=True)
 class CriticReport:
     """The critic's whole answer: a verdict, the claims checked, and what is beautiful, ugly and unfinished."""
@@ -60,11 +74,15 @@ class CriticReport:
     readme_test_claims: int = 0
     #: How many test counts the README mentions that are about something else (a file, a table row, a named subject).
     readme_unchecked: int = 0
+    #: PASS, FAIL or INCOMPLETE. `good_enough` is True only for PASS.
+    outcome: Outcome = Outcome.PASS
 
     def as_markdown(self) -> str:
         """The report as a markdown document."""
         lines = [
             f"# Claims critic: {self.target}",
+            "",
+            f"Outcome: {self.outcome.value}",
             "",
             self.verdict,
             "",
@@ -98,6 +116,13 @@ class _Notes:
     unfinished: list[str] = field(default_factory=list)
     unsupported: list[str] = field(default_factory=list)
     unknown: list[str] = field(default_factory=list)
+    #: The unsupported items that are contradictions or broken rules, not missing evidence. Each is also in `unsupported`.
+    failing: list[str] = field(default_factory=list)
+
+    def fail(self, item: str) -> None:
+        """Record something the evidence contradicts, or a rule the tree breaks: it makes the outcome FAIL."""
+        self.unsupported.append(item)
+        self.failing.append(item)
 
 
 class PoetryCritic:
@@ -127,11 +152,13 @@ class PoetryCritic:
             notes.unknown.append(f"{nar.metadata_problem}: the name, version and description were read line by line and "
                                  "may be wrong or incomplete, and no pin or dependency was checked.")
 
-        good_enough = not notes.unsupported and not parse_failures
+        outcome = (Outcome.FAIL if notes.failing or parse_failures else
+                   Outcome.INCOMPLETE if notes.unsupported else Outcome.PASS)
         return CriticReport(
             target=nar.name,
-            good_enough=good_enough,
-            verdict=_VERDICT_GOOD if good_enough else _VERDICT_NOT_YET,
+            good_enough=outcome is Outcome.PASS,
+            verdict=_VERDICTS[outcome],
+            outcome=outcome,
             claims=tuple(notes.claims),
             what_is_beautiful=tuple(notes.beautiful),
             what_is_ugly=tuple(notes.ugly),
@@ -143,11 +170,13 @@ class PoetryCritic:
         )
 
 
-_VERDICT_NOT_YET = "This isn't good enough yet."
-_VERDICT_GOOD = (
-    "The artifact's story is consistent with what this inspection could count. "
-    "That is not a proof of the whole architecture."
-)
+_VERDICTS = {
+    Outcome.FAIL: "This isn't good enough yet.",
+    Outcome.INCOMPLETE: ("Not finished: some claims could not be checked in this run, and nothing found contradicts them. "
+                         "This is not a pass."),
+    Outcome.PASS: ("The artifact's story is consistent with what this inspection could count. "
+                   "That is not a proof of the whole architecture."),
+}
 
 
 def _read_readme(nar: Narrative, notes: _Notes) -> None:
@@ -161,7 +190,7 @@ def _read_readme(nar: Narrative, notes: _Notes) -> None:
         notes.beautiful.append("The README already distinguishes ownership, non-goals, and honest status.")
     if _sounds_like_marketing(nar.readme_text) and not honest:
         notes.ugly.append("The README reads as a product brochure. It does not say what is still ugly.")
-        notes.unsupported.append("polished README without a claims-vs-reality section")
+        notes.fail("polished README without a claims-vs-reality section")
 
 
 def _speak_about_measurements(measured: Measured | None, notes: _Notes) -> None:
@@ -179,7 +208,7 @@ def _speak_about_measurements(measured: Measured | None, notes: _Notes) -> None:
         notes.beautiful.append(f"Warden ran the target's suite at the end of the loop: {describe_suite(suite)}.")
     else:
         notes.ugly.append(f"The target's suite did not pass at the end of the loop: {describe_suite(suite)}.")
-        notes.unsupported.append("a suite that is not green")
+        notes.fail("a suite that is not green")
     for defect in measured.remaining:
         notes.ugly.append(f"Ghost still reports {clean(defect.identity)}: {clean(defect.summary)}")
     notes.unknown.append("Finished means the loop had no proposals left, not that Ghost is silent.")
@@ -201,7 +230,7 @@ def _check_readme_claims(nar: Narrative, measured: Measured | None, notes: _Note
         notes.claims.append(Claim(text=claim.text, location="README", epistemic=states[0], supported=agrees,
                                   note=sentence, agreement=states[1], label=f"README claim ({what})"))
         if suite and not agrees:
-            notes.unsupported.append(sentence)
+            notes.fail(sentence)
         elif not suite:
             notes.unknown.append(sentence)
     for phrase in absolutes(nar.readme_text):
@@ -222,7 +251,10 @@ def _check_against_the_tree(nar: Narrative, facts: Facts | None, collected: int 
             state = EpistemicState.UNKNOWN if drift.verdict in ("unchecked", "unconfirmed") else EpistemicState.ASSUMED
             notes.claims.append(Claim(text=drift.claim, location="README", epistemic=state, supported=False,
                                       note=drift.problem, agreement=drift.verdict, label=f"README claim ({drift.kind})"))
-        notes.unsupported.append(drift.problem)
+        if drift.verdict == "disagrees":
+            notes.fail(drift.problem)
+        else:   # unverifiable, unchecked or unconfirmed: the evidence was not there, nothing contradicts the claim
+            notes.unsupported.append(drift.problem)
     for held in claims_held_by_extras(Path(nar.root), nar.readme_text):
         notes.claims.append(Claim(text=held.claim, location="README", epistemic=EpistemicState.VERIFIED, supported=True,
                                   note=held.problem, agreement="holds for an optional dependency only",
@@ -237,7 +269,7 @@ def _check_historical_as_current(nar: Narrative, notes: _Notes) -> None:
     if living and not archived and _github_archive_hint(nar):
         notes.ugly.append("The README teaches installation and usage as if this were the "
                           "current home of the design, without saying it is historical.")
-        notes.unsupported.append("living-product README on a superseded artifact")
+        notes.fail("living-product README on a superseded artifact")
 
 
 def _check_ownership(nar: Narrative, notes: _Notes) -> None:

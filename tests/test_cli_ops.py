@@ -34,6 +34,8 @@ def test_every_documented_code_is_returned_by_some_run(tmp_path: Path, capsys: p
     (tmp_path / "bad.py").write_text("from os import *\n", encoding="utf-8")
     seen.add(cli.main(["check", str(tmp_path)]))
     seen.add(cli.main(["check", str(tmp_path / "missing")]))
+    (tmp_path / "README.md").write_text("# demo\n\n240 tests pass.\n", encoding="utf-8")
+    seen.add(cli.main(["critic", str(tmp_path)]))   # a count nothing measured: INCOMPLETE, exit 4
     with monkeypatch.context() as unwritable:
         unwritable.setattr(sys, "stdout", None)   # standard output closed: a report that would exit 0 exits 3
         seen.add(cli.main(["criteria"]))

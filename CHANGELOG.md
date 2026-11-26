@@ -12,6 +12,20 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-25, not tagged
+
+The minor version moves because exit codes change, which can break a script that reads them.
+
+### Changed
+
+- `burnish critic` ends with one of three outcomes, shown as `Outcome:` at the top of the report and held in a new
+  `outcome` field of `CriticReport`: PASS (exit 0), FAIL when the evidence contradicts a claim or the tree breaks a rule,
+  such as a file that does not parse or a suite that is not green (exit 1), and INCOMPLETE when nothing is contradicted
+  but a claim could not be checked (new exit code 4). Before, both of the last two ended "This isn't good enough yet."
+  with exit 1. `good_enough` stays and is true only for PASS. An earned 4 is kept when the report cannot be delivered.
+- A README that says N tests pass is no longer left unremarked when a collected count allows it. A collected count is a
+  count, not a result, so the claim is reported as unverifiable: `critic` ends INCOMPLETE and `readme-critic` exits 1.
+
 ## [0.3.29] - 2026-11-25, not tagged
 
 ### Changed
@@ -491,7 +505,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/206c1141ab01907c9d1d577ae8a06bb8a0a60f32...206c1141ab01907c9d1d577ae8a06bb8a0a60f32
+[Unreleased]: https://github.com/wking53214/Burnish/compare/265af439334870b9b91d45e7da2996dfe5b386e2...265af439334870b9b91d45e7da2996dfe5b386e2
+[0.4.0]: https://github.com/wking53214/Burnish/compare/22783b5e2bfa834a6be55f6483865b969cac25e8...265af439334870b9b91d45e7da2996dfe5b386e2
 [0.3.29]: https://github.com/wking53214/Burnish/compare/5ca7e2c44ce9dab0058ca94a36ca2b9f2c57c1a3...206c1141ab01907c9d1d577ae8a06bb8a0a60f32
 [0.3.28]: https://github.com/wking53214/Burnish/compare/71a7fba13e5f9f4883148644246fca179a28a476...c44c7ac17c9a76318e86d0eddd588d5987438d7b
 [0.3.27]: https://github.com/wking53214/Burnish/compare/1d043e10f15a1ffab6ca3d6d443b0513a01b23cc...d7eaa51f66b4407358611a573e017c604abce38f

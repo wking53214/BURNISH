@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.3.29, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.4.0, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.3.29 (set 2026-11-25)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.4.0 (set 2026-11-25)
 ```
 
 This also installs the two things Burnish is built on, each pinned in `pyproject.toml` (see `dependencies` there, and [Bumping the Warden pin](#bumping-the-warden-pin)):
@@ -156,7 +156,7 @@ The other commands:
 
 | Command | What it does |
 |---------|--------------|
-| `burnish critic PATH` | Checks claims in the README and PROVENANCE against what the tree contains: test counts, pins, dependency lists. Exit 1 on "This isn't good enough yet." |
+| `burnish critic PATH` | Checks claims in the README and PROVENANCE against what the tree contains: test counts, pins, dependency lists. Ends with one outcome: PASS (exit 0), FAIL when evidence contradicts a claim or the tree breaks a rule (exit 1), or INCOMPLETE when nothing is contradicted but a claim could not be checked, for example an unmeasured test count (exit 4) |
 | `burnish inspect PATH` | What the tree declares about itself, as JSON |
 | `burnish readme PATH` | Prints a README draft compiled from the tree. Never writes |
 | `burnish finish PATH` | Lists the files the finishing proposal would change. Never writes |
@@ -185,6 +185,8 @@ Three kinds of sentence are checked against the tree, not just against the READM
 - **A test count.** Burnish counts no tests, so a number the README gives for its suite is reported as unverifiable
   unless a count is supplied: `--collected N` takes the total from `pytest --collect-only -q`, and when the
   finisher runs under Warden the measured suite is used instead. A count that cannot be true is reported either way.
+  A collected count is a count, not a result: "240 tests pass" with 240 or more collected is still unverifiable, since
+  nobody measured whether they pass, and the critic ends INCOMPLETE.
   The simplest honest README states no such number.
 
 ### Exit codes and logging
@@ -213,6 +215,7 @@ README" among what is still ugly, `inspect` says `readme_exists` is false, `read
 | 1 | Findings, or a README below the requested tier, or a README claim the tree contradicts. |
 | 2 | Could not run: bad usage, a path that is missing or unreadable, or a path with nothing to check. |
 | 3 | The report could not be delivered (standard output closed or full) and the check itself would have exited 0. |
+| 4 | `critic` only: nothing is contradicted, but evidence some claim needs could not be had (outcome INCOMPLETE). |
 
 A report that cannot be delivered is not a silent success. If the reader of a pipe went away (`burnish critic . | head -3`),
 the output is cut short, one line on stderr says so, and the exit code stays the one the check earned: the reader chose to stop,
@@ -347,6 +350,10 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.4.0** (2026-11-25)
+- *The critic gave one answer for "wrong" and "not looked at".* A claim the tree contradicts and a claim nothing could check both ended "This isn't good enough yet." with exit 1, so a reader could not tell them apart. Found by checking an outside remediation plan against the code. Now the outcome is PASS, FAIL or INCOMPLETE, with INCOMPLETE on the new exit code 4. Guard: `tests/test_outcome.py::test_a_claim_nothing_measured_is_incomplete_and_exits_4`, `tests/test_outcome.py::test_a_claim_the_tree_contradicts_fails_and_exits_1` and `tests/test_outcome.py::test_a_contradiction_beside_an_unchecked_claim_is_still_a_fail`.
+- *A passing count a collected count allows was taken as fine.* "240 tests pass" with 240 collected raised nothing, though nobody measured whether they pass. Found while writing the outcome tests. It is now unverifiable. Guard: `tests/test_drift.py::test_a_passing_claim_is_refuted_only_when_it_cannot_be_true` and `tests/test_outcome.py::test_a_passing_count_below_the_collected_count_is_incomplete_not_a_fail`.
 
 **0.3.29** (2026-11-25)
 - *An import inside a function backed a claim that nothing else is needed.* Since 0.3.13 a module imported inside a function counted as optional, so a README saying the package needs nothing more passed even when that function runs on every use. Found by checking the same plan against the code; the owner chose the strict rule. Now an undeclared module imported inside a function leaves the claim "not confirmed" and unsupported. A guarded import (a `try` that expects it to fail, or `TYPE_CHECKING`) is still optional, and a module declared in an extra or named in the README is still fine. A tree whose README makes such a claim and imports an undeclared module this way now ends `burnish critic` with 1. Guard: `tests/test_drift_extras.py::test_an_undeclared_module_imported_inside_a_function_leaves_the_claim_unconfirmed` and `tests/test_drift_extras.py::test_a_guard_inside_a_function_still_makes_the_import_optional`.
