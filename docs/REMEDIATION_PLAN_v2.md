@@ -53,7 +53,7 @@ plan that was checked against the code on Nov 25, 2026.
 | 16 | Decide adapter recommendations from real evidence, not mentions | ✅ 0.5.8 | Imports and pyproject.toml decide; mentions and folder names do not. Owner's choice: internal convergence is never recommended automatically |
 | 17 | Each recommendation lists the evidence it requires | ✅ 0.5.8 | Evidence, method, what was not read, and what would change it |
 | 18 | Test the CNS analyzer against known example repos | ✅ 0.5.8 | Eleven examples, each in four folder names; spot-checked on CNS, Warden, swizzle and Burnish |
-| 19 | Prove BURNISH never writes files | 🟡 | Narrow it to the read-only commands: cheap, and still matters for standalone use |
+| 19 | Prove BURNISH never writes files | ✅ 0.5.9 | Narrowed to the read-only commands (`finish` is out of scope). Owner's choice: the tree must be unchanged and no write is allowed anywhere on the machine during a run. Proven on Linux only |
 | 20 | Integrity checks on proposed edits | ⚪ | Finisher is out of the circuit |
 | 21 | More finisher stress tests | ⚪ | Finisher is out of the circuit |
 | 22 | Full Warden end-to-end tests | ⚪ | Finisher is out of the circuit |
@@ -102,7 +102,8 @@ engine that misses defects. Which of them already exist in some form has not bee
 6. ✅ Item 13: better claim reading, measured against the collection (0.5.3)
 7. ✅ Items 32 and 35, and a first review for 33: outside validation (0.5.4). 33's README side reviewed by the owner (0.5.7)
 8. ✅ Items 16 to 18: evidence-based CNS recommendations (0.5.8)
-9. **Items 27, 28, then 9, 11, 19 and the rest**
+9. ✅ Item 19: the read-only commands write nothing (0.5.9)
+10. **Items 27, 28, then 9, 11 and the rest**
 
 ## What this plan does not claim
 - **No new scores.** Nothing here has been re-audited end to end, so the original plan's target scores are not earned.

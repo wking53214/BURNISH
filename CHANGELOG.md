@@ -12,6 +12,22 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.9] - 2026-11-26, not tagged
+
+### Added
+
+- A proof that the read-only commands write nothing (item 19 of the remediation plan, narrowed to every command but
+  `finish`). `tests/test_read_only.py` runs `check`, `critic`, `readme-critic`, `inspect`, `readme`, `cns`, `criteria` and
+  `languages`, with their options, on every planted repository, every CNS example tree and one tree holding a bit of
+  everything (metadata, PROVENANCE, a file that is not UTF-8, hidden files, an empty folder, links, a read-only file).
+  Two checks watch each run: a before-and-after record of every file, folder and link in the tree (kind, permissions,
+  size, modification and change times, contents or link target; access times are left out), and an audit hook that
+  blocks and records any attempt anywhere on the machine to open a file for writing, create, rename, delete or change a
+  file or folder, or start another program (the owner's choice: no write anywhere, not only inside the tree). Each
+  command also runs once as a real process under the before-and-after check. A test fails if a new command is added
+  without being named read-only or out of scope, and planted writes of each kind show that both checks catch what they
+  are meant to. No write was found. Proven on Linux; `finish` is not covered.
+
 ## [0.5.8] - 2026-11-26, not tagged
 
 ### Fixed
@@ -703,7 +719,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/522b6b152e8f51bdf9722ece226daf8e39130c90...522b6b152e8f51bdf9722ece226daf8e39130c90
+[Unreleased]: https://github.com/wking53214/Burnish/compare/060e2eb6e2af66ba985d8cf32aa15d5553d31dac...060e2eb6e2af66ba985d8cf32aa15d5553d31dac
+[0.5.9]: https://github.com/wking53214/Burnish/compare/8ff2f077a8561bea82504ccd51a49b2747f17252...060e2eb6e2af66ba985d8cf32aa15d5553d31dac
 [0.5.8]: https://github.com/wking53214/Burnish/compare/22472e7ec838a1cf9810165963dc1a191fba7df5...522b6b152e8f51bdf9722ece226daf8e39130c90
 [0.5.7]: https://github.com/wking53214/Burnish/compare/646978a87f802d0ec1d6fadc29d245c509ca9fba...e5d863f80c70a8a78b7ed5ae96abf1297c056c10
 [0.5.6]: https://github.com/wking53214/Burnish/compare/88e74c1e1da80bd6e685b84379e3d90b8500f1fa...1837689d02a18975b43cdcfd2d5143bf0d925f2f
