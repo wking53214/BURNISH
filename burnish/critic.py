@@ -23,7 +23,7 @@ from typing import Optional
 from cns.epistemic import EpistemicState
 from cns.seat import Facts
 
-from .claims import absolutes_at, judge, test_claims, unchecked_mentions
+from .claims import ABSOLUTES, absolutes_at, judge, test_claims, unchecked_mentions
 from .drift import Drift, check_test_claims, check_tree_claims, claims_held_by_extras
 from .files import find_readme, pyproject_problem_at
 from .marked import line_number, source_line_map
@@ -31,6 +31,7 @@ from .measured import Measured, describe_suite, measure
 from .narrative import Narrative, inspect_tree
 from .provenance import Provenance, Source
 from .textsafe import clean
+from .verify.census import Mention, claim_like
 from .verify.evidence import read_tree
 from .verify.identify import requirement_claims
 from .verify.judge import judge_requirement
@@ -98,6 +99,11 @@ class CriticReport:
     outcome: Outcome = Outcome.PASS
     #: Claims identified that no check exists for (NOT_CHECKED). They are listed and change no outcome.
     not_checked: tuple[Claim, ...] = ()
+    #: Claim-like README sentences no check read (see `burnish.verify.census`), with README file lines. They change no
+    #: outcome: they are listed so that silence is visible.
+    unread: tuple[Mention, ...] = ()
+    #: The README file name the census lines point into.
+    readme_name: str = "README"
 
     def as_markdown(self) -> str:
         """The report as a markdown document."""
@@ -135,6 +141,11 @@ class CriticReport:
                 lines += c.provenance.lines() if c.provenance is not None else []
                 if c.verdict is not None:
                     lines.append(f"  - Verdict: {c.verdict.render()}")
+        if self.unread:
+            lines += ["", "## Claim-like, not read", "",
+                      "Found by word lists, not understood. No check read these, so each is neither supported nor "
+                      "contradicted, and none changes the outcome."]
+            lines += [f'- {", ".join(m.kinds)}: "{m.words}" ({self.readme_name} line {m.line})' for m in self.unread]
         if self.unknown:
             lines += ["", "## UNKNOWN"]
             lines += [f"- {x}" for x in self.unknown]
@@ -184,6 +195,7 @@ class PoetryCritic:
         _check_ownership(nar, notes)
         _check_cns(nar, readme, notes)
         parse_failures = _check_parse_failures(nar, notes)
+        unread = _census(nar, readme, list(notes.claims) + not_checked)
         notes.unknown.extend(clean(item) for item in nar.unknowns)
         if nar.metadata_problem:
             _check_metadata(nar, notes)
@@ -197,6 +209,8 @@ class PoetryCritic:
             outcome=outcome,
             claims=tuple(_with_verdict(c) for c in notes.claims),
             not_checked=tuple(not_checked),
+            unread=tuple(unread),
+            readme_name=readme.name,
             what_is_beautiful=tuple(notes.beautiful),
             what_is_ugly=tuple(notes.ugly),
             what_is_unfinished=tuple(notes.unfinished),
@@ -352,15 +366,18 @@ def _check_readme_claims(nar: Narrative, readme: _Readme, facts: Facts | None, m
         notes.claims.append(Claim(text=phrase, location="README", epistemic=EpistemicState.UNKNOWN, supported=False,
                                   note=note, kind="absolute", provenance=Provenance(
                                       claim=f'"{phrase}"', claim_at=readme.at(line), evidence=(),
-                                      method=("Matched the README prose against a fixed list of absolute phrases (fully "
-                                              "verified, production ready, battle tested, 100% coverage, no known bugs), "
-                                              "leaving out denials, goals and figures scoped to a part."),
+                                      method=_ABSOLUTE_METHOD,
                                       basis="none",
                                       not_inspected=("anything that could back an absolute: no coverage report, bug tracker "
                                                      "or release record is read",),
                                       reason=note)))
         notes.unsupported.append(f"'{phrase}': {note}")
     return len(claims)
+
+
+_ABSOLUTE_METHOD = ("Matched the README prose against a fixed list of absolute phrases (" + ", ".join(ABSOLUTES) + "; a "
+                    "space before the % sign, or a word such as test or line before coverage, is read the same), leaving "
+                    "out denials, goals and figures scoped to a part.")
 
 
 def _with_verdict(claim: Claim) -> Claim:
@@ -409,6 +426,29 @@ def _check_requirements(nar: Narrative, readme: _Readme, notes: _Notes) -> list[
             elif verdict.state is State.EVIDENCE_INSUFFICIENT:
                 notes.unsupported.append(provenance.reason)
     return not_checked
+
+
+#: The census classes a check already reads, by the kind of row that check makes. A row of that kind on a line of the
+#: sentence means the sentence was read for that class; every other class of the same sentence is still unread.
+_READ_BY = {"coverage": frozenset({"absolute"}), "security": frozenset({"absolute"})}
+
+
+def _census(nar: Narrative, readme: _Readme, rows: list[Claim]) -> list[Mention]:
+    """The claim-like README sentences no check read, each class a check read taken off, with README file lines."""
+    if not nar.readme_exists:
+        return []
+    read: dict[str, set[int]] = {}
+    for row in rows:
+        if row.provenance is not None and row.provenance.claim_at.path == readme.name:
+            read.setdefault(row.kind, set()).add(row.provenance.claim_at.line)
+    out = []
+    for mention in claim_like(nar.readme_text):
+        lines = {readme.at(n).line for n in range(mention.line, mention.end + 1)}
+        kinds = tuple(k for k in mention.kinds
+                      if not any(lines & read.get(kind, set()) for kind in _READ_BY.get(k, frozenset())))
+        if kinds:
+            out.append(replace(mention, kinds=kinds, line=readme.at(mention.line).line, end=readme.at(mention.end).line))
+    return out
 
 
 def _located(drift: Drift, readme: _Readme) -> Provenance:

@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.13, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.14, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.13 (set 2026-11-27)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.14 (set 2026-11-27)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
@@ -222,6 +222,12 @@ EVIDENCE_SUPPORTS, EVIDENCE_CONTRADICTS (the only one that makes the critic FAIL
 with the trail through CLAIM_IDENTIFIED and EVIDENCE_FOUND that led to it. A contradiction always rests on evidence that
 was read; a claim with no evidence is never called false.
 
+After the rows, a section headed "Claim-like, not read" lists each README sentence that sounds like a claim about the
+Python version, the platforms, speed, security, compatibility, finished features, building or deploying, or coverage, and
+that no check read, with its line. The list is found by word lists, not by understanding, and it changes no outcome: a
+README can still PASS with sentences in it. It is there so that a sentence no check reads is visible rather than silent,
+which is how the Warden sentence fixed in 0.5.13 got through.
+
 ### Exit codes and logging
 
 Every command that takes a path reads a folder, and a folder it cannot read has no verdict: a missing path, a path
@@ -368,6 +374,7 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 - **The top README tier is Burnish's own standard.** The minimum and strong tiers come from the sources listed in `docs/README_STANDARD.md`. The over-the-top tier is a synthesis the standard says it sets for itself, not a rule any source states. The critic reads one README and the files it links to; it does not fetch URLs and cannot tell whether prose is clear.
 - **The critics find claims by phrasing.** Details are under Known defects. The claims critic catches every planted defect in `docs/PLANTED.md`, but that collection is small and was written by this project, so it does not show how the critic reads READMEs written by others.
 - **Burnish's section still quotes unbacked status phrases.** When a README makes an unbacked status claim, the generated section repeats the words with a note that no measurement backs them (`tests/test_stable_and_careful.py::test_a_readme_that_claims_more_tests_than_were_measured_is_told_so_and_left_as_written`). On 2026-10-14 a Ghost detector once read that quote as a new claim and the run was rejected (see the ledger, 0.2.0). That was fixed on Ghost's side. Whether the current Ghost reads the quote again is not tested here.
+- **The census of unread claims matches words.** It lists a present-tense sentence that holds a word of a class (Python version, platform, speed, security, compatibility, finished features, build or deploy, coverage) and a claim verb, and leaves out headings, history, dated sentences, wishes, rules, quotations and reported speech. So it lists some sentences that are not claims, misses claims written in other words, and reads a table one cell at a time. On this README it lists 8 sentences (`tests/test_claims_census.py`).
 - **A mention of a version or a count that the critics skip is not checked.** Counts about a file, a table row, a version or a named subject are only counted, never judged.
 
 ## Known defects (open)
@@ -387,6 +394,10 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.14** (2026-11-27)
+- *A README full of claims nothing checks could pass in silence.* A test README saying it works on Python 3.9 (its `requires-python` says 3.11), runs on Windows and that Windows is not supported, and that it is fast, secure, compatible, complete and deployable ended PASS with an empty claims section. The cause is the one behind the Warden miss: a sentence no check has a shape for is never read, and nothing said so. Found by pressure-testing 0.5.13 in Campaign 2, part 2. Now such sentences are listed under "Claim-like, not read" with their lines; they change no outcome. Guard: `tests/test_claims_census.py::test_the_critic_lists_every_unread_claim_and_still_passes`.
+- *The method line of an absolute named five phrases while seven were matched.* "100% secure" and "fully tested" were matched under a method that did not name them. The method is now written from the list itself. Guard: `tests/test_claims_census.py::test_the_absolute_method_names_every_phrase_it_matches`.
 
 **0.5.13** (2026-11-27)
 - *A false sentence about Warden passed the claims critic.* 0.5.11's README said every command imports Warden and stops without it, false since 0.5.0, while another line of the same README said the opposite. The critic read no claim that a program needs a package, so the sentence was never checked and nothing said it was skipped. Found by Campaign 2 of the 9.5 mission. Now such sentences are a claim kind of their own, judged by what the entry points load at start, and every row carries one of six verdict states. Guard: `tests/test_claims_verification.py::test_the_old_warden_sentence_is_now_contradicted_by_burnish_s_own_tree` and `tests/planted/catch-11-every-command-needs-warden.txt`.
@@ -582,7 +593,7 @@ files.py      which files are the target's own; finds the README
 beautify.py   tidies Python source, behavior-preserving, keeps line endings
 marked.py     the markers around the only README text Burnish may write
 claims.py     the README's own test counts, checked against the measured suite
-verify/       claims verification in stages: sentences, identify, evidence, verdict, judge
+verify/       claims verification in stages: sentences, identify, evidence, verdict, judge, and the census of unread claims
 measured.py   reads Warden's facts; a suite that did not run is not a measurement
 textsafe.py   makes text from other tools safe to print into a README
 readme.py     compiles and finalizes the README
