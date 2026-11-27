@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.9, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.10, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,14 +36,15 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.9 (set 2026-11-26)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.10 (set 2026-11-26)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
 `pyproject.toml` (see `dependencies` there). That is all `check`, `critic`, `readme-critic`, `inspect`, `readme`, `cns`,
-`criteria` and `languages` need. Python 3.11 or newer; CI runs 3.11, 3.12 and 3.13 on Linux.
+`criteria` and `languages` need. Python 3.11 or newer; CI runs 3.11, 3.12 and 3.13 on Linux, Windows and macOS.
 
-Only `burnish finish` needs [Warden](https://github.com/wking53214/Warden), which the finisher plugs into. Install it
+Only `burnish finish` needs [Warden](https://github.com/wking53214/Warden), which the finisher plugs into. Warden runs on
+Linux and macOS, not on Windows, so `finish` does not run on Windows. Install it
 with the `finisher` extra, which pins Warden to one commit (see [Bumping the Warden pin](#bumping-the-warden-pin)):
 
 ```bash
@@ -347,7 +348,7 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 - **Most of the criteria are not built.** Naming, narrative comments, inline architectural comments, guards and function splits are designed (`PA`, `PB`, `PC`, `R1` to `R4`) and have no rewriter. Today the code tidy removes trailing whitespace and adds a missing final newline, and nothing else. `burnish criteria` prints which criteria are implemented and which are only designed.
 - **Rust and C++23 code is not checked by Burnish.** Their criteria are written down, and each has one small exemplar built by that language's own tools in CI. That shows two programs build and agree on one vector file. It does not show Burnish can judge anyone else's Rust or C++.
 - **The C++ exemplar is proven on one compiler.** CI builds it with GCC 13 only. On 2026-10-22 I built it with Clang 18.1.3 and libstdc++ 13 and it failed (`no member named 'unexpected' in namespace 'std'`), as `docs/languages/cpp23.md` says. Clang with libc++, a newer libstdc++ and MSVC were not tried. No test holds the Clang result.
-- **Only Linux has been run.** CI uses `ubuntu-24.04` and `ubuntu-latest`. Nothing here has been run on macOS or Windows. Some tests in `tests/test_cli_delivery.py` carry conditional skip markers (a system without POSIX pipes, a machine without `/dev/full`); on the CI runners and in the runs for this release none was skipped. No test uses `xfail`.
+- **`finish` does not run on Windows.** CI runs the Python job on `ubuntu-latest`, `windows-2025` and `macos-15`. Warden, which only `finish` needs, locks files with `fcntl`, which Windows does not have, so on Windows Warden cannot be imported. There the tests that need Warden are left out by name in `tests/conftest.py`, not with skip markers, and everything else runs. Some tests in `tests/test_cli_delivery.py` carry conditional skip markers (a system without POSIX pipes, a machine without `/dev/full`); on Linux none is skipped, and on macOS and Windows some are, because those systems lack what they stage. No test uses `xfail`.
 - **Ghost Tools still reports findings on this repository.** The circuit run recorded 38 at the start and 38 at the end, none new, at 0.3.11 and again at 0.3.12 (see Self-hosting). They have not been worked off, and the Judge accepts because none is new. Their kinds are not listed here; run Ghost Tools to see them.
 - **Whether a function runs is not checked.** An import is judged by where it sits, not by how it is used. Since 0.3.29 a module imported inside a function and declared nowhere leaves a claim that nothing else is needed "not confirmed", which counts as unsupported; it is never called a contradiction, because the function may never run. A module behind a `try` that expects the import to fail, or under `TYPE_CHECKING`, still counts as optional even if the code always reaches it.
 - **Burnish alone does not govern a change.** It needs Warden, a human grant, something that proposes the change (the claim seat or a Drafter) and the other instruments. Through the real Warden, only the three tests named above exercise the finisher. The recorded runs of the whole loop with Burnish in its seat (Warden's `docs/REGISTRY.json`, rows 3 to 5, dated 2026-10-14, Warden 0.11.0 and 0.11.1) used scratch repositories and fresh clones of the circuit's own repositories, and nothing from them was committed. No real outside repository has been transformed by the loop with Burnish in its seat.
@@ -373,6 +374,9 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.10** (2026-11-26)
+- *Nothing had been run on Windows or macOS.* CI ran the Python job on Linux only. Found by items 27 and 28 of the remediation plan. Running it on both turned up no fault in Burnish: four tests assumed Linux (a file name that differs only in case is a different file, text is written with Linux line endings, a link's target uses a forward slash, and every permission change is recorded) and were corrected; and Warden, which only `finish` needs, cannot be imported on Windows because it uses `fcntl`. The owner chose to run everything else on Windows: the tests that need Warden are left out there by name, and a guard runs each one with Warden blocked and installed to show Warden is what it needs. All nine Python jobs (three systems, three Python versions) pass, as do Burnish's checks of itself on each. Guard: `tests/test_windows_list.py::test_each_entry_left_out_on_windows_fails_without_warden_and_passes_with_it`, `tests/test_windows_list.py::test_every_test_file_that_imports_warden_at_the_top_is_left_out_on_windows`, `tests/test_stable_and_careful.py::test_a_lowercase_readme_is_edited_in_place` and `tests/test_read_only.py::test_every_command_reads_the_everything_tree_rather_than_refusing_it`.
 
 **0.5.9** (2026-11-26)
 - *Nothing showed that the read-only commands write nothing.* The only guard looked for four writing calls by name in the package source; another way to write, or a write made outside the tree, would have passed. Found by item 19 of the remediation plan. Now every command but `finish` runs, with its options, on every planted repository, every CNS example tree and one tree with a bit of everything, under two checks: a before-and-after record of the whole tree, and an audit hook that blocks any write anywhere on the machine during the run (the owner's choice). Each command also runs once as a real process. Planted writes of each kind show both checks work, and a new command fails a test until it is placed in one list or the other. No write was found. This is shown on Linux only, and not for `finish`. Guard: `tests/test_read_only.py::test_every_read_only_command_leaves_the_tree_exactly_as_it_was_and_writes_nowhere`, `tests/test_read_only.py::test_as_a_real_process_every_read_only_command_leaves_the_tree_exactly_as_it_was`, `tests/test_read_only.py::test_every_command_is_either_read_only_or_named_out_of_scope` and `tests/test_read_only.py::test_the_tripwire_blocks_a_write_outside_the_tree_that_the_photo_cannot_see`.

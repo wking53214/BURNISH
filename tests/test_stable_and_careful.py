@@ -63,7 +63,7 @@ def test_the_generated_section_is_replaced_only_between_its_markers(tmp_path: Pa
     text = (tmp_path / "README.md").read_text(encoding="utf-8")
     assert text.count(BEGIN) == 1 and text.count(END) == 1 and HEADING in text
     footer = text + "\n## After\n\nWritten later by the author.\n"
-    (tmp_path / "README.md").write_text(footer, encoding="utf-8")
+    (tmp_path / "README.md").write_text(footer, encoding="utf-8", newline="")   # exactly these bytes, also on Windows
     changed = Facts(suite=SuiteRun(ran=True, passed=6, failed=1, exit_code=1), remaining=(), cycles=1)
     new = _readme_edit(_finish(tmp_path, changed)[0]).new
     assert new.startswith("# demo\n\nIntro.\n") and new.endswith("## After\n\nWritten later by the author.\n")
@@ -202,7 +202,8 @@ def test_a_lowercase_readme_is_edited_in_place(tmp_path: Path):
     _tree(tmp_path, "# demo\n\nIntro.\n", "readme.md")
     proposal, _ = _finish(tmp_path)
     assert [e.path for e in proposal.edits] == ["readme.md"]
-    assert not (tmp_path / "README.md").exists()
+    # The folder's own listing, not exists(): on a case-insensitive file system (macOS) "README.md" finds "readme.md".
+    assert sorted(p.name for p in tmp_path.iterdir() if p.name.lower().startswith("readme")) == ["readme.md"]
 
 
 def test_with_no_readme_at_all_one_is_created(tmp_path: Path):

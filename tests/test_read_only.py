@@ -202,8 +202,8 @@ def everything_tree(root: Path) -> None:
     })
     (root / "demo" / "latin1.py").write_bytes(b"# caf\xe9\nX = 1\n")
     (root / "empty").mkdir()
-    (root / "link.py").symlink_to("demo/core.py")
-    (root / "alias").symlink_to("demo", target_is_directory=True)
+    (root / "link.py").symlink_to(Path("demo", "core.py"))   # Path, so the separator is the one this system uses
+    (root / "alias").symlink_to(Path("demo"), target_is_directory=True)
     locked = root / "demo" / "locked.py"
     locked.write_text('"""Read-only file."""\n', encoding="utf-8")
     locked.chmod(0o444)
@@ -239,6 +239,13 @@ def test_every_read_only_command_leaves_the_tree_exactly_as_it_was_and_writes_no
     root.mkdir()
     TREES[label](root)
     assert problems_on(root, label) == []
+
+
+def test_every_command_reads_the_everything_tree_rather_than_refusing_it(tmp_path: Path):
+    """The everything tree holds what every command needs, so none may exit 2: a refusal would read nothing and prove nothing."""
+    everything_tree(tmp_path)
+    refused = [" ".join(argv) for argv in RUNS if run_in_process(tmp_path, argv)[0] == cli.EXIT_CANNOT_RUN]
+    assert refused == []
 
 
 @pytest.mark.parametrize("argv", RUNS, ids=[" ".join(a) for a in RUNS])
@@ -278,7 +285,8 @@ INSIDE_WRITES: dict[str, tuple[Callable[[Path], object], str]] = {
     "a new folder": (lambda root: (root / "build").mkdir(), "added build"),
     "a file made and removed": (_make_and_remove, "changed ."),
     "a touched file": (lambda root: os.utime(root / "README.md", ns=(0, 1)), "changed README.md"),
-    "a changed permission": (lambda root: (root / "README.md").chmod(0o600), "changed README.md"),
+    # Read-only, because Windows records only that bit of a file's permissions.
+    "a changed permission": (lambda root: (root / "README.md").chmod(0o444), "changed README.md"),
 }
 
 
