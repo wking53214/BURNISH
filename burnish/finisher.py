@@ -47,14 +47,34 @@ governor can choose.
 
 `Burnish.notes` holds, after each `finish`, what it left alone and why. The same
 notes are in the proposal's `architectural_reason`.
+
+A PROPOSAL CANNOT OVERWRITE A CHANGE MADE AFTER IT
+
+  * An edit to a file that exists is a `replace` of the file's whole text as it was
+    read. Warden applies a `replace` only when that text is still in the file, so a
+    file edited or deleted after the proposal is refused and put back, not overwritten.
+    Text another writer only added before or after the original survives, merged.
+  * A `write`, which Warden applies whatever the file holds, is used only where there
+    was no text to match: a README that did not exist, or a file that was empty. A file
+    created there by someone else before Warden applies it is overwritten. That is the
+    boundary; closing it needs Warden to check a `write` against the file's absence.
+  * `Burnish.records` holds one `EditRecord` per proposed edit: the hashes of the text
+    read and proposed, the lines that change, why, the protected-path decision, the
+    scope and the baseline. They are also written into `architectural_reason`, so they
+    travel with the proposal. `Burnish.stale(target)` names every file that changed since.
+  * Every edit passes one boundary before it is proposed, whichever part of the
+    finisher made it: no absolute path, nothing outside the target, nothing protected,
+    nothing that is or lies under a symbolic link.
 """
 
 from __future__ import annotations
 
 import dataclasses
+import difflib
+import hashlib
 import os
 import re
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Optional
 
 from cns.seat import FileEdit
@@ -63,7 +83,7 @@ from cns.seat import Facts
 
 from .beautify import tidy_edits
 from .critic import TREE_FINDINGS, CriticReport, PoetryCritic
-from .files import broken_readme_links, find_readme, looks_generated, read_strict, readme_is_markdown
+from .files import broken_readme_links, find_readme, is_protected, looks_generated, read_strict, readme_is_markdown
 from .marked import HEADING, find_block, has_heading, unclosed_fence
 from .measured import Measured, describe_suite, measure
 from .narrative import Narrative, analysis_text, inspect_tree
@@ -71,9 +91,48 @@ from .readme import compile_readme, finalize_readme
 from .readme_critic import Gap, ReadmeCritic, ReadmeReport
 from .textsafe import clean
 
-__all__ = ["Burnish"]
+__all__ = ["Burnish", "EditRecord"]
 
 _NO_FACTS = Facts(suite=None, remaining=(), cycles=0, unmeasured=("ghost", "suite"))
+
+_TIDY = "whitespace tidy; the file parses to the same syntax tree"
+_SECTION = "the README's generated facts section, between its markers"
+_NEW_README = "a README compiled for a repository that has none"
+
+
+@dataclasses.dataclass(frozen=True)
+class EditRecord:
+    """What one proposed edit is, enough to check it later without trusting the finisher."""
+
+    path: str
+    #: "replace" (the whole original must still be there) or "write" (only where there was no text to match).
+    kind: str
+    reason: str
+    #: SHA-256 of the file's bytes as they were read; None when the file did not exist.
+    original_sha256: Optional[str]
+    proposed_sha256: str
+    #: 1-based, inclusive ranges of the original's lines that change; (n, n - 1) is an insertion before line n.
+    changed_lines: tuple[tuple[int, int], ...]
+    #: Always False for a proposed edit: a protected path never reaches a proposal. Recorded so the decision is visible.
+    protected: bool
+    scope: str
+    baseline: str
+
+    def describe(self) -> str:
+        """The record as one line of the proposal's `architectural_reason`."""
+        lines = ",".join(f"{s}-{e}" if e >= s else f"before {s}" for s, e in self.changed_lines) or "all (new file)"
+        return (f"{self.path}: {self.kind}, {self.reason}; sha256 {self.original_sha256 or 'none (no file)'} -> "
+                f"{self.proposed_sha256}; lines {lines}; protected: no; scope {self.scope}; baseline {self.baseline}")
+
+
+def _changed_lines(old: str, new: str) -> tuple[tuple[int, int], ...]:
+    before, after = old.splitlines(keepends=True), new.splitlines(keepends=True)
+    opcodes = difflib.SequenceMatcher(None, before, after, autojunk=False).get_opcodes()
+    return tuple((i1 + 1, i2) for tag, i1, i2, _, _ in opcodes if tag != "equal")
+
+
+def _sha(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 class Burnish:
@@ -88,6 +147,9 @@ class Burnish:
         #: After `finish`: the README edits (prose) and the Python tidy edits (code), whether or not they were proposed.
         self.docs_edits: list[FileEdit] = []
         self.code_edits: list[FileEdit] = []
+        #: After `finish`: one record per edit in the proposal (none when nothing is proposed).
+        self.records: list[EditRecord] = []
+        self._absent: set[str] = set()
 
     @property
     def covers_code(self) -> bool:
@@ -102,7 +164,7 @@ class Burnish:
         self.code_edits = tidy_edits(target, self.notes)
         readme = self._readme_edit(target, facts, measure(facts))
         self.docs_edits = [readme] if readme is not None else []
-        self._drop_linked(target)
+        self._guard(target)
         edits = [*self.code_edits, *self.docs_edits] if self.covers_code else list(self.docs_edits)
         if self.code_edits and not self.covers_code:
             self.notes.append(f"{len(self.code_edits)} Python file(s) could be tidied; not proposed, because a "
@@ -118,7 +180,7 @@ class Burnish:
         self.code_edits = []
         readme = self._readme_edit(target, facts, measure(facts))
         self.docs_edits = [readme] if readme is not None else []
-        self._drop_linked(target)
+        self._guard(target)
         return self._proposal(target, baseline, facts, list(self.docs_edits))
 
     def finish_code(self, target: Path, baseline: str, facts: Facts) -> Optional[Transformation]:
@@ -128,8 +190,43 @@ class Burnish:
         facts = facts if facts is not None else _NO_FACTS
         self.docs_edits = []
         self.code_edits = tidy_edits(target, self.notes)
-        self._drop_linked(target)
+        self._guard(target)
         return self._proposal(target, baseline, facts, list(self.code_edits))
+
+    def _guard(self, target: Path) -> None:
+        """The one boundary every edit passes before it can be proposed, whichever part of the finisher made it."""
+        self._drop_linked(target)
+        self._drop_unsafe(target)
+        self._absent = set()
+        for edits in (self.code_edits, self.docs_edits):
+            for index, edit in enumerate(edits):
+                if edit.kind == "write" and edit.old:
+                    # Warden applies a write whatever the file now holds; a replace of the whole text read applies only
+                    # if that text is still there, so a change made after this proposal is refused, not overwritten.
+                    edits[index] = dataclasses.replace(edit, kind="replace", replace_all=False)
+                elif edit.kind == "write" and not (target / edit.path).exists():
+                    self._absent.add(edit.path)
+
+    def _drop_unsafe(self, target: Path) -> None:
+        """Remove every edit that is absolute, lands outside `target`, or is protected, and say why in the notes."""
+        for edits in (self.code_edits, self.docs_edits):
+            for edit in list(edits):
+                why = _unsafe(target, edit.path)
+                if why:
+                    self.notes.append(f"{clean(edit.path)} is {why}, so no edit was proposed for it.")
+                    edits.remove(edit)
+
+    def stale(self, target: Path) -> list[str]:
+        """The paths, sorted, of every proposed edit whose file is no longer as it was read (changed, deleted, or created
+        where there was none). Empty means the last proposal still describes the tree."""
+        target = Path(target).resolve()
+        found = []
+        for record in self.records:
+            path = target / record.path
+            now = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+            if now != record.original_sha256:
+                found.append(record.path)
+        return sorted(found)
 
     def _drop_linked(self, target: Path) -> None:
         """Remove every edit whose path is a symbolic link, or lies under one, and say why in the notes.
@@ -151,13 +248,15 @@ class Burnish:
 
     def _proposal(self, target: Path, baseline: str, facts: Facts, edits: list[FileEdit]) -> Optional[Transformation]:
         """The one proposal for `edits`, or None when there are none."""
+        self.records = [self._record(edit, baseline) for edit in edits]
         if not edits:
             return None
         return Transformation(
             target=str(target),
             intent="finish: tidy the code and keep the README's generated facts section current",
             architectural_reason="The loop has converged; this is the single hand-off to Burnish."
-                                 + (" Notes: " + " ".join(self.notes) if self.notes else ""),
+                                 + (" Notes: " + " ".join(self.notes) if self.notes else "")
+                                 + " Edits: " + " | ".join(r.describe() for r in self.records),
             affected_files=tuple(e.path for e in edits),
             expected_behavior="Python behavior unchanged (every tidied file parses to the same syntax tree)",
             preservation_requirements=("the target's suite result is unchanged",
@@ -169,6 +268,13 @@ class Burnish:
             edits=tuple(edits),
             status=TransformationStatus.PROPOSED,
         )
+
+    def _record(self, edit: FileEdit, baseline: str) -> EditRecord:
+        absent = edit.path in self._absent
+        reason = _TIDY if edit in self.code_edits else (_NEW_README if absent else _SECTION)
+        return EditRecord(path=edit.path, kind=edit.kind, reason=reason, original_sha256=None if absent else _sha(edit.old),
+                          proposed_sha256=_sha(edit.new), changed_lines=() if absent else _changed_lines(edit.old, edit.new),
+                          protected=is_protected(edit.path), scope=self.scope, baseline=baseline)
 
     def _readme_edit(self, target: Path, facts: Facts, measured: Measured) -> Optional[FileEdit]:
         """The edit to the README that is there (or a new README.md), or None, with the reason in the notes."""
@@ -245,6 +351,17 @@ class Burnish:
         self.notes += [f"README says: {clean(c.text, 80)}: {clean(c.note)}"
                        for c in report.claims
                        if c.location == "README" and not c.supported and c.kind not in TREE_FINDINGS]
+
+
+def _unsafe(target: Path, relative: str) -> str:
+    """Why an edit to `relative` may not be proposed, or an empty string when it may."""
+    if PurePosixPath(relative).is_absolute() or PureWindowsPath(relative).is_absolute() or PureWindowsPath(relative).drive:
+        return "an absolute path"
+    if ".." in PurePosixPath(relative.replace("\\", "/")).parts or not (target / relative).resolve().is_relative_to(target):
+        return "outside the folder being finished"
+    if is_protected(relative):
+        return "a protected file (a test, test setting, CI or Ghost file)"
+    return ""
 
 
 def _commentary(report: CriticReport, readme: ReadmeReport, measured: Measured) -> str:
