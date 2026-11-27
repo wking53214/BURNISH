@@ -498,6 +498,22 @@ def test_an_unsafe_edit_from_any_part_of_the_finisher_is_dropped_at_the_boundary
     assert any(path in note and UNSAFE[path] in note for note in seat.notes), seat.notes
 
 
+def test_an_absolute_path_through_a_link_is_named_absolute_not_a_link(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """On macOS `/etc` is a link to `/private/etc`, and CI there showed the reason given was "a link". The spelling decides
+    first, so the reason is the same on every system. This builds the same case on any system."""
+    root, real_dir = tmp_path / "tree", tmp_path / "real"
+    root.mkdir()
+    real_dir.mkdir()
+    _tree(root)
+    (tmp_path / "alias").symlink_to(real_dir, target_is_directory=True)
+    bad = str(tmp_path / "alias" / "escape.py")
+    real = finisher.tidy_edits
+    monkeypatch.setattr(finisher, "tidy_edits", lambda r, notes=None: [*real(r, notes), FileEdit(path=bad, kind="write", new="x")])
+    seat = Burnish(scope="code")
+    seat.finish(root, "base", FACTS)
+    assert [note for note in seat.notes if bad in note] == [f"{bad} is an absolute path, so no edit was proposed for it."]
+
+
 def test_the_boundary_and_warden_agree_that_an_escape_is_refused(tmp_path: Path):
     """Belt and braces: even if an escaping edit reached Warden, Warden would refuse it."""
     _tree(tmp_path)

@@ -28,7 +28,9 @@ the true head by the commit that last wrote it.
   reason, protected-path decision, scope, baseline), also written into the proposal's `architectural_reason`.
   `Burnish.stale(target)` names every file changed, deleted or created since the proposal.
 - One boundary before every proposal: an edit that is absolute, lands outside the target, is protected, or is under a
-  link is dropped, with the reason in the notes, whichever part of the finisher made it.
+  link is dropped, with the reason in the notes, whichever part of the finisher made it. An absolute or climbing path
+  is judged by its spelling before any link is looked at: on macOS `/etc` is itself a link, and CI there gave the wrong
+  reason until it was.
 - `tests/test_finisher_write_safety.py`: the read-only proof's checks applied to `finish` (the preview and every call
   Warden makes, both scopes, in process and as a real process), 23 planted write mechanisms blocked inside and outside
   the tree, concurrency, deletion, CRLF and BOM through the real Warden apply, determinism, the boundary, and a source

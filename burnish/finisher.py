@@ -75,7 +75,7 @@ import hashlib
 import os
 import re
 from pathlib import Path, PurePosixPath, PureWindowsPath
-from typing import Optional
+from typing import Callable, Optional
 
 from cns.seat import FileEdit
 from warden.models import Transformation, TransformationStatus
@@ -195,8 +195,10 @@ class Burnish:
 
     def _guard(self, target: Path) -> None:
         """The one boundary every edit passes before it can be proposed, whichever part of the finisher made it."""
+        # Absolute and climbing paths first: joined to `target` they name a place outside it, whose links say nothing.
+        self._drop_unsafe(target, _absolute_or_climbing)
         self._drop_linked(target)
-        self._drop_unsafe(target)
+        self._drop_unsafe(target, _outside_or_protected)
         self._absent = set()
         for edits in (self.code_edits, self.docs_edits):
             for index, edit in enumerate(edits):
@@ -207,11 +209,11 @@ class Burnish:
                 elif edit.kind == "write" and not (target / edit.path).exists():
                     self._absent.add(edit.path)
 
-    def _drop_unsafe(self, target: Path) -> None:
-        """Remove every edit that is absolute, lands outside `target`, or is protected, and say why in the notes."""
+    def _drop_unsafe(self, target: Path, rule: Callable[[Path, str], str]) -> None:
+        """Remove every edit `rule` gives a reason against, and say why in the notes."""
         for edits in (self.code_edits, self.docs_edits):
             for edit in list(edits):
-                why = _unsafe(target, edit.path)
+                why = rule(target, edit.path)
                 if why:
                     self.notes.append(f"{clean(edit.path)} is {why}, so no edit was proposed for it.")
                     edits.remove(edit)
@@ -353,11 +355,18 @@ class Burnish:
                        if c.location == "README" and not c.supported and c.kind not in TREE_FINDINGS]
 
 
-def _unsafe(target: Path, relative: str) -> str:
-    """Why an edit to `relative` may not be proposed, or an empty string when it may."""
+def _absolute_or_climbing(target: Path, relative: str) -> str:
+    """Why an edit to `relative` names a place outside `target` by its spelling alone, or an empty string."""
     if PurePosixPath(relative).is_absolute() or PureWindowsPath(relative).is_absolute() or PureWindowsPath(relative).drive:
         return "an absolute path"
-    if ".." in PurePosixPath(relative.replace("\\", "/")).parts or not (target / relative).resolve().is_relative_to(target):
+    if ".." in PurePosixPath(relative.replace("\\", "/")).parts:
+        return "outside the folder being finished"
+    return ""
+
+
+def _outside_or_protected(target: Path, relative: str) -> str:
+    """Why an edit to `relative` (already known to be relative and not under a link) may not be proposed, or ""."""
+    if not (target / relative).resolve().is_relative_to(target):
         return "outside the folder being finished"
     if is_protected(relative):
         return "a protected file (a test, test setting, CI or Ghost file)"
