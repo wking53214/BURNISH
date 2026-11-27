@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "burnish"
-version = "0.5.11"
+version = "0.5.12"
 description = "What makes code beautiful, written down, checked, and applied to itself"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,7 +28,7 @@ classifiers = [
 # (`burnish finish`), so it is the `finisher` extra; it is pinned to a full commit, never to a branch or a movable tag,
 # with the release the commit corresponds to in the comment on its line. To bump: see "Bumping the Warden pin" in README.md.
 dependencies = [
-    "cns @ git+https://github.com/wking53214/CNS.git@v4.1.0",  # v4.1.0 = c84ef8c60079aae1753f92d9169d89081c670c22
+    "cns @ git+https://github.com/wking53214/CNS.git@v4.2.0",  # v4.2.0 = 670246fe5006ae15757f90e48350f57b53c56414
 ]
 
 [project.urls]
@@ -39,7 +39,7 @@ burnish = "burnish.cli:run"
 
 [project.optional-dependencies]
 finisher = [
-    "warden @ git+https://github.com/wking53214/Warden.git@26d8128ecd75c841125128533812763385dc7497",  # Warden 1.0.0
+    "warden @ git+https://github.com/wking53214/Warden.git@0875be47808b3b7e2f1f99f9666d8b1441a2410c",  # Warden 1.0.0
 ]
 dev = ["burnish[finisher]", "pytest>=8", "ruff~=0.17", "mypy~=2.4"]
 
