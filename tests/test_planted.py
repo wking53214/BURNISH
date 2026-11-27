@@ -47,7 +47,7 @@ from burnish.critic import PoetryCritic
 PLANTED = Path(__file__).parent / "planted"
 LEDGER = Path(__file__).resolve().parents[1] / "docs" / "PLANTED.md"
 GROUPS = ("catch", "trap", "hard")
-KINDS = frozenset({"tests", "pin", "dependencies", "absolute", "metadata", "readme-shape", "history", "parse", "suite"})
+KINDS = frozenset({"tests", "pin", "dependencies", "absolute", "metadata", "readme-shape", "history", "parse", "suite", "requires"})
 
 Flag = tuple[str, int, str]   # (file, line, kind)
 

@@ -1,0 +1,50 @@
+about: True requirement sentences in a tree built like Burnish today: only one command needs Warden, the rest run without it.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+Only `demo finish` needs Warden; every other command runs without it.
+
+Without Warden, `demo finish` exits 2 and every other command runs as usual.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = ["cns"]
+
+[project.optional-dependencies]
+finisher = ["warden"]
+
+[project.scripts]
+demo = "demo.cli:run"
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
+=== file: demo/cli.py
+"""The command line."""
+
+import sys
+
+import cns
+
+
+def run():
+    if sys.argv[1:2] == ["finish"]:
+        try:
+            from .finisher import finish
+        except ImportError:
+            return 2
+        return finish()
+    return 0 if cns else 1
+=== file: demo/finisher.py
+"""The one part that needs Warden."""
+
+import warden
+
+
+def finish():
+    return 0 if warden else 1

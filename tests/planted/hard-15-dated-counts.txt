@@ -1,0 +1,20 @@
+about: Test counts dated after the number ("as of v0.3", "on 2026-01-04") are history, not a claim about the suite now.
+group: hard
+suite: passed=40
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+All 30 tests pass as of v0.3.
+
+In the first release, 25 tests passed on 2026-01-04.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = []
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""

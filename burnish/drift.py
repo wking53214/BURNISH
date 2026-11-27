@@ -266,6 +266,23 @@ _NO_OTHER = re.compile(
     r"|\b(?:standard[- ]library|stdlib)\s+only\b|\bdepends\s+on\s+nothing\b|\bdependencies\s*:\s*none\b", re.I)
 _QUOTED = re.compile(r"[\"'\u201c\u2018]\s*$")
 _OTHER_WORD = re.compile(r"\b(?:other|further|additional|more)\b", re.I)
+#: Words that name an exception in the same sentence: "no runtime dependencies besides CNS", "apart from CNS, none".
+_EXCEPTION = re.compile(r"\b(?:besides|except(?:\s+for)?|apart\s+from|aside\s+from|other\s+than|beyond|save\s+for)\b", re.I)
+#: A denial right before the phrase: "it is not dependency-free" says the opposite of the phrase.
+_DENIED = re.compile(r"\b(?:not|never|no\s+longer|isn't|aren't|wasn't)\s+(?:\w+\s+){0,2}$", re.I)
+
+
+def _sentence_around(text: str, start: int, end: int) -> str:
+    """The sentence holding text[start:end]."""
+    begin = max(text.rfind(". ", 0, start), text.rfind("\n\n", 0, start))
+    finish = min((i for i in (text.find(". ", end), text.find("\n\n", end)) if i >= 0), default=len(text))
+    return text[begin + 1:finish]
+
+
+def _denied(text: str, start: int) -> bool:
+    """True when the words right before a dependency phrase deny it, within its sentence."""
+    before = text[max(0, start - 40):start]
+    return bool(_DENIED.search(re.split(r"[.!?:;]\s", before)[-1]))
 
 
 def _own_top_levels(root: Path) -> set[str]:
@@ -451,10 +468,12 @@ def _dependency_drift(root: Path, text: str, lines: list[int], data: dict, raw: 
     for claim in claims:
         if _QUOTED.search(text[max(0, claim.start() - 2):claim.start()]):
             continue   # the phrase is being mentioned in quotation marks, not asserted
+        if _denied(text, claim.start()):
+            continue   # "not dependency-free" denies the phrase: it claims there are dependencies
         paragraph = _normal(_paragraph(text, claim.start())).replace("-", " ")
         named = {n for n in actual | set(deferred_using) if re.search(rf"\b{re.escape(n.replace('-', ' '))}\b", paragraph)}
-        if not _OTHER_WORD.search(claim.group(0)):
-            named = set()   # "no dependencies" leaves nothing out
+        if not _OTHER_WORD.search(claim.group(0)) and not _EXCEPTION.search(_sentence_around(text, claim.start(), claim.end())):
+            named = set()   # "no dependencies" leaves nothing out, unless the sentence names an exception
         unnamed = sorted(actual - named)
         unconfirmed = sorted(set(deferred_using) - named)
         only_optional = [n for n in unnamed if n not in declared and n in optional]
@@ -588,7 +607,8 @@ def _unchecked(text: str, lines: list[int], problem: str, problem_line: int, mis
     """
     out = []
     pins = list(_PIN_CLAIM.finditer(text))
-    deps = [m for m in _NO_OTHER.finditer(text) if not _QUOTED.search(text[max(0, m.start() - 2):m.start()])]
+    deps = [m for m in _NO_OTHER.finditer(text)
+            if not _QUOTED.search(text[max(0, m.start() - 2):m.start()]) and not _denied(text, m.start())]
     for kind, matches in (("pin", pins), ("dependencies", deps)):
         if matches:
             words = clean(matches[0].group(0), 80)

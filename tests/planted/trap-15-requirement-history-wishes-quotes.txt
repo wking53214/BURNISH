@@ -1,0 +1,44 @@
+about: Requirement sentences that are history, a condition, a quotation or reported speech, next to a tree where Warden is optional.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+Before 0.5.0, every command stopped when Warden was not installed.
+
+If Warden is missing, the finisher should say so and stop.
+
+An old note said "every command needs Warden", which is no longer true.
+
+The 0.5.11 README said every command imports Warden and stops without it.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = ["cns"]
+
+[project.optional-dependencies]
+finisher = ["warden"]
+
+[project.scripts]
+demo = "demo.cli:run"
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
+=== file: demo/cli.py
+"""The command line."""
+
+import cns
+
+
+def run():
+    return 0 if cns else 1
+=== file: demo/finisher.py
+"""The one part that needs Warden."""
+
+import warden
+
+READY = warden

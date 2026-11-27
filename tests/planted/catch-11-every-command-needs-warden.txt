@@ -1,0 +1,50 @@
+about: The Campaign 2 false negative rebuilt: the README says every command imports Warden and stops without it, while Warden is an optional extra that only a guarded, deferred import reaches.
+group: catch
+suite: passed=12
+defect: README.md:5 requires
+
+=== file: README.md
+# demo
+
+A small planted repository, built like Burnish 0.5.11.
+
+Every `demo` command imports the Warden package and stops with `No module named 'warden'` when Warden is not installed.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = ["cns"]
+
+[project.optional-dependencies]
+finisher = ["warden"]
+
+[project.scripts]
+demo = "demo.cli:run"
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
+=== file: demo/cli.py
+"""The command line."""
+
+import sys
+
+import cns
+
+
+def run():
+    if sys.argv[1:2] == ["finish"]:
+        try:
+            from .finisher import finish
+        except ImportError:
+            print("needs Warden", file=sys.stderr)
+            return 2
+        return finish()
+    return 0 if cns else 1
+=== file: demo/finisher.py
+"""The one part that needs Warden."""
+
+import warden
+
+
+def finish():
+    return 0 if warden else 1

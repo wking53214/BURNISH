@@ -12,6 +12,42 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.13] - 2026-11-27, not tagged
+
+### Added
+
+- Claims verification in stages (Campaign 2 of the 9.5 mission), in the new package `burnish.verify`: extraction
+  (`sentences`), identification and normalization (`identify`), comparison (`evidence`), verdict (`verdict`, `judge`),
+  with presentation left to the critic. Each stage is tested on its own.
+- Six verdict states: CLAIM_IDENTIFIED, EVIDENCE_FOUND, EVIDENCE_SUPPORTS, EVIDENCE_CONTRADICTS, EVIDENCE_INSUFFICIENT
+  and NOT_CHECKED. Every row of the `burnish critic` report now ends with a `Verdict:` line giving its final state and the
+  trail that led to it. A contradiction without evidence that was read, or with the basis "none", cannot be made: the
+  type refuses it, so absence of evidence is never falsity.
+- A new claim kind, `requires`: a sentence that says the program needs a package ("every command imports Warden and
+  stops without it") or runs without one ("the tool runs without requests installed"). It is judged by following the
+  imports from the entry points in `[project.scripts]` the way Python would at start, sorting each route to the package
+  into loaded at start, behind a guard that expects the import to fail, or inside a function with no guard (the owner's
+  choice B of 2026-11-27: a complete reading of what loads at start may contradict a claim). A contradiction needs a
+  complete reading: every module on a route parsed, no import by name, no unguarded import inside a function. Otherwise
+  the claim is EVIDENCE_INSUFFICIENT. A claim about one part with nothing said about the rest, or whose subject is only a
+  pronoun, is NOT_CHECKED: it is listed under "Identified, not checked" and changes no outcome.
+- Nine planted repositories (`tests/planted/`), each written and failing before the change that makes it pass, and
+  `tests/test_claims_verification.py`.
+
+### Fixed
+
+- The false negative Campaign 2 started from: 0.5.11's README said every command imports Warden and stops without it,
+  false since 0.5.0, and the critic passed it. The cause: the critic read no claim that a program needs a package, only
+  test counts, five absolutes, pins and "no dependencies" sentences, so the sentence was never a claim and the report
+  gave no sign it had been skipped. The sentence is now EVIDENCE_CONTRADICTS against Burnish's own tree.
+- True dependency sentences called contradicted: "No runtime dependencies besides CNS", "Apart from CNS, there are no
+  runtime dependencies" (an exception named with besides, except, apart from, aside from, other than or beyond) and "not
+  dependency-free" (a denial).
+- A test count dated after the number ("all 30 tests pass as of v0.3", "passed on 2026-01-04") was judged as a claim
+  about the suite now.
+- Absolutes written other ways were missed: "100 % coverage" (a space before the sign), "100% secure" and "fully
+  tested" are now read; a phrase in single quotation marks is mentioned, not claimed.
+
 ## [0.5.12] - 2026-11-27, not tagged
 
 ### Changed
@@ -778,7 +814,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/a60a0fa3068aebd77161ee0ecdde44bb581dcee2...a60a0fa3068aebd77161ee0ecdde44bb581dcee2
+[Unreleased]: https://github.com/wking53214/Burnish/compare/5e67a8e0e373952653ede77ca5549a2bc5df9262...5e67a8e0e373952653ede77ca5549a2bc5df9262
+[0.5.13]: https://github.com/wking53214/Burnish/compare/7e4eb38c32642ceecac7bfe7380bf99118e35bf1...5e67a8e0e373952653ede77ca5549a2bc5df9262
 [0.5.12]: https://github.com/wking53214/Burnish/compare/27ea8a6f84fdcda67c0b0a9902c22e3f554e7c3f...a60a0fa3068aebd77161ee0ecdde44bb581dcee2
 [0.5.11]: https://github.com/wking53214/Burnish/compare/1b4ef641164bbedb15bc7d9152ea0a63a5793e60...69b9864eda77484a2c762b551822769e6082f2e1
 [0.5.10]: https://github.com/wking53214/Burnish/compare/40fb44550cb4c538771f3b9b3e37fe85ffd223f0...f5e62a25cb13d056c94181f6d49d21ceb772169b
