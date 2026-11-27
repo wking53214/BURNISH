@@ -1,6 +1,7 @@
 """Item 19 of the remediation plan: every read-only command leaves the tree it reads exactly as it was, and writes nowhere else.
 
-The read-only commands are every command but `finish` (the owner's narrowing). Each one runs, with its options, on every
+The read-only commands are every command but `finish`, which needs Warden and is proven to write nothing, with the same
+checks, in `tests/test_finisher_write_safety.py` (Campaign 3 of the 9.5 mission). Each one runs, with its options, on every
 planted repository, every CNS example tree and one tree with a bit of everything in it. Two checks watch each run:
 
   * a photo of the tree before and after: every file, folder and link, its kind, permissions, size, modification and
@@ -13,7 +14,8 @@ planted repository, every CNS example tree and one tree with a bit of everything
 Each command also runs once as a real process on the everything tree, under the photo check. Tests at the end plant writes
 of each kind and show that the checks catch them, so a pass cannot come from checks that see nothing.
 
-What this does not show: that `finish` writes nothing, behaviour on other operating systems, or every possible input.
+What this does not show: behaviour on every operating system (CI runs it on Linux, macOS and Windows), or every possible
+input.
 """
 
 from __future__ import annotations
@@ -37,7 +39,8 @@ from test_planted import collection
 from burnish import cli
 
 READ_ONLY = frozenset({"check", "critic", "readme-critic", "inspect", "readme", "cns", "criteria", "languages"})
-OUT_OF_SCOPE = frozenset({"finish"})   # the owner's narrowing of item 19
+#: Proven in `tests/test_finisher_write_safety.py` instead, which needs Warden and so does not run on Windows.
+OUT_OF_SCOPE = frozenset({"finish"})
 
 #: Every way a read-only command is run here. Paths are "." because each run starts in the tree's own folder, which is
 #: also where `criteria` and `languages`, which take no path, run.

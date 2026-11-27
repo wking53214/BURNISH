@@ -12,6 +12,30 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.11] - 2026-11-27, not tagged
+
+### Fixed
+
+- A finishing proposal could overwrite a change made after it (Campaign 3 of the 9.5 mission). Every edit was a `write`,
+  which Warden applies whatever the file holds. An edit to a file that exists is now a `replace` of the file's whole
+  text as read, which Warden applies only when that text is still there; a later edit or delete is refused, and through
+  the tag team the whole finish is put back. A `write` is used only where there was no text to match (a new README, an
+  empty file).
+
+### Added
+
+- `Burnish.records`: one `EditRecord` per proposed edit (SHA-256 of the text read and proposed, changed line ranges,
+  reason, protected-path decision, scope, baseline), also written into the proposal's `architectural_reason`.
+  `Burnish.stale(target)` names every file changed, deleted or created since the proposal.
+- One boundary before every proposal: an edit that is absolute, lands outside the target, is protected, or is under a
+  link is dropped, with the reason in the notes, whichever part of the finisher made it. An absolute or climbing path
+  is judged by its spelling before any link is looked at: on macOS `/etc` is itself a link, and CI there gave the wrong
+  reason until it was.
+- `tests/test_finisher_write_safety.py`: the read-only proof's checks applied to `finish` (the preview and every call
+  Warden makes, both scopes, in process and as a real process), 23 planted write mechanisms blocked inside and outside
+  the tree, concurrency, deletion, CRLF and BOM through the real Warden apply, determinism, the boundary, and a source
+  search for write calls. Left out on Windows, where Warden cannot run.
+
 ## [0.5.10] - 2026-11-26, not tagged
 
 ### Added
@@ -742,7 +766,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/f5e62a25cb13d056c94181f6d49d21ceb772169b...f5e62a25cb13d056c94181f6d49d21ceb772169b
+[Unreleased]: https://github.com/wking53214/Burnish/compare/69b9864eda77484a2c762b551822769e6082f2e1...69b9864eda77484a2c762b551822769e6082f2e1
+[0.5.11]: https://github.com/wking53214/Burnish/compare/1b4ef641164bbedb15bc7d9152ea0a63a5793e60...69b9864eda77484a2c762b551822769e6082f2e1
 [0.5.10]: https://github.com/wking53214/Burnish/compare/40fb44550cb4c538771f3b9b3e37fe85ffd223f0...f5e62a25cb13d056c94181f6d49d21ceb772169b
 [0.5.9]: https://github.com/wking53214/Burnish/compare/8ff2f077a8561bea82504ccd51a49b2747f17252...060e2eb6e2af66ba985d8cf32aa15d5553d31dac
 [0.5.8]: https://github.com/wking53214/Burnish/compare/22472e7ec838a1cf9810165963dc1a191fba7df5...522b6b152e8f51bdf9722ece226daf8e39130c90

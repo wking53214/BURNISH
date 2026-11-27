@@ -1,6 +1,6 @@
 # BURNISH Remediation Plan v2
 
-**As of:** Nov 26, 2026, BURNISH 0.5.8.
+**As of:** Nov 27, 2026, BURNISH 0.5.11.
 **Replaces:** v1 (a draft of Nov 26, 2026, written at 0.4.0 and never saved), which replaced the outside 45-item "9.0+"
 plan that was checked against the code on Nov 25, 2026.
 
@@ -54,9 +54,9 @@ plan that was checked against the code on Nov 25, 2026.
 | 17 | Each recommendation lists the evidence it requires | ✅ 0.5.8 | Evidence, method, what was not read, and what would change it |
 | 18 | Test the CNS analyzer against known example repos | ✅ 0.5.8 | Eleven examples, each in four folder names; spot-checked on CNS, Warden, swizzle and Burnish |
 | 19 | Prove BURNISH never writes files | ✅ 0.5.9 | Narrowed to the read-only commands (`finish` is out of scope). Owner's choice: the tree must be unchanged and no write is allowed anywhere on the machine during a run. Proven on Linux in 0.5.9; runs on Windows and macOS too since 0.5.10 |
-| 20 | Integrity checks on proposed edits | ⚪ | Finisher is out of the circuit |
-| 21 | More finisher stress tests | ⚪ | Finisher is out of the circuit |
-| 22 | Full Warden end-to-end tests | ⚪ | Finisher is out of the circuit |
+| 20 | Integrity checks on proposed edits | ✅ 0.5.11 | Owner's choice, Nov 27, 2026: Campaign 3 of the 9.5 mission in full. Edits to existing files are whole-text replaces Warden refuses when the file changed; every edit has a hash record and a stale check |
+| 21 | More finisher stress tests | ✅ 0.5.11 | `finish` proven to write nothing (preview and library calls, both scopes, real process); 23 planted write mechanisms blocked; one boundary before every proposal |
+| 22 | Full Warden end-to-end tests | 🟡 | Two more tag-team tests (a concurrent change puts the whole finish back). A run through the whole circuit with Burnish seated is still not tested |
 
 ## Campaign D: Other languages (decided)
 
@@ -104,7 +104,8 @@ engine that misses defects. Which of them already exist in some form has not bee
 8. ✅ Items 16 to 18: evidence-based CNS recommendations (0.5.8)
 9. ✅ Item 19: the read-only commands write nothing (0.5.9)
 10. ✅ Items 27 and 28: Windows and macOS CI (0.5.10)
-11. **Items 9, 11 and the rest**
+11. ✅ Items 20 and 21, and part of 22: finisher write safety (0.5.11)
+12. **Items 9, 11 and the rest**
 
 ## What this plan does not claim
 - **No new scores.** Nothing here has been re-audited end to end, so the original plan's target scores are not earned.

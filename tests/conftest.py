@@ -24,6 +24,7 @@ ON_WINDOWS = sys.platform == "win32"
 WARDEN_ONLY_FILES = (
     "tests/test_block_has_no_snapshots.py",
     "tests/test_finisher.py",
+    "tests/test_finisher_write_safety.py",
     "tests/test_no_edit_through_a_link.py",
     "tests/test_second_red_team.py",
     "tests/test_stable_and_careful.py",
