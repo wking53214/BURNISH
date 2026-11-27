@@ -12,6 +12,18 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.12] - 2026-11-27, not tagged
+
+### Changed
+
+- CNS pin `v4.1.0` -> `v4.2.0` (`670246fe5006ae15757f90e48350f57b53c56414`), the owner's choice, matching the circuit
+  repositories' repin of 2026-11-26. CNS 4.2.0 adds `Evidence.edit_sources`, which Burnish does not read.
+- Warden pin (the `finisher` extra) `26d8128ecd75c841125128533812763385dc7497` ->
+  `0875be47808b3b7e2f1f99f9666d8b1441a2410c`, the head of Warden's `main` (version string still 1.0.0, seat contract
+  still "1"). Needed with the CNS move: the old Warden commit pins CNS `v4.1.0`, so the two could not be installed
+  together. Warden's apply, text and guard modules are unchanged between the two commits, so the finisher's
+  whole-text `replace` (0.5.11) is applied as before. No Burnish code changed.
+
 ## [0.5.11] - 2026-11-27, not tagged
 
 ### Fixed
@@ -766,7 +778,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/69b9864eda77484a2c762b551822769e6082f2e1...69b9864eda77484a2c762b551822769e6082f2e1
+[Unreleased]: https://github.com/wking53214/Burnish/compare/a60a0fa3068aebd77161ee0ecdde44bb581dcee2...a60a0fa3068aebd77161ee0ecdde44bb581dcee2
+[0.5.12]: https://github.com/wking53214/Burnish/compare/27ea8a6f84fdcda67c0b0a9902c22e3f554e7c3f...a60a0fa3068aebd77161ee0ecdde44bb581dcee2
 [0.5.11]: https://github.com/wking53214/Burnish/compare/1b4ef641164bbedb15bc7d9152ea0a63a5793e60...69b9864eda77484a2c762b551822769e6082f2e1
 [0.5.10]: https://github.com/wking53214/Burnish/compare/40fb44550cb4c538771f3b9b3e37fe85ffd223f0...f5e62a25cb13d056c94181f6d49d21ceb772169b
 [0.5.9]: https://github.com/wking53214/Burnish/compare/8ff2f077a8561bea82504ccd51a49b2747f17252...060e2eb6e2af66ba985d8cf32aa15d5553d31dac
