@@ -12,6 +12,23 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.14] - 2026-11-27, not tagged
+
+### Added
+
+- A census of claim-like sentences no check reads (Campaign 2, part 2 of the 9.5 mission; the owner's choice A of
+  2026-11-27), in the new stage `burnish.verify.census`. A present-tense README sentence that holds a word of one of eight
+  classes (python-version, platform, performance, security, compatibility, feature-completion, build-deploy, coverage) and
+  a claim verb is listed under "Claim-like, not read" in the `burnish critic` report, with its line, unless a check read
+  that class on that sentence. Headings, history, dated sentences, wishes, rules, quotations and reported speech are left
+  out. The list changes no outcome. `CriticReport.unread` holds it.
+- `tests/test_claims_census.py`, written and failing before the change.
+
+### Fixed
+
+- The method line of an absolute-claim row named five phrases while seven were matched ("100% secure" and "fully tested"
+  were missing). It is now written from the list the matcher uses.
+
 ## [0.5.13] - 2026-11-27, not tagged
 
 ### Added
@@ -814,7 +831,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/5e67a8e0e373952653ede77ca5549a2bc5df9262...5e67a8e0e373952653ede77ca5549a2bc5df9262
+[Unreleased]: https://github.com/wking53214/Burnish/compare/515e9fd69bb0e24fd5f35a71fc1a358283921e60...515e9fd69bb0e24fd5f35a71fc1a358283921e60
+[0.5.14]: https://github.com/wking53214/Burnish/compare/4761e8b8fdb12c3d74b018fad358d98e918e8ac8...515e9fd69bb0e24fd5f35a71fc1a358283921e60
 [0.5.13]: https://github.com/wking53214/Burnish/compare/7e4eb38c32642ceecac7bfe7380bf99118e35bf1...5e67a8e0e373952653ede77ca5549a2bc5df9262
 [0.5.12]: https://github.com/wking53214/Burnish/compare/27ea8a6f84fdcda67c0b0a9902c22e3f554e7c3f...a60a0fa3068aebd77161ee0ecdde44bb581dcee2
 [0.5.11]: https://github.com/wking53214/Burnish/compare/1b4ef641164bbedb15bc7d9152ea0a63a5793e60...69b9864eda77484a2c762b551822769e6082f2e1

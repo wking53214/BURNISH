@@ -43,7 +43,7 @@ from cns.suite import SuiteRun
 from .marked import prose_lines
 from .textsafe import clean
 
-__all__ = ["TestClaim", "prose", "test_claims", "unchecked_mentions", "absolutes", "absolutes_at", "judge"]
+__all__ = ["TestClaim", "prose", "test_claims", "unchecked_mentions", "absolutes", "absolutes_at", "judge", "ABSOLUTES"]
 
 #: What inline code becomes in the prose: its words are gone, but the claim next to it is still known to be about it.
 _CODE = "\u2039code\u203a"
@@ -118,6 +118,8 @@ _SCOPED_TO_FILE = re.compile(r"\b\w+\.py\b|\btests?/|\btest_\w+|--ignore|\bpytes
 
 _ABSOLUTES = ("fully verified", "production ready", "battle tested", "100% coverage", "no known bugs", "100% secure",
               "fully tested")
+#: The absolute phrases the critic matches, in the words its report names them.
+ABSOLUTES = _ABSOLUTES
 _NEGATION = re.compile(r"\b(?:not|never|no longer|isn't|aren't|is not|are not|without|nor|n't)\W+(?:\w+\W+){0,3}$", re.I)
 _SCOPED_COVERAGE = re.compile(r"^\s+(?:of|on|for|in|across|within|at|by)\b", re.I)
 _AFTER_WISH = re.compile(r"^\W*(?:\w+\W+){0,3}?(?:goal|target|aim|aspiration|plan|someday|eventually|not\s+yet)\b", re.I)
