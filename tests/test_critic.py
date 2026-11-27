@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-from warden.models import defects_from_ghost
 from cns.seat import Facts
 from cns.suite import SuiteRun
 
@@ -39,6 +38,8 @@ def test_a_red_suite_is_not_good_enough(tmp_path: Path):
 
 
 def test_what_ghost_still_reports_is_named_as_ugly(tmp_path: Path):
+    from warden.models import defects_from_ghost   # here, not at the top, so the other tests run where Warden cannot
+
     _pkg(tmp_path, "# demo\n")
     remaining = defects_from_ghost([{"id": "ghost-9", "severity": "minor", "status": "confirmed",
                                      "summary": "a long function"}])

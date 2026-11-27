@@ -12,6 +12,29 @@ the true head by the commit that last wrote it.
 
 ## [Unreleased]
 
+## [0.5.10] - 2026-11-26, not tagged
+
+### Added
+
+- CI runs the Python job on Windows (`windows-2025`) and macOS (`macos-15`) as well as Linux, on Python 3.11, 3.12 and
+  3.13, every step in bash (items 27 and 28 of the remediation plan).
+- `tests/conftest.py` leaves out, on Windows only, the tests that need Warden: five files and ten single tests, named, not
+  skipped. Warden locks files with `fcntl`, which Windows lacks, so it cannot be imported there and `finish` cannot run;
+  on Windows Warden is blocked outright so the result does not depend on the order files are collected in. The owner's
+  choice: run everything else on Windows.
+- `tests/test_windows_list.py`: every test file that imports Warden or the finisher at the top is on the list, and each
+  entry fails with Warden blocked and passes with it installed. The Windows job shows no unlisted test needs Warden.
+- `tests/test_read_only.py`: no command may refuse the everything tree, so the read-only proof reads something on each
+  system.
+
+### Fixed
+
+- Tests that assumed Linux: a lowercase `readme.md` was checked with a lookup that a case-insensitive file system (macOS)
+  answers for `README.md` too; a README was written with the system's line endings where the test meant exact bytes; the
+  sample tree's links used a forward slash, which Windows does not resolve, so every command refused the tree there; and
+  the planted permission change was one Windows does not record.
+- The one critic test that needs Warden imports it inside the test, so the other critic tests run without Warden.
+
 ## [0.5.9] - 2026-11-26, not tagged
 
 ### Added
@@ -719,7 +742,8 @@ changing the section. Nothing else about them changed.
 - The criteria as data, the Python checker (eight rules), the README standard and critic, and reference exemplars in
   Python, Rust and C++23 that read one file of test vectors.
 
-[Unreleased]: https://github.com/wking53214/Burnish/compare/060e2eb6e2af66ba985d8cf32aa15d5553d31dac...060e2eb6e2af66ba985d8cf32aa15d5553d31dac
+[Unreleased]: https://github.com/wking53214/Burnish/compare/f5e62a25cb13d056c94181f6d49d21ceb772169b...f5e62a25cb13d056c94181f6d49d21ceb772169b
+[0.5.10]: https://github.com/wking53214/Burnish/compare/40fb44550cb4c538771f3b9b3e37fe85ffd223f0...f5e62a25cb13d056c94181f6d49d21ceb772169b
 [0.5.9]: https://github.com/wking53214/Burnish/compare/8ff2f077a8561bea82504ccd51a49b2747f17252...060e2eb6e2af66ba985d8cf32aa15d5553d31dac
 [0.5.8]: https://github.com/wking53214/Burnish/compare/22472e7ec838a1cf9810165963dc1a191fba7df5...522b6b152e8f51bdf9722ece226daf8e39130c90
 [0.5.7]: https://github.com/wking53214/Burnish/compare/646978a87f802d0ec1d6fadc29d245c509ca9fba...e5d863f80c70a8a78b7ed5ae96abf1297c056c10
