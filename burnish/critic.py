@@ -31,6 +31,11 @@ from .measured import Measured, describe_suite, measure
 from .narrative import Narrative, inspect_tree
 from .provenance import Provenance, Source
 from .textsafe import clean
+from .verify.evidence import read_tree
+from .verify.identify import requirement_claims
+from .verify.judge import judge_requirement
+from .verify.sentences import pieces
+from .verify.verdict import State, Verdict, verdict_of_row
 
 #: Kinds of row that are findings about the tree rather than claims a document makes. They are reported with their
 #: provenance like every other row, and the generated README section and the finisher's notes leave them out, as before.
@@ -55,6 +60,8 @@ class Claim:
     kind: str = ""
     #: Where the verdict comes from, so a reviewer can repeat it (see `burnish.provenance`). Every row the critic makes has one.
     provenance: Optional[Provenance] = None
+    #: The verdict state the row ends in, with its trail (see `burnish.verify.verdict`). Every row with provenance has one.
+    verdict: Optional[Verdict] = None
 
 
 class Outcome(str, Enum):
@@ -89,6 +96,8 @@ class CriticReport:
     readme_unchecked: int = 0
     #: PASS, FAIL or INCOMPLETE. `good_enough` is True only for PASS.
     outcome: Outcome = Outcome.PASS
+    #: Claims identified that no check exists for (NOT_CHECKED). They are listed and change no outcome.
+    not_checked: tuple[Claim, ...] = ()
 
     def as_markdown(self) -> str:
         """The report as a markdown document."""
@@ -108,6 +117,8 @@ class CriticReport:
             else:   # the note is the provenance's reason, printed once with the rest of it
                 lines.append(f"- ({c.epistemic.value}, {mark}) {c.text}")
                 lines += c.provenance.lines()
+                if c.verdict is not None:
+                    lines.append(f"  - Verdict: {c.verdict.render()}")
         lines += ["", "## What is beautiful"]
         lines += [f"- {x}" for x in self.what_is_beautiful] or ["- (nothing recorded)"]
         lines += ["", "## What is still ugly"]
@@ -117,6 +128,13 @@ class CriticReport:
         if self.unsupported:
             lines += ["", "## Unsupported"]
             lines += [f"- {x}" for x in self.unsupported]
+        if self.not_checked:
+            lines += ["", "## Identified, not checked", "", "These claims change no outcome: no check exists for their shape."]
+            for c in self.not_checked:
+                lines.append(f"- {c.text}")
+                lines += c.provenance.lines() if c.provenance is not None else []
+                if c.verdict is not None:
+                    lines.append(f"  - Verdict: {c.verdict.render()}")
         if self.unknown:
             lines += ["", "## UNKNOWN"]
             lines += [f"- {x}" for x in self.unknown]
@@ -160,6 +178,7 @@ class PoetryCritic:
         _speak_about_measurements(facts, measured, notes)
         claimed = _check_readme_claims(nar, readme, facts, measured, notes)
         _check_against_the_tree(nar, readme, facts, collected, notes)
+        not_checked = _check_requirements(nar, readme, notes)
         unchecked = unchecked_mentions(nar.readme_text)
         _check_historical_as_current(nar, readme, notes)
         _check_ownership(nar, notes)
@@ -176,7 +195,8 @@ class PoetryCritic:
             good_enough=outcome is Outcome.PASS,
             verdict=_VERDICTS[outcome],
             outcome=outcome,
-            claims=tuple(notes.claims),
+            claims=tuple(_with_verdict(c) for c in notes.claims),
+            not_checked=tuple(not_checked),
             what_is_beautiful=tuple(notes.beautiful),
             what_is_ugly=tuple(notes.ugly),
             what_is_unfinished=tuple(notes.unfinished),
@@ -341,6 +361,54 @@ def _check_readme_claims(nar: Narrative, readme: _Readme, facts: Facts | None, m
                                       reason=note)))
         notes.unsupported.append(f"'{phrase}': {note}")
     return len(claims)
+
+
+def _with_verdict(claim: Claim) -> Claim:
+    """The row with its verdict state filled in from what it already says, unless a check set one."""
+    if claim.verdict is not None:
+        return claim
+    return replace(claim, verdict=verdict_of_row(claim.supported, claim.agreement, claim.provenance))
+
+
+def _check_requirements(nar: Narrative, readme: _Readme, notes: _Notes) -> list[Claim]:
+    """Claims that the program needs, or runs without, a package, judged by what its entry points load.
+
+    EVIDENCE_CONTRADICTS makes the outcome FAIL and EVIDENCE_INSUFFICIENT makes it INCOMPLETE. A claim about one part, which
+    no check maps to the code, is NOT_CHECKED: it is returned to be listed, and changes no outcome.
+    """
+    if not nar.readme_exists:
+        return []
+    reading = read_tree(Path(nar.root), nar.name)
+    if not reading.names:
+        return []
+    not_checked: list[Claim] = []
+    seen: set[tuple[str, bool, str, int]] = set()
+    for piece in pieces(nar.readme_text):
+        for claim in requirement_claims(piece, reading.names, nar.name):
+            key = (claim.package, claim.needs, claim.scope, claim.line)
+            if key in seen:
+                continue
+            seen.add(key)
+            verdict = judge_requirement(claim, reading)
+            provenance = replace(verdict.provenance, claim_at=readme.at(claim.line))
+            verdict = Verdict(verdict.state, provenance)
+            supported = verdict.state is State.EVIDENCE_SUPPORTS
+            agreement = {State.EVIDENCE_SUPPORTS: "agrees", State.EVIDENCE_CONTRADICTS: "disagrees"}.get(
+                verdict.state, "unconfirmed")
+            epistemic = (EpistemicState.VERIFIED if supported else
+                         EpistemicState.ASSUMED if verdict.state is State.EVIDENCE_CONTRADICTS else EpistemicState.UNKNOWN)
+            row = Claim(text=claim.words, location="README", epistemic=epistemic, supported=supported,
+                        note=provenance.reason, agreement=agreement, label=f"README claim (requires: {claim.normal})",
+                        kind="requires", provenance=provenance, verdict=verdict)
+            if verdict.state is State.NOT_CHECKED:
+                not_checked.append(row)
+                continue
+            notes.claims.append(row)
+            if verdict.state is State.EVIDENCE_CONTRADICTS:
+                notes.fail(provenance.reason)
+            elif verdict.state is State.EVIDENCE_INSUFFICIENT:
+                notes.unsupported.append(provenance.reason)
+    return not_checked
 
 
 def _located(drift: Drift, readme: _Readme) -> Provenance:

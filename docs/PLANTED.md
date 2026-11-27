@@ -48,10 +48,10 @@ The test checks that this table matches the key.
 
 | Group | Repositories | Catches | Misses | False alarms |
 |---|---|---|---|---|
-| catch | 10 | 12 | 0 | 0 |
-| trap | 13 | 0 | 0 | 0 |
-| hard | 12 | 16 | 0 | 0 |
-| total | 35 | 28 | 0 | 0 |
+| catch | 12 | 14 | 0 | 0 |
+| trap | 16 | 0 | 0 | 0 |
+| hard | 16 | 21 | 0 | 0 |
+| total | 44 | 35 | 0 | 0 |
 
 ## History
 
@@ -69,6 +69,18 @@ The test checks that this table matches the key.
   longer makes the critic FAIL (the owner's choice), and the trap holds that it raises no flag.
 - **0.5.6:** "100% test coverage" is now read (the critic accepts test, code, line, branch or statement between
   "100%" and "coverage"), so the miss from the outside run is caught.
+- **0.5.13 (Campaign 2, claims verification):** nine repositories added, none of the 35 before changed. Two catch cases
+  for a new claim kind, `requires` (a claim that the program needs, or runs without, a package): the false negative this
+  campaign started from (Burnish 0.5.11's README said every command imports Warden and stops without it, and the critic
+  passed it) rebuilt, and a "runs without" claim the startup imports contradict. One hard case where the reading cannot
+  settle a requirement claim (an unguarded import inside a function, an import by name), which must stay not settled,
+  never contradicted. Three hard cases for misreadings found by probing the 0.5.12 critic: true dependency sentences it
+  called contradicted ("besides CNS", "Apart from CNS, ...", "not dependency-free"), test counts dated after the number,
+  and absolutes written other ways ("100 % coverage", "100% secure", "fully tested", and a phrase in single quotation
+  marks). Three traps for the new kind: true requirement sentences; requirement sentences that are history, a rule, a
+  quotation or reported speech; and a sentence whose subject is a pronoun pointing back at one command (found when Burnish read its own
+  README). Each was written and failing before the change that makes it pass. These entries were written by the same
+  reviewer who changed the critic, so they await independent verification, as the ratchet rule asks.
 
 A score here does not mean the critic reads every README right. Every sentence in the collection was written by this
 project, and the two newest traps were written after the reader was changed.

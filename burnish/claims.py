@@ -110,9 +110,14 @@ _NOT_WISHING = re.compile(r"\b(?:if|when|once)\s+you\b[^,.;:]*,", re.I)
 _NOT_PAST = re.compile(r"\bas\s+of\s+(?:today|now|this\s+(?:release|version|writing|commit))\b", re.I)
 #: A word after a history word that brings the sentence back to now: "the suite was rewritten and now has 30 tests".
 _NOW = re.compile(r"\b(?:now|currently|presently|today)\b", re.I)
+#: A date or a release after the phrase puts it in the past: "all 30 tests pass as of v0.3", "passed on 2026-01-04".
+_DATED_AFTER = re.compile(r"\b(?:as\s+of|on|in|at|since|back\s+in|until)\s+(?:the\s+)?(?:v\d+(?:\.\d+)*\b|"
+                          r"(?:version|release)\s+\d|(?:19|20)\d\d\b|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*"
+                          r"\s+\d)", re.I)
 _SCOPED_TO_FILE = re.compile(r"\b\w+\.py\b|\btests?/|\btest_\w+|--ignore|\bpytest\s+\S", re.I)
 
-_ABSOLUTES = ("fully verified", "production ready", "battle tested", "100% coverage", "no known bugs")
+_ABSOLUTES = ("fully verified", "production ready", "battle tested", "100% coverage", "no known bugs", "100% secure",
+              "fully tested")
 _NEGATION = re.compile(r"\b(?:not|never|no longer|isn't|aren't|is not|are not|without|nor|n't)\W+(?:\w+\W+){0,3}$", re.I)
 _SCOPED_COVERAGE = re.compile(r"^\s+(?:of|on|for|in|across|within|at|by)\b", re.I)
 _AFTER_WISH = re.compile(r"^\W*(?:\w+\W+){0,3}?(?:goal|target|aim|aspiration|plan|someday|eventually|not\s+yet)\b", re.I)
@@ -239,6 +244,8 @@ def _not_a_claim(text: str, start: int, end: int) -> bool:
     if _DELTA.search(before) or _TRANSITION.search(before) or _QUOTATION.search(before) \
             or _ATTRIBUTION.search(before) or _quoted(text, start):
         return True
+    if _DATED_AFTER.search(_sentence_after(text, end)):
+        return True
     lead = _clause(_sentence(text, start))
     return bool(_looks_back(lead) or _wishes(lead) or _NO_CLAIM.search(lead) or _denies(lead))
 
@@ -335,15 +342,18 @@ def absolutes_at(readme_text: str) -> list[tuple[str, int]]:
     out: list[tuple[str, int]] = []
     for phrase in _ABSOLUTES:
         words = r"[\s-]+".join(map(re.escape, phrase.split()))
-        if phrase == "100% coverage":   # "100% test coverage", "100% line coverage" claim the same
-            words = r"100%[\s-]+(?:(?:test|code|line|branch|statement)[\s-]+)?coverage"
+        if phrase.startswith("100%"):   # "100 %" is the same figure; "100% test coverage" claims the same as "100% coverage"
+            words = words.replace("100%", r"100\s?%")
+        if phrase == "100% coverage":
+            words = r"100\s?%[\s-]+(?:(?:test|code|line|branch|statement)[\s-]+)?coverage"
         pattern = re.compile(r"\b" + words + r"\b", re.I)
         for match in pattern.finditer(text):
             lead = _clause(_sentence(text, match.start()))
             negation = _NEGATION.search(text[max(0, match.start() - 40):match.start()])
             if negation and _NOT_DENYING.search(negation.group(0)):
                 negation = None   # "not just fast but production ready" still claims it
-            if negation or _NO_CLAIM.search(lead) or _wishes(lead) or _quoted(text, match.start()) \
+            single = text[match.start() - 1:match.start()] in ("'", "\u2018") and text[match.end():match.end() + 1] in ("'", "\u2019")
+            if negation or single or _NO_CLAIM.search(lead) or _wishes(lead) or _quoted(text, match.start()) \
                     or _AFTER_WISH.match(_sentence_after(text, match.end())):
                 continue
             if phrase.startswith("100%") and _SCOPED_COVERAGE.match(text[match.end():]):

@@ -10,7 +10,7 @@ What makes code beautiful, written down, checked, and applied to itself.
 
 [Install](#install) | [Usage](#usage) | [What works](#what-works-and-what-shows-it) | [What does not](#what-does-not-work-or-is-not-proven) | [Known defects](#known-defects-open) | [Architecture](#architecture) | [Languages](#languages) | [FAQ](#faq) | [Design](docs/DESIGN.md) | [Criteria](docs/CRITERIA.md) | [README standard](docs/README_STANDARD.md)
 
-**Status:** version 0.5.12, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
+**Status:** version 0.5.13, alpha, maintained by one person. The Python checker, the README critic, the claims critic and the finisher are tested (see [What works](#what-works-and-what-shows-it)). The finisher tidies trailing whitespace and keeps one generated, clearly marked facts section in the README. The rewrites for names, comments and guards are designed and **not built**; see [What does not work](#what-does-not-work-or-is-not-proven).
 
 ## What this is
 
@@ -36,7 +36,7 @@ On 2026-10-08 the critic, the narrative reader and the README compiler were remo
 ## Install
 
 ```bash
-pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.12 (set 2026-11-27)
+pip install git+https://github.com/wking53214/Burnish.git   # installs main, which is 0.5.13 (set 2026-11-27)
 ```
 
 This also installs [CNS](https://github.com/wking53214/CNS), the shared data shapes Burnish reads and writes, pinned in
@@ -178,7 +178,7 @@ The README critic has its own command, `burnish readme-critic PATH [--tier minim
 
 ### What the critics catch that a reader would
 
-Three kinds of sentence are checked against the tree, not just against the README's own shape:
+Four kinds of sentence are checked against the tree, not just against the README's own shape:
 
 - **A pin.** "Pinned to tag X" is compared with the ref and the release comment on that dependency's line in
   `pyproject.toml`. The README should point at `pyproject.toml` rather than restate the pin.
@@ -196,6 +196,13 @@ Three kinds of sentence are checked against the tree, not just against the READM
   something else is contradicted.
 - **No `pyproject.toml` at all.** A pin or dependency claim then has nothing to be checked against, so it is reported
   once per kind as not checked and the critic ends INCOMPLETE. A tree with no such claim is not affected.
+- **What the program needs.** A sentence saying the program needs a package ("every command imports Warden and stops
+  without it") or runs without one ("the tool runs without requests installed") is compared with what the entry points
+  in `[project.scripts]` load at start, following the project's own imports. A route behind a `try` that expects the
+  import to fail counts as optional. The claim is called false only on a complete reading: every module on the way
+  parsed, no import by name, and no unguarded import inside a function; otherwise it is reported as not settled. A
+  sentence about one part, with nothing said about the rest, or whose subject is only "it", is listed under "Identified,
+  not checked" and changes no outcome. History, rules, wishes and quotations are not read as claims.
 - **A test count.** Burnish counts no tests, so a number the README gives for its suite is reported as unverifiable
   unless a count is supplied: `--collected N` takes the total from `pytest --collect-only -q`, and when the
   finisher runs under Warden the measured suite is used instead. A count that cannot be true is reported either way.
@@ -210,7 +217,10 @@ the evidence is direct (it states the fact), inferred (a reading another person 
 package a module belongs to) or none (nothing could be had); what was not inspected; and the reason for the verdict. A
 line number is the file's own, counted after any generated section and with any line ends. A file that does not parse and
 a `pyproject.toml` that cannot be read are rows of their own, with the line the parser stopped at. These six lines are
-printed in the report only; the generated README section is unchanged.
+printed in the report only; the generated README section is unchanged. A seventh line gives the verdict state:
+EVIDENCE_SUPPORTS, EVIDENCE_CONTRADICTS (the only one that makes the critic FAIL), EVIDENCE_INSUFFICIENT or NOT_CHECKED,
+with the trail through CLAIM_IDENTIFIED and EVIDENCE_FOUND that led to it. A contradiction always rests on evidence that
+was read; a claim with no evidence is never called false.
 
 ### Exit codes and logging
 
@@ -377,6 +387,11 @@ Each line names the test, the CI job (`.github/workflows/ci.yml`: `python` on 3.
 ## What broke and how it was fixed
 
 Newest first. Each entry says what was wrong, how it was found when that is known, the version that fixed it, and what now stops it coming back: a named test, or "no test yet". The sources are `CHANGELOG.md`, `git log` and the tests. Where a fix was incomplete or wrong, the entry says so. Open problems are under "Known defects (open)". Before 0.3.0 the version string stayed 0.2.0 while the work went on, so the entries under 0.2.0 carry the dates and commits of the fixes.
+
+**0.5.13** (2026-11-27)
+- *A false sentence about Warden passed the claims critic.* 0.5.11's README said every command imports Warden and stops without it, false since 0.5.0, while another line of the same README said the opposite. The critic read no claim that a program needs a package, so the sentence was never checked and nothing said it was skipped. Found by Campaign 2 of the 9.5 mission. Now such sentences are a claim kind of their own, judged by what the entry points load at start, and every row carries one of six verdict states. Guard: `tests/test_claims_verification.py::test_the_old_warden_sentence_is_now_contradicted_by_burnish_s_own_tree` and `tests/planted/catch-11-every-command-needs-warden.txt`.
+- *True dependency sentences were called contradicted, and dated counts were judged as current.* "No runtime dependencies besides CNS", "Apart from CNS, ..." and "not dependency-free" made the critic FAIL; "All 30 tests pass as of v0.3" was compared with today's suite. Found by probing the 0.5.12 critic in Campaign 2. Guard: `tests/planted/hard-14-dependency-exceptions-and-denials.txt` and `tests/planted/hard-15-dated-counts.txt`.
+- *Absolutes written other ways were missed.* "100 % coverage", "100% secure" and "fully tested". Found the same way. Guard: `tests/planted/hard-16-absolutes-written-other-ways.txt`.
 
 **0.5.11** (2026-11-27)
 - *A finishing proposal could overwrite a change made after it.* Every finisher edit was a `write`, and Warden applies a `write` whatever the file holds, so a README or module edited by someone else between the proposal and Warden's apply was overwritten without a word. Found by Campaign 3 of the 9.5 mission, by reading Warden 1.0.0's apply and then running it. Edits to files that exist are now a `replace` of the whole text as read, which Warden refuses when that text has changed; a `write` is left only where there was nothing to match. The same campaign proved that `finish` writes nothing (the read-only proof had left it out), gave every proposed edit a record with its hashes, and put one boundary before every proposal. Guard: `tests/test_finisher_write_safety.py::test_through_warden_a_concurrent_change_puts_the_whole_finish_back`, `tests/test_finisher_write_safety.py::test_without_the_replace_the_same_concurrent_change_would_have_been_lost` and `tests/test_finisher_write_safety.py::test_the_tripwire_blocks_a_finisher_that_writes`.
@@ -567,6 +582,7 @@ files.py      which files are the target's own; finds the README
 beautify.py   tidies Python source, behavior-preserving, keeps line endings
 marked.py     the markers around the only README text Burnish may write
 claims.py     the README's own test counts, checked against the measured suite
+verify/       claims verification in stages: sentences, identify, evidence, verdict, judge
 measured.py   reads Warden's facts; a suite that did not run is not a measurement
 textsafe.py   makes text from other tools safe to print into a README
 readme.py     compiles and finalizes the README

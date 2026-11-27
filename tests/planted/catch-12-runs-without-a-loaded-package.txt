@@ -1,0 +1,38 @@
+about: The README says the tool runs without requests, while the command line imports requests when it loads.
+group: catch
+suite: passed=12
+defect: README.md:5 requires
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+The tool runs without requests installed.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = ["requests"]
+
+[project.scripts]
+demo = "demo.cli:run"
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
+=== file: demo/cli.py
+"""The command line."""
+
+from . import net
+
+
+def run():
+    return net.fetch()
+=== file: demo/net.py
+"""The network."""
+
+import requests
+
+
+def fetch():
+    return 0 if requests else 1

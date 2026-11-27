@@ -1,0 +1,38 @@
+about: A requirement sentence whose subject is a pronoun pointing back at one command: never read as a claim about every command.
+group: trap
+suite: passed=12
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+Now only `demo finish` loads the finisher; without Warden it says what is missing and exits 2.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = ["cns"]
+
+[project.optional-dependencies]
+finisher = ["warden"]
+
+[project.scripts]
+demo = "demo.cli:run"
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
+=== file: demo/cli.py
+"""The command line."""
+
+import cns
+
+
+def run():
+    return 0 if cns else 1
+=== file: demo/finisher.py
+"""The one part that needs Warden."""
+
+import warden
+
+READY = warden

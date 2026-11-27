@@ -1,0 +1,41 @@
+about: Requirement claims the startup reading cannot settle: an unguarded import inside a function, and an import by name. Each stays not settled, never contradicted.
+group: hard
+suite: passed=12
+defect: README.md:5 requires
+defect: README.md:7 requires
+
+=== file: README.md
+# demo
+
+A small planted repository.
+
+The tool runs without lxml installed.
+
+Every command runs without yaml installed.
+=== file: pyproject.toml
+[project]
+name = "demo"
+version = "0.1.0"
+description = "A planted repository"
+dependencies = ["lxml", "pyyaml"]
+
+[project.scripts]
+demo = "demo.cli:run"
+=== file: demo/__init__.py
+"""Demo: a small package used only to plant defects for Burnish to find."""
+=== file: demo/cli.py
+"""The command line."""
+
+import importlib
+
+
+def run():
+    import lxml
+    loader = importlib.import_module("demo.loader")
+    return 0 if lxml and loader else 1
+=== file: demo/loader.py
+"""Loads things."""
+
+import yaml
+
+LOADED = yaml
